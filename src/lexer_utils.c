@@ -4,15 +4,17 @@ void	add_new_node(t_lexer_list **lexer_list, char *array)
 {
 	t_lexer_list	*node;
 	t_lexer_list	*temp;
-
 	node = malloc(sizeof(t_lexer_list));
-	if (!node)
+	//if (node == NULL)
 		//ft_error();
-	node->token = array;
+	//printf("%s\n", array);
+	node->token = ft_strdup(array);
 	node->type = set_type(array);
 	node->next = NULL;
 	if (*lexer_list == NULL)
+	{
 		*lexer_list = node;
+	}
 	else
 	{
 		temp = *lexer_list;
@@ -28,25 +30,31 @@ int	set_type(char *array)
 	int	flag;
 
 	i = 0;
-	if (array[i] == S_QUOTE)
+	if (array[i] == '\'')
 		flag = S_QUOTE;
-	else if (array[i] == D_QUOTE)
+	else if (array[i] == '\"')
 		flag = D_QUOTE;
-	else if (array[i] == PIPE)
-		flag = PIPE;
-	else if (array[i] == REDIR_IN)
+	else if (array[i] == '|')
+		flag = 1;
+	else if (array[i] == '<')
 	{
 		flag = REDIR_IN;
-		if (array[i + 1] == REDIR_IN)
+		if (array[i + 1] == '<')
 			flag = HEREDOC;
 	}
-	else if (array[i] == REDIR_OUT)
+	else if (array[i] == '>')
 	{
 		flag = REDIR_OUT;
-		if (array[i + 1] == REDIR_OUT)
+		if (array[i + 1] == '>')
 			flag = APPEND;
 	}
 	else
 		flag = WORD;
 	return (flag);
+}
+
+void ft_error()
+{
+	printf("Error ! Kapanmamis tirnak\n");
+	exit(1);
 }

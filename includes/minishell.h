@@ -1,9 +1,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-#define S_QUOTE 39
-#define D_QUOTE 34
-
 #include "libft/libft.h"
 # include <fcntl.h>
 # include <readline/history.h>
@@ -18,7 +15,7 @@
 typedef struct s_lexer_list
 {
 	int type;
-	char *array;
+	char *token;
 	t_lexer_list *next;
 }t_lexer_list;
 
@@ -29,6 +26,8 @@ typedef enum e_tokens
 	REDIR_OUT, //>
 	APPEND,  //>>
 	HEREDOC, //<<
+	S_QUOTE, 
+	D_QUOTE,
 	WORD
 }e_tokens;
 

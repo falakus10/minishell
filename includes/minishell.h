@@ -1,7 +1,6 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-
 # include <stdio.h>
 #include "libft.h"
 # include <fcntl.h>
@@ -18,7 +17,6 @@ typedef struct s_lexer_list
 {
 	int type;
 	char *token;
-
 	struct s_lexer_list *next;
 }t_lexer_list;
 
@@ -41,5 +39,6 @@ t_lexer_list	**lexer_function(char *temporary_input);
 int	is_quote(char *input, int i);
 int	take_word(char *input, int i);
 int	is_meta(char *input, int i);
+void ft_error();
 
 #endif

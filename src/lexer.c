@@ -5,18 +5,18 @@ int	is_meta(char *input, int i)
 	int	meta_type;
 
 	meta_type = 0;
-	if (input[i] == PIPE)
+	if (input[i] == '|')
 		meta_type = PIPE;
-	else if (input[i] == REDIR_IN)
+	else if (input[i] == '<')
 	{
 		meta_type = REDIR_IN;
-		if (input[i + 1] == REDIR_IN)
+		if (input[i + 1] == '<')
 			meta_type = HEREDOC;
 	}
-	else if (input[i] == REDIR_OUT)
+	else if (input[i] == '>')
 	{
 		meta_type = REDIR_OUT;
-		if (input[i + 1] == REDIR_OUT)
+		if (input[i + 1] == '>')
 			meta_type = APPEND;
 	}
 	return (meta_type);
@@ -31,6 +31,8 @@ int	take_word(char *input, int i)
 	{
 		if (is_meta(input, i + 1) != 0 || input[i+1] == '\'' || input[i+1] == '\"')
 			break;
+		else if (input[i+1] == '|' || input[i+1] == '<' || input[i+1] == '>')
+			break;
 		i++;
 		len++;
 	}
@@ -41,26 +43,32 @@ int	is_quote(char *input, int i)
 {
 	int	len;
 
-	len = 1; // ilk tırnağı karakter olarak saysın diye 1 den başlattık
-	if (input[i++] == '\'')
+	len = 0;
+	if (input[i] == '\'')
 	{
-		while (input[i++] != '\'')
+		len = 1; // ilk tırnağı karakter olarak saysın diye 1 den başlattık
+		i++;
+		while (input[i] != '\'')
 		{
 			if (input[i] == '\0')
-				return (0);
+				ft_error();
 			len++; // bu len aslında sadece tırnak içini sayıyor
+			i++;
 		}
 	}
-	else if (input[i++] == '\"')
+	else if (input[i] == '\"')
 	{
-		while (input[i++] != '\"')
+		len = 1;
+		i++;
+		while (input[i] != '\"')
 		{
 			if (input[i] == '\0')
-				return (0);
+				ft_error();
 			len++;
+			i++;
 		}
 	}
-	return (len + 1); // son tırnağı karakter olarak saysın diye 1 den başlattık
+	return (len); // son tırnağı karakter olarak saysın diye 1 den başlattık
 }
 
 t_lexer_list	**lexer_function(char *temporary_input)
@@ -76,6 +84,8 @@ t_lexer_list	**lexer_function(char *temporary_input)
 	input = ft_strtrim(temporary_input, " "); // input loop içinde yapılabilir
 	while (input[i] != '\0')
 	{
+		while (input[i] == ' ' || input[i] == '\t')// boşluklar döngüyle atlanabilir
+			i++;
 		if (is_meta(input, i))
 		{
 			if (is_meta(input, i) == HEREDOC || is_meta(input, i) == APPEND)
@@ -89,14 +99,10 @@ t_lexer_list	**lexer_function(char *temporary_input)
 				i++;
 			}
 		}
-		else if (input[i] == ' ' || input[i] == '\t')// boşluklar döngüyle atlanabilir
-			i++;
 		else if (is_quote(input, i))
 		{	
-			if (is_quote(input, i) == 0)
-				//ft_error(); //sonra yazılacak 
-			array = ft_substr(input, i, is_quote(input, i));
-			i += is_quote(input, i);
+			array = ft_substr(input, i, (is_quote(input, i))+1);
+			i += is_quote(input, i)+1;
 		}
 		else if (take_word(input, i))
 		{
@@ -105,7 +111,6 @@ t_lexer_list	**lexer_function(char *temporary_input)
 		}
 		add_new_node(lexer_list,array);
 	}
-
 	return(lexer_list);
 }
 
@@ -114,11 +119,11 @@ t_lexer_list	**input_loop(void)
 	char *input;
 	t_lexer_list **list;
 
-
 	while (1)
 	{
 		input = readline("minishell>");
 		list = lexer_function(input);
+		free(input);
 		break;
 	}
 	return (list);

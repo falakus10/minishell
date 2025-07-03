@@ -1,6 +1,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+
 # include <stdio.h>
 #include "libft.h"
 # include <fcntl.h>
@@ -17,6 +18,7 @@ typedef struct s_lexer_list
 {
 	int type;
 	char *token;
+
 	struct s_lexer_list *next;
 }t_lexer_list;
 

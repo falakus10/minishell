@@ -105,6 +105,7 @@ t_lexer_list	**lexer_function(char *temporary_input)
 		}
 		add_new_node(lexer_list,array);
 	}
+
 	return(lexer_list);
 }
 
@@ -112,6 +113,7 @@ t_lexer_list	**input_loop(void)
 {
 	char *input;
 	t_lexer_list **list;
+
 
 	while (1)
 	{

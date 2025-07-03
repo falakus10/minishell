@@ -5,14 +5,21 @@ void	add_new_node(t_lexer_list **lexer_list, char *array)
 	t_lexer_list	*node;
 	t_lexer_list	*temp;
 
-	node = malloc(sizeof(t_lexer_list)); //null kontrolü
-	temp = *lexer_list;
-	while (temp->next != NULL)
-		temp = temp->next;
-	temp->next =node;
-	node->next = NULL;
+	node = malloc(sizeof(t_lexer_list));
+	if (!node)
+		//ft_error();
 	node->token = array;
 	node->type = set_type(array);
+	node->next = NULL;
+	if (*lexer_list == NULL)
+		*lexer_list = node;
+	else
+	{
+		temp = *lexer_list;
+		while (temp->next != NULL)
+			temp = temp->next;
+		temp->next = node;
+	}
 }
 
 int	set_type(char *array)
@@ -24,9 +31,9 @@ int	set_type(char *array)
 	if (array[i] == S_QUOTE)
 		flag = S_QUOTE;
 	else if (array[i] == D_QUOTE)
-		flag == D_QUOTE;
+		flag = D_QUOTE;
 	else if (array[i] == PIPE)
-		flag == PIPE;
+		flag = PIPE;
 	else if (array[i] == REDIR_IN)
 	{
 		flag = REDIR_IN;

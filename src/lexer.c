@@ -21,24 +21,38 @@ int	is_meta(char *input, int i)
 	}
 	return (meta_type);
 }
+
+int	take_word(char *input, int i)
+{
+	int len;
+
+	len = 1;
+	while (input[i + 1] != ' ' && input[i + 1] != '\t' && input[i + 1] != '\0')
+	{
+		if (is_meta(input, i + 1) != 0 || input[i+1] == '\'' || input[i+1] == '\"')
+			break;
+		i++;
+		len++;
+	}
+	return (len);
+}
+
 int	is_quote(char *input, int i)
 {
 	int	len;
 
 	len = 1; // ilk tırnağı karakter olarak saysın diye 1 den başlattık
-	if (input[i] == '\'')
+	if (input[i++] == '\'')
 	{
-		i++;
 		while (input[i++] != '\'')
 		{
 			if (input[i] == '\0')
 				return (0);
-			len++;
+			len++; // bu len aslında sadece tırnak içini sayıyor
 		}
 	}
-	else if (input[i] == '\"')
+	else if (input[i++] == '\"')
 	{
-		i++;
 		while (input[i++] != '\"')
 		{
 			if (input[i] == '\0')
@@ -49,14 +63,17 @@ int	is_quote(char *input, int i)
 	return (len + 1); // son tırnağı karakter olarak saysın diye 1 den başlattık
 }
 
-void	lexer_function(char *temporary_input)
+t_lexer_list	**lexer_function(char *temporary_input)
 {
 	int		i;
 	char	*input;
 	char	*array;
+	t_lexer_list **lexer_list;
 
+	lexer_list = malloc(sizeof(t_lexer_list *));
+	*lexer_list = NULL;
 	i = 0;
-	input = ft_strtrim(temporary_input, ' ');
+	input = ft_strtrim(temporary_input, " "); // input loop içinde yapılabilir
 	while (input[i] != '\0')
 	{
 		if (is_meta(input, i))
@@ -72,23 +89,35 @@ void	lexer_function(char *temporary_input)
 				i++;
 			}
 		}
-		else if (input[i] == ' ' || input[i] == '\t') //boşluklar döngüyle atlanabilir
+		else if (input[i] == ' ' || input[i] == '\t')// boşluklar döngüyle atlanabilir
 			i++;
-		else if (is_quote(input,i))
-		{
-			array = ft_substr(input,i,is_quote(input,i));
-			i+= is_quote(input,i);
+		else if (is_quote(input, i))
+		{	
+			if (is_quote(input, i) == 0)
+				//ft_error(); //sonra yazılacak 
+			array = ft_substr(input, i, is_quote(input, i));
+			i += is_quote(input, i);
 		}
+		else if (take_word(input, i))
+		{
+			array = ft_substr(input, i, take_word(input,i));
+			i += take_word(input, i);
+		}
+		add_new_node(lexer_list,array);
 	}
+	return(lexer_list);
 }
 
-void	input_loop(void)
+t_lexer_list	**input_loop(void)
 {
 	char *input;
+	t_lexer_list **list;
 
 	while (1)
 	{
 		input = readline("minishell>");
-		lexer_function(input);
+		list = lexer_function(input);
+		break;
 	}
+	return (list);
 }

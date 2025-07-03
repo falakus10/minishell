@@ -1,0 +1,38 @@
+NAME = minishell
+SRCS = src/lexer_utils.c src/lexer.c src/main.c
+
+LIBFT = libft/libft.a
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft
+
+OBJS = $(SRCS:.c=.o)
+RM = rm -f
+
+all: $(READLINE) $(NAME)
+
+$(READLINE):
+	@echo "$(BOLD)$(YELLOW)[DOWNLOADING READLINE...]$(RESET)"
+	@curl -O https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
+	@tar -xvf readline-8.2.tar.gz
+	@$(RM) readline-8.2.tar.gz
+	@cd readline-8.2 && ./configure --prefix=${PWD}/lib/readline
+	@cd readline-8.2 && make install
+	@$(RM) readline-8.2$(NAME)
+
+$(NAME): $(OBJS) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)
+
+$(LIBFT):
+	$(MAKE) -C libft
+
+clean:
+	$(RM) $(OBJS)
+	$(MAKE) -C libft clean
+
+fclean: clean
+	$(RM) $(NAME)
+	$(MAKE) -C libft fclean
+
+re: fclean all
+
+.PHONY: all clean fclean re

@@ -1,6 +1,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include <stdio.h>
 # include "libft.h"
 # include <dirent.h>
 # include <fcntl.h>
@@ -8,10 +9,10 @@
 # include <readline/readline.h>
 # include <readline/rltypedefs.h>
 # include <signal.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <sys/wait.h>
 # include <unistd.h>
+# include <termios.h>
 
 typedef struct s_lexer_list
 {
@@ -44,5 +45,7 @@ char					*meta_assign(const char *input, int *inx);
 char					*quote_assign(const char *input, int *inx);
 char					*word_assign(const char *input, int *inx);
 void					ft_error(void);
+void					signal_handler(void);
+void					sigint_handler(int sig, siginfo_t *info, void *context);
 
 #endif

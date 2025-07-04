@@ -7,6 +7,7 @@ int	main(int argc, char *argv[], char **env)
 	(void)env;
 	t_lexer_list	*temp;
 	t_lexer_list	**list;
+	signal_handler();
 	list = input_loop();
 	temp = *list;
 	

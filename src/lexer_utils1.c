@@ -52,9 +52,3 @@ int	set_type(char *array)
 		flag = WORD;
 	return (flag);
 }
-
-void ft_error()
-{
-	printf("Error ! Kapanmamis tirnak\n");
-	exit(1);
-}

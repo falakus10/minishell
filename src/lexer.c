@@ -1,130 +1,91 @@
 #include "minishell.h"
 
-int	is_meta(char *input, int i)
+int	take_word(const char *input, int i)
 {
-	int	meta_type;
-
-	meta_type = 0;
-	if (input[i] == '|')
-		meta_type = PIPE;
-	else if (input[i] == '<')
-	{
-		meta_type = REDIR_IN;
-		if (input[i + 1] == '<')
-			meta_type = HEREDOC;
-	}
-	else if (input[i] == '>')
-	{
-		meta_type = REDIR_OUT;
-		if (input[i + 1] == '>')
-			meta_type = APPEND;
-	}
-	return (meta_type);
-}
-
-int	take_word(char *input, int i)
-{
-	int len;
+	int	len;
 
 	len = 1;
 	while (input[i + 1] != ' ' && input[i + 1] != '\t' && input[i + 1] != '\0')
 	{
-		if (is_meta(input, i + 1) != 0 || input[i+1] == '\'' || input[i+1] == '\"')
-			break;
-		else if (input[i+1] == '|' || input[i+1] == '<' || input[i+1] == '>')
-			break;
+		if (is_meta(input, i + 1) != 0 || input[i + 1] == '\'' || input[i
+			+ 1] == '\"')
+			break ;
+		else if (input[i + 1] == '|' || input[i + 1] == '<' || input[i
+			+ 1] == '>')
+			break ;
 		i++;
 		len++;
 	}
 	return (len);
 }
 
-int	is_quote(char *input, int i)
+int  quote_len(const char *input, int start, char delim)
 {
-	int	len;
+    int len = 1;                  /* açılış tırnağını da saysın   */
+    int i   = start + 1;
 
-	len = 0;
-	if (input[i] == '\'')
-	{
-		len = 1; // ilk tırnağı karakter olarak saysın diye 1 den başlattık
-		i++;
-		while (input[i] != '\'')
-		{
-			if (input[i] == '\0')
-				ft_error();
-			len++; // bu len aslında sadece tırnak içini sayıyor
-			i++;
-		}
-	}
-	else if (input[i] == '\"')
-	{
-		len = 1;
-		i++;
-		while (input[i] != '\"')
-		{
-			if (input[i] == '\0')
-				ft_error();
-			len++;
-			i++;
-		}
-	}
-	return (len); // son tırnağı karakter olarak saysın diye 1 den başlattık
+    while (input[i] && input[i] != delim)
+    {
+        ++len;                    /* tırnak içindeki karakterler  */
+        ++i;
+    }
+
+    if (input[i] == '\0')         /* kapanış yok → hata           */
+        ft_error();
+
+    return len;                   /* kapanış tırnağına kadarki uzunluk */
 }
 
-t_lexer_list	**lexer_function(char *temporary_input)
+int is_quote(const char *input, int i)
 {
-	int		i;
-	char	*input;
-	char	*array;
-	t_lexer_list **lexer_list;
+    if (input[i] == '\'')
+        return quote_len(input, i, '\'');   /* tek tırnak */
+    else if (input[i] == '\"')
+        return quote_len(input, i, '\"');   /* çift tırnak */
+    else
+        return 0;                           /* tırnak değil */
+}
+
+
+t_lexer_list	**lexer_function(char *input)
+{
+	int				i;
+	char			*array;
+	t_lexer_list	**lexer_list;
 
 	lexer_list = malloc(sizeof(t_lexer_list *));
 	*lexer_list = NULL;
+	array = NULL;
 	i = 0;
-	input = ft_strtrim(temporary_input, " "); // input loop içinde yapılabilir
 	while (input[i] != '\0')
 	{
-		while (input[i] == ' ' || input[i] == '\t')// boşluklar döngüyle atlanabilir
+		while (input[i] == ' ' || input[i] == '\t')
 			i++;
 		if (is_meta(input, i))
-		{
-			if (is_meta(input, i) == HEREDOC || is_meta(input, i) == APPEND)
-			{
-				array = ft_substr(input, i, 2);
-				i += 2;
-			}
-			else
-			{
-				array = ft_substr(input, i, 1);
-				i++;
-			}
-		}
+			array = meta_assign(input, &i);
 		else if (is_quote(input, i))
-		{	
-			array = ft_substr(input, i, (is_quote(input, i))+1);
-			i += is_quote(input, i)+1;
-		}
+			array = quote_assign(input, &i);
 		else if (take_word(input, i))
-		{
-			array = ft_substr(input, i, take_word(input,i));
-			i += take_word(input, i);
-		}
-		add_new_node(lexer_list,array);
+			array = word_assign(input, &i);
+		add_new_node(lexer_list, array);
 	}
-	return(lexer_list);
+	return (lexer_list);
 }
 
 t_lexer_list	**input_loop(void)
 {
 	char *input;
+	char *temp_input;
 	t_lexer_list **list;
 
 	while (1)
 	{
-		input = readline("minishell>");
+		temp_input = readline("minishell>");
+		input = ft_strtrim(temp_input, " ");
 		list = lexer_function(input);
-		free(input);
-		break;
+		free(temp_input); // bununla işimiz bitti
+		// input'u da işimiz bitince free'lemeliyiz
+		break ;
 	}
 	return (list);
 }

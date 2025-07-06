@@ -81,11 +81,17 @@ t_lexer_list	**input_loop(void)
 	while (1)
 	{
 		temp_input = readline("minishell>");
+		if (temp_input == NULL)
+		{
+			free(temp_input);
+			write(1, "exit\n", 5);
+			exit(0);
+		}
 		input = ft_strtrim(temp_input, " ");
 		list = lexer_function(input);
 		free(temp_input); // bununla işimiz bitti
 		// input'u da işimiz bitince free'lemeliyiz
-		break ;
+		break;
 	}
 	return (list);
 }

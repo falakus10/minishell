@@ -1,5 +1,5 @@
 NAME = minishell
-SRCS = src/lexer_utils1.c src/lexer.c src/main.c src/lexer_utils2.c src/errors.c
+SRCS = src/lexer_utils1.c src/lexer.c src/main.c src/lexer_utils2.c src/errors.c src/signal.c
 
 LIBFT = libft/libft.a
 CC = gcc

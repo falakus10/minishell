@@ -46,6 +46,27 @@ int is_quote(const char *input, int i)
         return 0;                           /* tırnak değil */
 }
 
+int	is_meta(const char *input, int i)
+{
+	int	meta_type;
+
+	meta_type = 0;
+	if (input[i] == '|')
+		meta_type = PIPE;
+	else if (input[i] == '<')
+	{
+		meta_type = REDIR_IN;
+		if (input[i + 1] == '<')
+			meta_type = HEREDOC;
+	}
+	else if (input[i] == '>')
+	{
+		meta_type = REDIR_OUT;
+		if (input[i + 1] == '>')
+			meta_type = APPEND;
+	}
+	return (meta_type);
+}
 
 t_lexer_list	**lexer_function(char *input)
 {
@@ -70,28 +91,4 @@ t_lexer_list	**lexer_function(char *input)
 		add_new_node(lexer_list, array);
 	}
 	return (lexer_list);
-}
-
-t_lexer_list	**input_loop(void)
-{
-	char *input;
-	char *temp_input;
-	t_lexer_list **list;
-
-	while (1)
-	{
-		temp_input = readline("minishell>");
-		if (temp_input == NULL)
-		{
-			free(temp_input);
-			write(1, "exit\n", 5);
-			exit(0);
-		}
-		input = ft_strtrim(temp_input, " ");
-		list = lexer_function(input);
-		free(temp_input); // bununla işimiz bitti
-		// input'u da işimiz bitince free'lemeliyiz
-		break;
-	}
-	return (list);
 }

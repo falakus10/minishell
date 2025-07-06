@@ -21,6 +21,13 @@ typedef struct s_lexer_list
 	struct s_lexer_list	*next;
 }						t_lexer_list;
 
+typedef struct s_env_list
+{
+	char				*key;
+	char				*value;
+	struct s_env_list	*next;
+}						t_env_list;
+
 typedef enum e_tokens
 {
 	PIPE = 1,  // |
@@ -47,5 +54,9 @@ char					*word_assign(const char *input, int *inx);
 void					ft_error(void);
 void					signal_handler(void);
 void					sigint_handler(int sig, siginfo_t *info, void *context);
+void expander(t_lexer_list *list, char **env);
+int is_valid_ch(t_lexer_list *list, int i);
+char *env_value(char **env, const char *key);
+char *ft_strjoin_free(char *env_val, char *token, const char *key);
 
 #endif

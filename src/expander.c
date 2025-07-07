@@ -83,6 +83,26 @@ char *ft_strjoin_free(char *env_val, char *token, const char *key)
     return (new_token);
 }
 
+int special_ch_check(char c)
+{
+	if (c >= '1' && c <= '9')
+		return (1);
+	else if (c == '#')
+		return (1);
+	else if (c == '*')
+		return (1);
+	else if (c == '@')
+		return (1);
+	else if (c == '$')
+		return (1);
+	else if (c == '-')
+		return (1);
+	else if (c == '!')
+		return (1);
+	else
+		return (0);
+}
+
 void expander(t_lexer_list *list, char **env)
 {
     t_lexer_list	*temp;
@@ -100,9 +120,17 @@ void expander(t_lexer_list *list, char **env)
 		i = 0;
         while(temp->token[i] != '\0') //burda eski tokenla başlıyorum aşağıda aynı token ı freeliyorum sorun olabilir !! //tırnak görünce tırnağı atlasın. Çift tırnak içindeki expand durumunu ayrı bir yerde işleyeceğim.
 		{
-			if (temp->token[i] == '$') //$1SER kısmını da ayrı kontrol edicem
+			if (temp->token[i] == '$') //Literalde $1SER kısmını da kontrol ediyoruz
 			{
-				i++;
+				i++; //$****USER
+				if (special_ch_check(temp->token[i]) == 1)
+				{
+					while (temp->token[i] == '$')
+						i++;
+					while(temp->token[i] != '\0' && (is_valid_ch(temp,i))) 
+						i++;
+					continue;
+				}
 				start = i; // $ işaretinden sonraki karakter başlangıç indexi olacak
 				while(temp->token[i] != '\0' && (is_valid_ch(temp,i)))  //inputun sonuna gelmediğimiz sürece ve geçerli bir karakter olduğu sürece devam
 					i++;  //Variable'ın key'inin uzunluğunu alıyoruz
@@ -113,7 +141,7 @@ void expander(t_lexer_list *list, char **env)
 				i = 0;
 				continue; // $ işaretinden sonra gelen karakteri genişlettik, token'a yazdık devam ediyoruz
 			}
-			if (temp->token[i] == '\'' || temp->token[i] == '\"') //eğer tırnak varsa tırnağı atla, tırnak içini ayrıca kontrol edicez
+			if (temp->token[i] == '\'') //eğer tırnak varsa tırnağı atla, tırnak içini ayrıca kontrol edicez //else if mi 
 			{
 				ch = temp->token[i];
 				i++;
@@ -122,6 +150,26 @@ void expander(t_lexer_list *list, char **env)
 				if (temp->token[i] != '\0') //eğer tırnak kapatıldıysa tırnağı atla // '\"' \" durumlarını kontrol etmedim
 					i++;
 				continue;
+			}
+			if (temp->token[i] == '\"')    // Çift tırnak içi genişletiliyor. //Çift tırnak içinde $1SER kısmını da kontrol edicez
+			{
+				i++;
+				while (temp->token[i] != '\0' && temp->token[i] != '\"')
+				{
+					if(temp->token[i] == '$')
+					{
+						i++;
+						start = i; 
+						while(temp->token[i] != '\0' && (is_valid_ch(temp,i)))
+							i++;
+						env_key = ft_substr(temp->token, start, i - start);
+						env_val = env_value(env, env_key);
+						temp->token = ft_strjoin_free(env_val, temp->token, env_key);
+						free(env_key);
+						i = 1;
+					}
+					i++;
+				}
 			}
 			if(temp->token[i] != '$' && temp->token[i] != '\'' && temp->token[i] != '\"') //eğer $ işareti, tırnak veya çift tırnak değilse
 				i++;

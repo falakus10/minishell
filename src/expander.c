@@ -122,20 +122,33 @@ void expander(t_lexer_list *list, char **env)
 		{
 			if (temp->token[i] == '$') //Literalde $1SER kısmını da kontrol ediyoruz
 			{
-				i++; //$****USER
+				i++; //$$$USER$USER -> tahaERtaha
 				if (special_ch_check(temp->token[i]) == 1)
 				{
-					while (temp->token[i] == '$')
+					while (special_ch_check(temp->token[i]))
 						i++;
 					while(temp->token[i] != '\0' && (is_valid_ch(temp,i))) 
 						i++;
 					continue;
-				}
+				}			//U
 				start = i; // $ işaretinden sonraki karakter başlangıç indexi olacak
 				while(temp->token[i] != '\0' && (is_valid_ch(temp,i)))  //inputun sonuna gelmediğimiz sürece ve geçerli bir karakter olduğu sürece devam
 					i++;  //Variable'ın key'inin uzunluğunu alıyoruz
 				env_key = ft_substr(temp->token, start, i - start); // $ işaretinden sonraki karakterden başlayarak geçerli karaktere kadar olan kısmı alır
 				env_val = env_value(env, env_key); //env'de bu key var mı diye bakar ve varsa değerini alır
+				if (temp->token[0] == '$' && temp->token[1] == '\0')
+				{
+					temp->token = malloc(sizeof(char) * 2); // Eğer sadece $ varsa, token'ı sadece $ olarak ayarla
+					temp->token[0] = '$';
+					temp->token[1] = '\0';
+					free(env_key);
+					free(env_val);
+					if(temp->next != NULL)
+						temp = temp->next; // Eğer sadece $ varsa, sonraki token'a geç
+					else
+						return; // Eğer sadece $ varsa, son token ise fonksiyondan çık //listenin son elemanı demek , return demek doğru mu ?? 
+					continue; // Eğer sadece $ varsa, token'ı sadece $ olarak ayarla ve sonraki token'a geç
+				}
 				temp->token = ft_strjoin_free(env_val, temp->token, env_key);//env_value'den dönen değeri token'in bulunduğu yere koyar
 				free(env_key);
 				i = 0;

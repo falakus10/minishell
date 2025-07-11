@@ -31,10 +31,15 @@ int	main(int argc, char *argv[], char **env)
 	(void)env;
 	t_lexer_list	*temp;
 	t_lexer_list	**list;
+	t_expander		*exp;
+
+	exp = malloc(sizeof(t_expander));
+	if (!exp)
+		return (0);
 	signal_handler();
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
 	temp = *list;
-	expander(temp,env); 
+	expander(temp, env, exp); 
 	while (temp != NULL)
 	{
 		printf("token = %s type = %d\n ", temp->token, temp->type);

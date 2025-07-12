@@ -3,7 +3,7 @@ SRCS = src/lexer_utils1.c src/lexer.c src/main.c src/errors.c src/signal.c src/e
 
 LIBFT = libft/libft.a
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft
+CFLAGS = -Wall -Wextra -Werror -Iincludes -Ilibft -g
 
 OBJS = $(SRCS:.c=.o)
 RM = rm -f

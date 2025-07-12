@@ -26,6 +26,7 @@ typedef struct s_expander
 	int		index;
 	int		key_len;
 	int		val_len;
+	int		dollar_index;
 	size_t	i;
 	size_t	start;
 	size_t	token_len;

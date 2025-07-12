@@ -1,10 +1,24 @@
 #include "minishell.h"
 
-int find_index(const char *haystack, const char *needle)
+int find_index(const char *haystack, const char *needle, t_expander *expander)
 {
 	char *ptr;
+	//int i;
 
-	ptr = ft_strnstr(haystack, needle, ft_strlen(haystack));
+	//i = 0;
+	/* while (haystack[i]!= '\0')
+	{
+		if(haystack[i] == '$')
+		{
+			if(haystack[i+1] == '$')
+			{
+
+			}
+		}
+
+		i++
+	} */
+	ptr = ft_strnstr(haystack + expander->dollar_index , needle, ft_strlen(haystack));
 	if (ptr == NULL)
 		return (-1);
 	return (ptr - haystack);  // pointer farkı → index
@@ -24,15 +38,15 @@ char	*ft_strjoin_free(char *token, t_expander *expander)
 	new_token = malloc(expander->new_len + 1);
 	if (!new_token)
 		return (NULL);
-	expander->index = find_index(token, expander->env_key);
+	expander->index = find_index(token, expander->env_key, expander);
 	if (expander->index == -1)
 		return (NULL);
 	if (token[expander->index - 1] == '$')
 	{
 		ft_memcpy(new_token, token, (expander->index - 1));
 		ft_memcpy(new_token + (expander->index - 1), expander->env_val, expander->val_len);
-		j = expander->index += expander->key_len;
-		expander->index += expander->val_len;
+		j = expander->index + expander->key_len;
+		expander->index += expander->val_len - 1;
 		ft_memcpy(new_token + expander->index, token + j, ft_strlen(token) - j);
 	}
 	expander->i = 0;
@@ -137,7 +151,7 @@ int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, char **env)
 		expander->i = 0;
 		return (1);
 	}
-	expander->i = 0;
+	expander->i = 0; 
 	return (0);
 }
 
@@ -145,6 +159,7 @@ int quote(char *token, t_expander *expander)
 {
 	if (token[expander->i] == '\'')
 	{
+		expander->i++;
 		while (token[expander->i] != '\'' && token[expander->i] != '\0')
 			expander->i++;
 		return (1);
@@ -164,6 +179,7 @@ void expander(t_lexer_list *temp, char **env, t_expander *expander)
 				continue;
 			else if (temp->token[expander->i] == '$')
 			{
+				expander->dollar_index = expander->i;
 				expander->i++;
 				if (special_character(temp->token, expander))
 					continue;

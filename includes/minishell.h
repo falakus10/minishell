@@ -21,12 +21,35 @@ typedef struct s_lexer_list
 	struct s_lexer_list	*next;
 }						t_lexer_list;
 
-typedef struct s_env_list
+typedef struct s_expander
 {
-	char				*key;
-	char				*value;
-	struct s_env_list	*next;
-}						t_env_list;
+	int		index;
+	int		key_len;
+	int		val_len;
+	int		dollar_index;
+	size_t	i;
+	size_t	start;
+	size_t	token_len;
+	size_t	new_len;
+	char	*env_key;
+	char	*env_val;
+	char	ch;
+}			t_expander;
+
+typedef struct s_command_block
+{
+	char *command;
+	char **args;
+	int *fd;
+	char **files;
+	int  *operators; // 0: no operator, 1: REDIR_IN, 2: REDIR_OUT, 3: APPEND, 4: HEREDOC
+	char **heredoc_delimiters; // HEREDOC için kullanılacak
+	int heredoc_count; // kaç tane heredoc var
+	int operator_count;
+	int argument_count;
+	struct s_command_block *next; // sonraki komut bloğu için
+}t_command_block;
+
 
 typedef enum e_tokens
 {
@@ -54,9 +77,10 @@ char					*word_assign(const char *input, int *inx);
 void					ft_error(void);
 void					signal_handler(void);
 void					sigint_handler(int sig, siginfo_t *info, void *context);
-void expander(t_lexer_list *list, char **env);
-int is_valid_ch(t_lexer_list *list, int i);
+void expander(t_lexer_list *temp, char **env, t_expander *expander);
+int is_valid_ch(char *token, int i);
 char *env_value(char **env, const char *key);
-char *ft_strjoin_free(char *env_val, char *token, const char *key);
+char *ft_strjoin_free(char *token, t_expander *expander);
+t_command_block *parser(t_lexer_list *list);
 
 #endif

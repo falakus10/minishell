@@ -36,13 +36,13 @@ typedef struct s_expander
 	char	ch;
 }			t_expander;
 
-typedef struct s_command_block
+typedef struct s_command_block  //arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
-	int *fd;
+	int *fd;//şuan tutulmuyor (kullanılmıyor)
 	char **files;
-	int  *operators; // 0: no operator, 1: REDIR_IN, 2: REDIR_OUT, 3: APPEND, 4: HEREDOC
+	int  *operators;//şuan tutulmuyor (kullanılmıyor)
 	char **heredoc_delimiters; // HEREDOC için kullanılacak
 	int heredoc_count; // kaç tane heredoc var
 	int operator_count;
@@ -79,8 +79,10 @@ void					signal_handler(void);
 void					sigint_handler(int sig, siginfo_t *info, void *context);
 void expander(t_lexer_list *temp, char **env, t_expander *expander);
 int is_valid_ch(char *token, int i);
+int special_ch_check(char c);
 char *env_value(char **env, const char *key);
 char *ft_strjoin_free(char *token, t_expander *expander);
 t_command_block *parser(t_lexer_list *list);
+
 
 #endif

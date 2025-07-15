@@ -5,9 +5,6 @@ void	add_new_node(t_lexer_list **lexer_list, char *array)
 	t_lexer_list	*node;
 	t_lexer_list	*temp;
 	node = malloc(sizeof(t_lexer_list));
-	//if (node == NULL)
-		//ft_error();
-	//printf("%s\n", array);
 	node->token = ft_strdup(array);
 	node->type = set_type(array);
 	node->next = NULL;

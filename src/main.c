@@ -57,6 +57,15 @@ while (command_block != NULL)
             i++;
         }
     }
+	if (command_block->heredoc_delimiters != NULL)
+	{
+		i = 0;
+		while (command_block->heredoc_delimiters[i] != NULL)
+		{
+			printf("heredoc_delimiters[%d] = %s\n", i, command_block->heredoc_delimiters[i]);
+			i++;
+		}
+	}
 
     if (command_block->args != NULL)
     {

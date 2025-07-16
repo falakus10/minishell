@@ -1,10 +1,11 @@
 #include "minishell.h"
 
-int	take_word(const char *input, int i)
+int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 {
 	int	len;
 
 	len = 1;
+	lexer_list->is_next_space = 0;
 	while (input[i + 1] != ' ' && input[i + 1] != '\t' && input[i + 1] != '\0')
 	{
 		if (is_meta(input, i + 1) != 0 || input[i + 1] == '\'' || input[i
@@ -16,32 +17,35 @@ int	take_word(const char *input, int i)
 		i++;
 		len++;
 	}
+	if (input[i + 1] == ' ' || input[i + 1] == '\t')
+		lexer_list->is_next_space = 1;
 	return (len);
 }
 
-int  quote_len(const char *input, int start, char delim)
+int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_list)
 {
     int len = 1;                  /* açılış tırnağını da saysın   */
     int i   = start + 1;
 
+	lexer_list->is_next_space = 0;
     while (input[i] && input[i] != delim)
     {
         ++len;                    /* tırnak içindeki karakterler  */
         ++i;
     }
-
+	if (input[i + 1] == ' ' || input [i + 1] == '\t')
+		lexer_list->is_next_space = 1;
     if (input[i] == '\0')         /* kapanış yok → hata           */
         ft_error();
-
     return len;                   /* kapanış tırnağına kadarki uzunluk */
 }
 
-int is_quote(const char *input, int i)
+int is_quote(const char *input, int i, t_lexer_list *lexer_list)
 {
     if (input[i] == '\'')
-        return quote_len(input, i, '\'');   /* tek tırnak */
+        return quote_len(input, i, '\'', lexer_list);   /* tek tırnak */
     else if (input[i] == '\"')
-        return quote_len(input, i, '\"');   /* çift tırnak */
+        return quote_len(input, i, '\"', lexer_list);   /* çift tırnak */
     else
         return 0;                           /* tırnak değil */
 }
@@ -73,6 +77,7 @@ t_lexer_list	**lexer_function(char *input)
 	int				i;
 	char			*array;
 	t_lexer_list	**lexer_list;
+	t_lexer_list    *current;
 
 	lexer_list = malloc(sizeof(t_lexer_list *));
 	*lexer_list = NULL;
@@ -82,13 +87,15 @@ t_lexer_list	**lexer_function(char *input)
 	{
 		while (input[i] == ' ' || input[i] == '\t')
 			i++;
+		current = add_new_node(lexer_list);
 		if (is_meta(input, i))
 			array = meta_assign(input, &i);
-		else if (is_quote(input, i))
-			array = quote_assign(input, &i);
-		else if (take_word(input, i))
-			array = word_assign(input, &i);
-		add_new_node(lexer_list, array);
+		else if (is_quote(input, i, *lexer_list))
+			array = quote_assign(input, &i, *lexer_list);
+		else if (take_word(input, i, *lexer_list))
+			array = word_assign(input, &i, *lexer_list);
+		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
+		(current)->type = set_type(array);
 	}
 	return (lexer_list);
 }

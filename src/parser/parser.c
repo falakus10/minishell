@@ -52,49 +52,54 @@ void remove_quotes(t_lexer_list *lexer_list)
 
 t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 {
-    t_joined_lexer_list **list;
-    t_lexer_list *temp;
-    char *array;
-    t_joined_lexer_list *current;
+	t_joined_lexer_list **list;
+	t_lexer_list *temp;
+	char *array;
+	t_joined_lexer_list *current;
 
-    list = malloc(sizeof(t_joined_lexer_list *));
-    if (!list)
-        return NULL;
-    *list = NULL;
-    temp = lexer_list;
+	list = malloc(sizeof(t_joined_lexer_list *));
+	if (!list)
+		return NULL;
+	*list = NULL;
+	temp = lexer_list;
 
-    while (temp != NULL)
-    {
-        current = add_new_node2(list);
-        if (!(temp->is_next_space) && temp->next != NULL && temp->next->type > 5)
-        {
-            // İlk token'ı kopyala
-            array = ft_strdup(temp->token);
-            temp = temp->next;
+	while (temp != NULL)
+	{
+		current = add_new_node2(list);
 
-            // Birleştirmeye devam et, koşullar sağlandıkça
-            while (temp != NULL && !(temp->is_next_space) && temp->type > 5)
-            {
-                char *joined = ft_strjoin(array, temp->token);
-                free(array);
-                array = joined;
-                temp = temp->next;
-            }
-            current->token = array;
-            current->type = WORD;
+		// Quote türündeyse ve birleştirilecekse
+		if (temp->type > 5)
+		{
+			array = ft_strdup(temp->token);
 
-            // temp zaten ilerletildi, döngünün sonunda tekrar artırma
-            continue;
-        }
-        else
-        {
-            current->token = ft_strdup(temp->token);
-            current->type = temp->type;
-            temp = temp->next;
-        }
-    }
-    return list;
+			// temp->is_next_space kontrolü, şu anki token ile sonrakinin arasında boşluk yoksa
+			while (temp->next != NULL && temp->next->is_next_space == 0 && temp->next->type > 5)
+			{
+				temp = temp->next;
+				char *joined = ft_strjoin(array, temp->token);
+				free(array);
+				array = joined;
+			}
+
+			current->token = array;
+			current->type = WORD;
+
+			// temp bir sonraki birleşmeye hazır hale gelsin
+			temp = temp->next;
+		}
+		else
+		{
+			// Diğer durumlarda olduğu gibi kopyala
+			current->token = ft_strdup(temp->token);
+			current->type = temp->type;
+			temp = temp->next;
+		}
+	}
+	return list;
 }
+
+
+
 
 
 
@@ -128,7 +133,7 @@ t_command_block *parser(t_joined_lexer_list *list)
 	int last_token_type = -1; //komut blogunun son tokenı operator mu degil mi bakmak icin 
 	//int pipe_count;
 	if (temp == NULL)
-    	return NULL;
+		return NULL;
 	while (temp != NULL)
 	{
 		int is_cmd_pointed = 0;

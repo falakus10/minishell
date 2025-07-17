@@ -58,6 +58,12 @@ typedef struct s_command_block  //arg count tutulmalı mı ?
 	struct s_command_block *next; // sonraki komut bloğu için
 }t_command_block;
 
+typedef struct s_pipeline_utils
+{
+	int last_token_type; 
+	int is_cmd_pointed;
+	int first_token_flg;
+}t_pipeline_utils;
 
 typedef enum e_tokens
 {

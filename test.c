@@ -21,12 +21,14 @@ t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
             if (!temp->is_next_space && temp->next->type > 5)
             {
                 array = ft_strdup(temp->token);
-                while (temp->next != NULL && !temp->next->is_next_space && temp->next->type > 5)
+                while (temp->next != NULL && !temp->is_next_space && temp->next->type > 5)
 			    {
 				    temp = temp->next;
 				    char *joined = ft_strjoin(array, temp->token);
 				    free(array);
 				    array = joined;
+                    if (temp->next->is_next_space)
+                        break;
 			    }
 
             }

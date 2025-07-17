@@ -79,6 +79,9 @@ t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 				char *joined = ft_strjoin(array, temp->token);
 				free(array);
 				array = joined;
+				if (temp->next != NULL)
+					if(temp->next->is_next_space)
+						break;
 			}
 
 			current->token = array;
@@ -96,6 +99,7 @@ t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 		}
 	}
 	return list;
+	
 }
 
 

@@ -2,7 +2,7 @@ NAME = minishell
 SRCS = src/lexer/lexer_utils1.c src/lexer/lexer.c src/main.c src/errors.c src/signal.c src/expander/expander.c src/expander/expander_utils1.c  src/parser/parser.c
 
 LIBFT = libft/libft.a
-CC = cc
+CC = gcc
 CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g
 
 OBJS = $(SRCS:.c=.o)

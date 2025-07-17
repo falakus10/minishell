@@ -1,5 +1,85 @@
 #include "minishell.h"
 
+void remove_quotes(t_lexer_list *lexer_list)
+{
+	t_lexer_list *current;
+	current = lexer_list;
+	while (current != NULL)
+	{
+		if (current->type == 6 || current->type == 7)
+		{
+			char *trimmed = NULL;
+			if (current->type == 6)
+				trimmed = ft_strtrim(current->token, "\'");
+			else
+				trimmed = ft_strtrim(current->token, "\"");
+
+			if (trimmed)
+			{
+				free(current->token);
+				current->token = trimmed;
+			}
+		}
+		current = current->next;
+	}
+}
+
+t_joined_lexer_list *merge_words(t_lexer_list **temp, t_joined_lexer_list *current)
+{
+	char *array;
+	char *joined;
+
+	if (!(*temp)->is_next_space && (*temp)->next != NULL && (*temp)->next->type > 5)
+	{
+		array = ft_strdup((*temp)->token);
+		while ((*temp)->next != NULL && !(*temp)->is_next_space && (*temp)->next->type > 5)
+		{
+			*temp = (*temp)->next;
+			joined = ft_strjoin(array, (*temp)->token);
+			free(array);
+			array = joined;
+		}
+		current->token = array;
+		current->type = WORD;
+	}
+	else
+	{
+		current->token = (*temp)->token;
+		current->type = (*temp)->type;
+	}
+	return (current);
+}
+
+
+
+
+t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
+{
+	t_joined_lexer_list **list;
+	t_lexer_list *temp;
+	t_joined_lexer_list *current;
+	
+	list = malloc(sizeof(t_joined_lexer_list *));
+	if (!list)
+		return NULL;
+	*list = NULL;
+	temp = lexer_list;
+	while (temp != NULL)
+	{
+		current = add_new_node2(list);
+		if (temp->type > 5)
+			current = merge_words(&temp,current);
+		else
+		{
+			current->token = temp->token;
+			current->type = temp->type;
+		}
+		temp = temp->next;
+	}
+	return(list);
+}
+
+
 static char **append_to_array(char **array, int count, char *new_value)
 {
 	char **new_array;
@@ -20,34 +100,49 @@ static char **append_to_array(char **array, int count, char *new_value)
 	return (new_array);
 }
 
-t_command_block *parser(t_lexer_list *list)
+t_command_block *init_command_block(void)
 {
-	t_command_block *command_block = NULL;
-	t_command_block *temp_block = NULL;
-	t_lexer_list *temp = list;
-	int last_token_type = -1; //komut blogunun son tokenı operator mu degil mi bakmak icin 
-	//int pipe_count;
+	t_command_block *new_block = malloc(sizeof(t_command_block));
+	if (!new_block)
+		return NULL;
+	new_block->next = NULL;
+	new_block->args = NULL;
+	new_block->fd = NULL;
+	new_block->files = NULL;
+	new_block->operators = NULL;
+	new_block->heredoc_delimiters = NULL;
+	new_block->heredoc_count = 0;
+	new_block->operator_count = 0;
+	new_block->argument_count = 0;
+	new_block->command = NULL;
+	return (new_block);
+}
+
+		
+t_command_block *parser(t_joined_lexer_list *list)
+{
+	t_command_block *new_block;
+	t_command_block *command_block;
+	t_command_block *temp_block;
+	t_joined_lexer_list *temp;
+
+	int last_token_type; 
+	int is_cmd_pointed;
+	int first_token_flg;
+
+
+	last_token_type = -1;
+	command_block = NULL;
+	temp_block = NULL;
+	temp = list;
+
 	if (temp == NULL)
-    	return NULL;
+		return NULL;
 	while (temp != NULL)
 	{
-		int is_cmd_pointed = 0;
-		int first_token_flg = 0;
-
-		t_command_block *new_block = malloc(sizeof(t_command_block));
-		if (!new_block)
-			return NULL;
-
-		new_block->next = NULL;
-		new_block->args = NULL;
-		new_block->fd = NULL;
-		new_block->files = NULL;
-		new_block->operators = NULL;
-		new_block->heredoc_delimiters = NULL;
-		new_block->heredoc_count = 0;
-		new_block->operator_count = 0;
-		new_block->argument_count = 0;
-		new_block->command = NULL;
+		is_cmd_pointed = 0;
+		first_token_flg = 0;
+		new_block = init_command_block();
 
 		if (command_block == NULL)
 		{
@@ -85,7 +180,7 @@ t_command_block *parser(t_lexer_list *list)
 					ft_error();
 				}
 
-				if (temp->type == HEREDOC) //if (temp_block->heredoc_delimiters == NULL) else durumu şeklinde yazmak daha iyi olur mu
+				if (temp->type == HEREDOC)
 				{
 					temp_block->heredoc_delimiters = append_to_array(
 						temp_block->heredoc_delimiters,
@@ -124,6 +219,7 @@ t_command_block *parser(t_lexer_list *list)
 			last_token_type = temp->type;
 			temp = temp->next;
 		}
+
 		if (temp != NULL && temp->type == PIPE && temp->next == NULL)
 		{
 			printf("Syntax error: input cannot end with a pipe '|'\n");
@@ -143,6 +239,7 @@ t_command_block *parser(t_lexer_list *list)
 		if (temp != NULL)
 			temp = temp->next;
 	}
+
 	return (command_block);
 }
 

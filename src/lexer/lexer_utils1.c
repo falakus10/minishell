@@ -1,17 +1,13 @@
 #include "minishell.h"
 
-void	add_new_node(t_lexer_list **lexer_list, char *array)
+t_lexer_list	*add_new_node(t_lexer_list **lexer_list)
 {
 	t_lexer_list	*node;
 	t_lexer_list	*temp;
 	node = malloc(sizeof(t_lexer_list));
-	node->token = ft_strdup(array);
-	node->type = set_type(array);
 	node->next = NULL;
 	if (*lexer_list == NULL)
-	{
 		*lexer_list = node;
-	}
 	else
 	{
 		temp = *lexer_list;
@@ -19,6 +15,25 @@ void	add_new_node(t_lexer_list **lexer_list, char *array)
 			temp = temp->next;
 		temp->next = node;
 	}
+	return (node);
+}
+
+t_joined_lexer_list	*add_new_node2(t_joined_lexer_list **lexer_list)
+{
+	t_joined_lexer_list	*node;
+	t_joined_lexer_list	*temp;
+	node = malloc(sizeof(t_joined_lexer_list));
+	node->next = NULL;
+	if (*lexer_list == NULL)
+		*lexer_list = node;
+	else
+	{
+		temp = *lexer_list;
+		while (temp->next != NULL)
+			temp = temp->next;
+		temp->next = node;
+	}
+	return (node);
 }
 
 int	set_type(char *array)
@@ -70,25 +85,25 @@ char	*meta_assign(const char *input, int *inx)
 	return (token);
 }
 
-char	*quote_assign(const char *input, int *inx)
+char	*quote_assign(const char *input, int *inx, t_lexer_list *lexer_list)
 {
 	char	*token;
 	int		len;
 
 	token = NULL;
-	len = (is_quote(input, *inx)) + 1; //son tırnak dahil olsun diye +1 dedik. Son tırnak dahil toplam "..." uzunluğu
+	len = (is_quote(input, *inx, lexer_list)) + 1; //son tırnak dahil olsun diye +1 dedik. Son tırnak dahil toplam "..." uzunluğu
 	token = ft_substr(input, *inx, len);
 	*(inx) += len;
 	return (token);
 }
 
-char *word_assign(const char *input, int *inx)
+char *word_assign(const char *input, int *inx, t_lexer_list *lexer_list)
 {
 	char	*token;
 	int		len;
 
 	token = NULL;
-	len = take_word(input, *inx);  //take_word fonksiyonunu iki kez çağırmayalım diye sonucunu len değişkenine atadım. 
+	len = take_word(input, *inx, lexer_list);  //take_word fonksiyonunu iki kez çağırmayalım diye sonucunu len değişkenine atadım. 
 	token = ft_substr(input, *inx, len);
 	(*inx) +=len;
 

@@ -18,8 +18,16 @@ typedef struct s_lexer_list
 {
 	int					type;
 	char				*token;
+	int					is_next_space;
 	struct s_lexer_list	*next;
 }						t_lexer_list;
+
+typedef struct s_joined_lexer_list
+{
+	int		type;
+	char	*token;
+	struct s_joined_lexer_list *next;
+}					t_joined_lexer_list;
 
 typedef struct s_expander
 {
@@ -65,15 +73,16 @@ typedef enum e_tokens
 
 t_lexer_list			**input_loop(void);
 int						set_type(char *array);
-void					add_new_node(t_lexer_list **lexer_list, char *array);
+t_lexer_list			*add_new_node(t_lexer_list **lexer_list);
+void remove_quotes(t_lexer_list *lexer_list);
 t_lexer_list			**lexer_function(char *temporary_input);
-int						is_quote(const char *input, int i);
-int						take_word(const char *input, int i);
+int						is_quote(const char *input, int i, t_lexer_list *lexer_list);
+int						take_word(const char *input, int i, t_lexer_list *lexer_list);
 int						is_meta(const char *input, int i);
-int						quote_len(const char *input, int start, char delim);
+int						quote_len(const char *input, int start, char delim, t_lexer_list *lexer_list);
 char					*meta_assign(const char *input, int *inx);
-char					*quote_assign(const char *input, int *inx);
-char					*word_assign(const char *input, int *inx);
+char					*quote_assign(const char *input, int *inx, t_lexer_list *lexer_list);
+char					*word_assign(const char *input, int *inx, t_lexer_list *lexer_list);
 void					ft_error(void);
 void					signal_handler(void);
 void					sigint_handler(int sig, siginfo_t *info, void *context);
@@ -82,7 +91,9 @@ int is_valid_ch(char *token, int i);
 int special_ch_check(char c);
 char *env_value(char **env, const char *key);
 char *ft_strjoin_free(char *token, t_expander *expander);
-t_command_block *parser(t_lexer_list *list);
+t_command_block *parser(t_joined_lexer_list *list);
+t_joined_lexer_list		**token_join(t_lexer_list *lexer_list);
+t_joined_lexer_list	*add_new_node2(t_joined_lexer_list **lexer_list);
 
 
 #endif

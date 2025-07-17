@@ -33,6 +33,7 @@ int	main(int argc, char *argv[], char **env)
 	t_lexer_list	**list;
 	t_expander		*exp;
 	t_command_block	*command_block;
+	t_joined_lexer_list **new_list;
 
 	exp = malloc(sizeof(t_expander));
 	if (!exp)
@@ -41,7 +42,11 @@ int	main(int argc, char *argv[], char **env)
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
 	temp = *list;
 	expander(temp, env, exp);
-	command_block = parser(temp); 
+	remove_quotes(*list);
+	new_list = token_join(temp);
+	command_block = parser(*new_list);
+
+
 int i = 0;
 
 while (command_block != NULL)

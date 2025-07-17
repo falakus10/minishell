@@ -24,30 +24,30 @@ int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 
 int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_list)
 {
-    int len = 1;                  /* açılış tırnağını da saysın   */
-    int i   = start + 1;
+	int len = 1;                  /* açılış tırnağını da saysın   */
+	int i   = start + 1;
 
 	lexer_list->is_next_space = 0;
-    while (input[i] && input[i] != delim)
-    {
-        ++len;                    /* tırnak içindeki karakterler  */
-        ++i;
-    }
+	while (input[i] && input[i] != delim)
+	{
+		++len;                    /* tırnak içindeki karakterler  */
+		++i;
+	}
 	if (input[i + 1] == ' ' || input [i + 1] == '\t')
 		lexer_list->is_next_space = 1;
-    if (input[i] == '\0')         /* kapanış yok → hata           */
-        ft_error();
-    return len;                   /* kapanış tırnağına kadarki uzunluk */
+	if (input[i] == '\0')         /* kapanış yok → hata           */
+		ft_error();
+	return len;                   /* kapanış tırnağına kadarki uzunluk */
 }
 
 int is_quote(const char *input, int i, t_lexer_list *lexer_list)
 {
-    if (input[i] == '\'')
-        return quote_len(input, i, '\'', lexer_list);   /* tek tırnak */
-    else if (input[i] == '\"')
-        return quote_len(input, i, '\"', lexer_list);   /* çift tırnak */
-    else
-        return 0;                           /* tırnak değil */
+	if (input[i] == '\'')
+		return quote_len(input, i, '\'', lexer_list);   /* tek tırnak */
+	else if (input[i] == '\"')
+		return quote_len(input, i, '\"', lexer_list);   /* çift tırnak */
+	else
+		return 0;                           /* tırnak değil */
 }
 
 int	is_meta(const char *input, int i)

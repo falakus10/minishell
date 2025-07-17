@@ -44,7 +44,9 @@ int	main(int argc, char *argv[], char **env)
 	expander(temp, env, exp);
 	remove_quotes(*list);
 	new_list = token_join(temp);
-	command_block = parser(*new_list); 
+	command_block = parser(*new_list);
+
+
 int i = 0;
 
 while (command_block != NULL)

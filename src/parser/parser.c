@@ -24,31 +24,7 @@ void remove_quotes(t_lexer_list *lexer_list)
 	}
 }
 
-
-/* char *token_join(t_lexer_list *lexer_list)
-{
-	t_lexer_list *temp;
-	char *str;
-
-	temp = lexer_list;
-	str = '\0';
-	while (temp != NULL)
-	{
-		if(!(temp->is_next_space) && temp->next != NULL)
-		{
-			if (temp->next->type == 6 || temp->next->type == 7 || temp->next->type == 8)
-			{
-				str = ft_strjoin(str, temp->token);
-			}
-			else
-				break;
-		}
-		else 
-			break;
-		temp = temp->next;
-	}
-	return (str);
-} */
+#include "minishell.h"
 
 t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 {
@@ -56,7 +32,7 @@ t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 	t_lexer_list *temp;
 	char *array;
 	t_joined_lexer_list *current;
-
+	
 	list = malloc(sizeof(t_joined_lexer_list *));
 	if (!list)
 		return NULL;
@@ -66,47 +42,38 @@ t_joined_lexer_list **token_join(t_lexer_list *lexer_list)
 	while (temp != NULL)
 	{
 		current = add_new_node2(list);
-
-		// Quote türündeyse ve birleştirilecekse
 		if (temp->type > 5)
 		{
-			array = ft_strdup(temp->token);
-
-			// temp->is_next_space kontrolü, şu anki token ile sonrakinin arasında boşluk yoksa
-			while (temp->next != NULL && temp->next->is_next_space == 0 && temp->next->type > 5)
+			if (!temp->is_next_space && temp->next != NULL && temp->next->type > 5)
 			{
-				temp = temp->next;
-				char *joined = ft_strjoin(array, temp->token);
-				free(array);
-				array = joined;
-				if (temp->next != NULL)
-					if(temp->next->is_next_space)
-						break;
+				array = ft_strdup(temp->token);
+				while (temp->next != NULL && !temp->is_next_space && temp->next->type > 5)
+				{
+					temp = temp->next;
+					char *joined = ft_strjoin(array, temp->token);
+					free(array);
+					array = joined;
+					//printf("STR: %s, TYPE: %d, is_next_space: %d", temp->next->token, temp->next->type, temp->is_next_space);
+				}
+				current->token = array;
+				current->type = WORD;
+
 			}
-
-			current->token = array;
-			current->type = WORD;
-
-			// temp bir sonraki birleşmeye hazır hale gelsin
-			temp = temp->next;
+			else
+			{
+				current->token = temp->token;
+				current->type = temp->type;
+			}
 		}
 		else
 		{
-			// Diğer durumlarda olduğu gibi kopyala
-			current->token = ft_strdup(temp->token);
+			current->token = temp->token;
 			current->type = temp->type;
-			temp = temp->next;
 		}
+		temp = temp->next;
 	}
-	return list;
-	
+	return(list);
 }
-
-
-
-
-
-
 
 
 static char **append_to_array(char **array, int count, char *new_value)

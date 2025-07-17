@@ -3,9 +3,13 @@
 int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 {
 	int	len;
+	t_lexer_list *temp;
 
+	temp = lexer_list;
+	while (temp->next != NULL)
+		temp = temp->next;
 	len = 1;
-	lexer_list->is_next_space = 0;
+	temp->is_next_space = 0;
 	while (input[i + 1] != ' ' && input[i + 1] != '\t' && input[i + 1] != '\0')
 	{
 		if (is_meta(input, i + 1) != 0 || input[i + 1] == '\'' || input[i
@@ -17,8 +21,8 @@ int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 		i++;
 		len++;
 	}
-	if (input[i + 1] == ' ' || input[i + 1] == '\t')
-		lexer_list->is_next_space = 1;
+	if (input[i + 1] == ' ' || input[i + 1] == '\t' )
+		temp->is_next_space = 1;
 	return (len);
 }
 
@@ -26,20 +30,24 @@ int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_lis
 {
 	int len = 1;                  /* açılış tırnağını da saysın   */
 	int i   = start + 1;
+	t_lexer_list *temp;
 
-	lexer_list->is_next_space = 0;
+	temp = lexer_list;
+	while (temp->next != NULL)
+		temp = temp->next;
+	temp->is_next_space = 0;
 	while (input[i] && input[i] != delim)
 	{
 		++len;                    /* tırnak içindeki karakterler  */
 		++i;
 	}
-	if (input[i + 1] == ' ' || input [i + 1] == '\t')
-		lexer_list->is_next_space = 1;
 	if (input[i] == '\0')         /* kapanış yok → hata           */
 		ft_error();
+	
+	if (input[i + 1] == ' ' || input [i + 1] == '\t')
+		temp->is_next_space = 1;
 	return len;                   /* kapanış tırnağına kadarki uzunluk */
 }
-
 int is_quote(const char *input, int i, t_lexer_list *lexer_list)
 {
 	if (input[i] == '\'')

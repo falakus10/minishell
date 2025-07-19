@@ -87,16 +87,34 @@ char	**append_to_array(char **array, int count, char *new_value)
 	
 	new_array = malloc(sizeof(char *) * (count + 2)); // count + 2 olmasının sebebi : yeni eleman + NULL için
 	if (!new_array)
-	return (NULL);
+		return (NULL);
+	i = 0;
+	while (i < count) // || !array eklenmeli mi
+	{
+		new_array[i] = array[i];
+		i++;
+	}
+	new_array[count] = ft_strdup(new_value);// temp->token'ınını direkt vermiyoruz onu strdup ile kopyalıyoruz.
+	new_array[count + 1] = NULL;
+	free(array);
+	return (new_array);
+}
+
+int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
+{
+	int *new_array;
+	int i;
+
+	new_array = malloc(sizeof(int) *(count + 1));
+	if(!new_array)
+		return (NULL);
 	i = 0;
 	while (i < count)
 	{
 		new_array[i] = array[i];
 		i++;
 	}
-	new_array[count] = ft_strdup(new_value);
-	// temp->token'ınını direkt vermiyoruz onu strdup ile kopyalıyoruz.
-	new_array[count + 1] = NULL;
+	new_array[i] = new_value;
 	free(array);
 	return (new_array);
 }
@@ -117,6 +135,7 @@ t_command_block	*init_command_block(void)
 	new_block->heredoc_count = 0;
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
+	new_block->fd_count = 0;
 	new_block->command = NULL;
 	return (new_block);
 }

@@ -62,6 +62,12 @@ while (command_block != NULL)
             i++;
         }
     }
+		i = 0;
+        while (i < command_block->operator_count)
+        {
+            printf("fd[%d] = %d\n", i, command_block->fd[i]);
+            i++;
+        }
 	if (command_block->heredoc_delimiters != NULL)
 	{
 		i = 0;

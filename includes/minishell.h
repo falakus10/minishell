@@ -14,6 +14,7 @@
 # include <termios.h>
 # include <unistd.h>
 
+
 typedef struct s_lexer_list
 {
 	int							type;
@@ -55,6 +56,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int heredoc_count;         // kaç tane heredoc var
 	int operator_count;
 	int argument_count;
+	int fd_count;
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 
@@ -126,5 +128,9 @@ void							handle_token_logic(t_joined_lexer_list **tmp,
 									t_pipeline_utils *utils);
 void							first_tkn_chck(t_pipeline_utils *utils,
 									t_joined_lexer_list *temp);
+int *append_to_array2(int *array, int count, int new_value);
+int find_fd(char *file,t_command_block *temp);
+char *ft_strcpy(char *dest, const char *src);
+char *ft_strcat(char *dest, const char *src);
 
 #endif

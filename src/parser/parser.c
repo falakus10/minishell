@@ -32,7 +32,7 @@ void	check_null(t_joined_lexer_list **tmp)
 		(*tmp) = (*tmp)->next;
 }
 
-t_command_block	*parser(t_joined_lexer_list *list)
+t_command_block	*parser(t_joined_lexer_list *list) //lexer_list'ten komut bloğu listesine geçiyoruz
 {
 	t_command_block		*new_block;
 	t_command_block		*command_block;
@@ -40,7 +40,7 @@ t_command_block	*parser(t_joined_lexer_list *list)
 	t_joined_lexer_list	*temp;
 	t_pipeline_utils	utils;
 
-	utils.first_token_flg = -1;
+	utils.first_token_flg = -1; //ilk token sadece operatör mü diye kontrol ediliyor komut bloğunu en başta oluştururken
 	command_block = NULL;
 	temp_block = NULL;
 	temp = list;
@@ -50,9 +50,9 @@ t_command_block	*parser(t_joined_lexer_list *list)
 	{
 		utils.is_cmd_pointed = 0;
 		utils.first_token_flg = 0;
-		new_block = init_command_block();
-		pass_cmd_blk(&command_block, &new_block, &temp_block);
-		first_pipe_ctrl(temp);
+		new_block = init_command_block(); //yeni komut bloğu oluşturduk
+		pass_cmd_blk(&command_block, &new_block, &temp_block); //sonraki komut bloğuna geçer
+		first_pipe_ctrl(temp); //ilk eleman pipe olamaz kontrolü
 		while (temp != NULL && temp->type != PIPE)
 			loop(&temp, &temp_block, &utils);
 		pipeline_available(temp, &utils);
@@ -60,6 +60,7 @@ t_command_block	*parser(t_joined_lexer_list *list)
 	}
 	return (command_block);
 }
+
 
 /*
 fd'leri kayıt etmeliyim ?

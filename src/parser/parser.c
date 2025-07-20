@@ -60,8 +60,3 @@ t_command_block	*parser(t_joined_lexer_list *list) //lexer_list'ten komut bloğu
 	}
 	return (command_block);
 }
-
-
-/*
-fd'leri kayıt etmeliyim ?
-*/

@@ -24,33 +24,87 @@ void	first_pipe_ctrl(t_joined_lexer_list *temp)
 	}
 }
 
-int find_fd(char *file,t_command_block *temp_block)
+char *file_path(char *file)
 {
-	int fd;
 	char buf[256];
 	char *full_path;
-	int fd_cnt;
 
-	fd_cnt = temp_block->fd_count;
 	getcwd(buf, sizeof(buf));
-	full_path = malloc(ft_strlen(buf) + ft_strlen(file) + 2);
+	full_path = malloc(ft_strlen(buf) + ft_strlen(file) + 2); // / ve \0 için +2
 	if(!full_path)
 	{
 		printf("allocation error\n");
-		return (1); //ne return olmalı 
+		ft_error(); //ne return olmalı 
 	}
 	ft_strcpy(full_path,buf);
 	ft_strcat(full_path,"/");
 	ft_strcat(full_path,file);
-	fd = open(full_path, O_RDONLY);
-	if (fd == -1)
+	return (full_path);
+}
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
+{
+	char *file_pth;
+	int type;
+
+	type = (*tmp_list)->type;
+	file_pth = file_path((*tmp_list)->next->token);
+	if(type == REDIR_IN)
 	{
-		perror("open");
-    	return -1;
+		if(access(file_pth,F_OK) == 0)
+		{
+			(*tmp_blk)->input_fd = open(file_pth,O_RDONLY);
+			if ((*tmp_blk)->input_fd == -1)
+			{
+				write(2, "bash: (*tmp_list)->next->token: no such file or directory\n",59);
+				//exit kodu eklenmeli $?
+				ft_error(); //exit yapıyor
+			}
+		}
+		else
+		{
+			write(2, "no such file or directory\n",26);
+			//exit kodu eklenmeli $?
+			ft_error(); //exit yapıyor
+		}
 	}
-	close(fd);
-	temp_block->fd_count++;
-	return (fd + (fd_cnt));
+	else if(type == REDIR_OUT)
+	{
+		if(access(file_pth,F_OK) == 0)
+		{
+			(*tmp_blk)->output_fd = open(file_pth,O_WRONLY | O_CREAT | O_TRUNC, 0644);
+			if ((*tmp_blk)->output_fd == -1)
+			{
+				write(2, "no such file or directory\n",26);
+				//exit kodu eklenmeli $?
+				ft_error(); //exit yapıyor
+			}
+		}
+		else
+		{
+			write(2, "no such file or directory\n",26);
+			//exit kodu eklenmeli $?
+			ft_error(); //exit yapıyor
+		}
+	}
+	else if(type == APPEND)
+	{
+		if(access(file_pth,F_OK) == 0)
+		{
+			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
+			if ((*tmp_blk)->output_fd == -1)
+			{
+				write(2, "bash: (*tmp)no such file or directory\n",26);
+				//exit kodu eklenmeli $?
+				ft_error(); //exit yapıyor
+			}
+		}
+		else
+		{
+			write(2, "no such file or directory\n",26);
+			//exit kodu eklenmeli $?
+			ft_error(); //exit yapıyor
+		}
+	}
 }
 
 void	handle_redirect_token(t_joined_lexer_list **temp,
@@ -73,8 +127,7 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 	{
 		(*temp_block)->files = append_to_array((*temp_block)->files,
 				(*temp_block)->operator_count, (*temp)->next->token);
-		(*temp_block)->fd = append_to_array2((*temp_block)->fd,
-				(*temp_block)->operator_count, find_fd((*temp_block)->files[(*temp_block)->operator_count],(*temp_block)));
+		assign_fd((temp_block),(temp)); //fd'ler güncelleniyor ama önceki fd'ler kapanmıyor
 		(*temp_block)->operator_count++;
 		*temp = (*temp)->next;
 	}
@@ -90,18 +143,31 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 			|| (*tmp)->type == REDIR_OUT || (*tmp)->type == APPEND
 			|| (*tmp)->type == HEREDOC))
 		handle_redirect_token(tmp, tmp_blk);
-	else if (!(utils->is_cmd_pointed) && ((*tmp)->type == WORD
+	else if (((*tmp)->type == WORD
 			|| (*tmp)->type == S_QUOTE || (*tmp)->type == D_QUOTE))
 	{
-		(*tmp_blk)->command = ft_strdup((*tmp)->token);
-		utils->is_cmd_pointed = 1;
-	}
-	else if (utils->is_cmd_pointed && ((*tmp)->type == WORD
-			|| (*tmp)->type == S_QUOTE || (*tmp)->type == D_QUOTE))
-	{
+		if (!utils->is_cmd_pointed)
+		{
+			if (is_builtin((*tmp)->token)) //command'e burada atama yapılacak
+				(*tmp_blk)->command = ft_strdup((*tmp)->token); //tokenları direk liste olarak free'leriz o yüzden *tmp->token olarak atamayalım
+			else
+			{
+				if(!create_path((*tmp_blk),(*tmp)->token))
+				{
+					printf("%s: command not found\n",(*tmp)->token);
+					ft_error();
+				}
+			}
+			(*tmp_blk)->args = append_to_array((*tmp_blk)->args,(*tmp_blk)->argument_count,(*tmp)->token);
+			utils->is_cmd_pointed = 1;
+			(*tmp_blk)->argument_count++;
+		}
+		else if (utils->is_cmd_pointed)
+		{
 		(*tmp_blk)->args = append_to_array((*tmp_blk)->args,
 				(*tmp_blk)->argument_count, (*tmp)->token);
 		(*tmp_blk)->argument_count++;
+		}
 	}
 	fd_count++;
 	utils->last_token_type = (*tmp)->type;

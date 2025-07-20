@@ -49,7 +49,9 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
-	int *fd; //şuan tutulmuyor (kullanılmıyor)
+	int *fd;
+	int input_fd;
+	int output_fd;
 	char **files;
 	int *operators;            //şuan tutulmuyor (kullanılmıyor)
 	char **heredoc_delimiters; // HEREDOC için kullanılacak
@@ -132,5 +134,12 @@ int *append_to_array2(int *array, int count, int new_value);
 int find_fd(char *file,t_command_block *temp);
 char *ft_strcpy(char *dest, const char *src);
 char *ft_strcat(char *dest, const char *src);
+int	ft_strcmp(const char *s1, const char *s2);
+int create_path(t_command_block *tmp_blk, char *word);
+int	is_builtin(char *cmd);
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
+char *file_path(char *file);
+
+
 
 #endif

@@ -89,12 +89,12 @@ char	**append_to_array(char **array, int count, char *new_value)
 	if (!new_array)
 		return (NULL);
 	i = 0;
-	while (i < count) // || !array eklenmeli mi
+	while (i < count  && array) // || !array eklenmeli mi
 	{
 		new_array[i] = array[i];
 		i++;
 	}
-	new_array[count] = ft_strdup(new_value);// temp->token'ınını direkt vermiyoruz onu strdup ile kopyalıyoruz.
+	new_array[count] = ft_strdup(new_value);// temp->token'ınını direkt vermiyoruz onu strdup ile kopyalıyoruz. //strdup başarısız olursa 
 	new_array[count + 1] = NULL;
 	free(array);
 	return (new_array);
@@ -136,6 +136,8 @@ t_command_block	*init_command_block(void)
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->fd_count = 0;
+	new_block->input_fd = 0;
+	new_block->output_fd = 0;
 	new_block->command = NULL;
 	return (new_block);
 }

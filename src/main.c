@@ -45,9 +45,10 @@ int	main(int argc, char *argv[], char **env)
 	remove_quotes(*list);
 	new_list = token_join(temp);
 	command_block = parser(*new_list);
+	executor(command_block, env, exp);
 
 
-int i = 0;
+/* int i = 0;
 
 while (command_block != NULL)
 {
@@ -62,6 +63,12 @@ while (command_block != NULL)
             i++;
         }
     }
+		i = 0;
+        while (i < command_block->operator_count)
+        {
+            printf("fd[%d] = %d\n", i, command_block->fd[i]);
+            i++;
+        }
 	if (command_block->heredoc_delimiters != NULL)
 	{
 		i = 0;
@@ -83,7 +90,7 @@ while (command_block != NULL)
     }
 
     command_block = command_block->next;
-}
+} */
 
 
 	/*while (temp != NULL)

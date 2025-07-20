@@ -1,5 +1,5 @@
 NAME = minishell
-SRCS = src/lexer/lexer_utils1.c src/lexer/lexer.c src/main.c src/errors.c src/signal.c src/expander/expander.c src/expander/expander_utils1.c  src/parser/parser.c
+SRCS = src/lexer/lexer_utils1.c src/lexer/lexer.c src/main.c src/errors.c src/signal.c src/expander/expander.c src/expander/expander_utils1.c  src/parser/parser.c src/parser/parser_utils1.c src/parser/parser_utils2.c src/utils/utils1.c src/executor/executor.c
 
 LIBFT = libft/libft.a
 CC = gcc

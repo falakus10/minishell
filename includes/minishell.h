@@ -1,6 +1,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include <stdio.h>
 # include "libft.h"
 # include <dirent.h>
 # include <fcntl.h>
@@ -8,7 +9,6 @@
 # include <readline/readline.h>
 # include <readline/rltypedefs.h>
 # include <signal.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <sys/wait.h>
 # include <termios.h>
@@ -36,6 +36,7 @@ typedef struct s_expander
 	int							key_len;
 	int							val_len;
 	int							dollar_index;
+	int							last_output;
 	size_t						i;
 	size_t						start;
 	size_t						token_len;
@@ -49,8 +50,9 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
-	int *fd;
-	int input_fd;
+	int *fd; //şuan tutulmuyor (kullanılmıyor)
+	int cmd_count;
+	int	input_fd;
 	int output_fd;
 	char **files;
 	int *operators;            //şuan tutulmuyor (kullanılmıyor)
@@ -130,16 +132,11 @@ void							handle_token_logic(t_joined_lexer_list **tmp,
 									t_pipeline_utils *utils);
 void							first_tkn_chck(t_pipeline_utils *utils,
 									t_joined_lexer_list *temp);
-int *append_to_array2(int *array, int count, int new_value);
-int find_fd(char *file,t_command_block *temp);
-char *ft_strcpy(char *dest, const char *src);
-char *ft_strcat(char *dest, const char *src);
-int	ft_strcmp(const char *s1, const char *s2);
-int create_path(t_command_block *tmp_blk, char *word);
-int	is_builtin(char *cmd);
-void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
-char *file_path(char *file);
-
-
+int 							*append_to_array2(int *array, int count, int new_value);
+int 							find_fd(char *file,t_command_block *temp);
+char 							*ft_strcpy(char *dest, const char *src);
+char 							*ft_strcat(char *dest, const char *src);
+int								executor(t_command_block *cmd, char **env, t_expander *exp);
+int								is_builtin(char *cmd);
 
 #endif

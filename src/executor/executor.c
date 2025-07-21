@@ -1,33 +1,47 @@
 #include "minishell.h"
 
-void	create_pipe(t_command_block *cmd)
+void	create_pipe(t_command_block *cmd, t_executor *exe)
 {
 	int	i;
 
 	i = 0;
-	cmd->fd = malloc(sizeof(int) * (cmd->cmd_count - 1));
+	exe->fd = malloc(sizeof(int) * 2 * (cmd->cmd_count - 1));
+	if (exe->fd == NULL)
+	{
+		perror("malloc");
+		exit(1);
+	}
 	while (i < cmd->cmd_count - 1)
+	{
+		if(pipe(&exe->fd[2 * i]) == -1)
+		{
+			perror("pipe");
+			exit(1);
+		}
+		i++;
+	}
 }
 
-void	make_dup(t_command_block *cmd, int index)
+void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 {
-	if (cmd->input_fd > 2)
+	if (cmd->input_fd != -1)
 		dup2(cmd->input_fd, STDIN_FILENO);
-	if (cmd->output_fd > 2)
+	if (cmd->output_fd != -1)
 		dup2(cmd->output_fd, STDOUT_FILENO);
 	if (cmd->output_fd == -1 && cmd->input_fd == -1)
 	{
 		if (index == 0)
-			dup2(cmd->fd[0], STDOUT_FILENO);
-		else if (index == cmd->cmd_count - 1)
-			dup2(cmd->fd[index - 1], STDIN_FILENO);
+			dup2(exe->fd[1], STDOUT_FILENO);
+		else if (index == count - 1)
+			dup2(exe->fd[2 * (index - 1)], STDIN_FILENO);
 		else
 		{
-			dup2(cmd->fd[2 * index + 1], STDOUT_FILENO);
-			dup2(cmd->fd[2 * (index - 1)], STDIN_FILENO);
+			dup2(exe->fd[2 * index + 1], STDOUT_FILENO);
+			dup2(exe->fd[2 * (index - 1)], STDIN_FILENO);  
 		}
 	}
 }
+
 int command_count(t_command_block *cmd)
 {
 	int				count;
@@ -43,37 +57,35 @@ int command_count(t_command_block *cmd)
 	return (count);
 }
 
-int	run_single_cmd(t_command_block *cmd, char **env, t_expander *exp)
+int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
-	pid_t	pid;
-
-	pid = fork();
-	make_dup(cmd, -1);
-	if (pid == 0)
+	cmd->pid = fork();
+	if (cmd->pid == 0)
 	{
+		make_dup(cmd, -1, count, exe);
 		execve(cmd->command, cmd->args, env);
 		perror("execve failed!");
 		exit (1);
 	}
-	else if (pid < 0)
+	else if (cmd->pid < 0)
 	{
 		perror("fork failed!");
 		return (1);
 	}
 	else
 	{
-		if(waitpid(pid, &exp->last_output, 0) == -1)
+		if(waitpid(cmd->pid, &cmd->status, 0) == -1)
 		{
 			perror("waitpid failed!");
 			return (1);
 		}
-		exp->last_output = (exp->last_output) >> 8 & 0xFF;
+		cmd->last_output = (cmd->status >> 8) & 0xFF;
 	}
 	return (0);
 }
 
 
-int	executor(t_command_block *cmd, char **env, t_expander *exp)
+int	executor(t_command_block *cmd, char **env, t_executor *exe)
 {
 	cmd->cmd_count = command_count(cmd);
 	if (cmd->cmd_count == 1)
@@ -84,13 +96,12 @@ int	executor(t_command_block *cmd, char **env, t_expander *exp)
 		}
 		else
 		{
-			run_single_cmd(cmd, env, exp);
+			run_single_cmd(cmd, env, cmd->cmd_count, exe);
 		}
 	}
 	else
 	{
-		//çok komut çalışıtr
-		//her birini built in mi kontrol et
+		multiple_exec(cmd, env, exe);
 	}
 	return (0);
 }

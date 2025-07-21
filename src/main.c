@@ -39,6 +39,8 @@ int	main(int argc, char *argv[], char **env)
 	t_expander		*exp;
 	t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
+	t_executor *exe;
+	exe = malloc (sizeof(t_executor));
 
 	exp = malloc(sizeof(t_expander));
 	if (!exp)
@@ -50,7 +52,7 @@ int	main(int argc, char *argv[], char **env)
 	remove_quotes(*list);
 	new_list = token_join(temp);
 	command_block = parser(*new_list);
-	executor(command_block, env, exp);
+	executor(command_block, env, exe);
 
 
 //int i = 0;

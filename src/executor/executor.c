@@ -1,5 +1,33 @@
 #include "minishell.h"
 
+void	create_pipe(t_command_block *cmd)
+{
+	int	i;
+
+	i = 0;
+	cmd->fd = malloc(sizeof(int) * (cmd->cmd_count - 1));
+	while (i < cmd->cmd_count - 1)
+}
+
+void	make_dup(t_command_block *cmd, int index)
+{
+	if (cmd->input_fd > 2)
+		dup2(cmd->input_fd, STDIN_FILENO);
+	if (cmd->output_fd > 2)
+		dup2(cmd->output_fd, STDOUT_FILENO);
+	if (cmd->output_fd == -1 && cmd->input_fd == -1)
+	{
+		if (index == 0)
+			dup2(cmd->fd[0], STDOUT_FILENO);
+		else if (index == cmd->cmd_count - 1)
+			dup2(cmd->fd[index - 1], STDIN_FILENO);
+		else
+		{
+			dup2(cmd->fd[2 * index + 1], STDOUT_FILENO);
+			dup2(cmd->fd[2 * (index - 1)], STDIN_FILENO);
+		}
+	}
+}
 int command_count(t_command_block *cmd)
 {
 	int				count;
@@ -20,7 +48,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, t_expander *exp)
 	pid_t	pid;
 
 	pid = fork();
-	dups(cmd, -1);
+	make_dup(cmd, -1);
 	if (pid == 0)
 	{
 		execve(cmd->command, cmd->args, env);
@@ -44,25 +72,6 @@ int	run_single_cmd(t_command_block *cmd, char **env, t_expander *exp)
 	return (0);
 }
 
-void	dups(t_command_block *cmd, int index)
-{
-	if (cmd->input_fd > 2)
-		dup2(cmd->input_fd, STDIN_FILENO);
-	if (cmd->output_fd > 2)
-		dup2(cmd->output_fd, STDOUT_FILENO);
-	if (cmd->output_fd == -1 && cmd->input_fd == -1)
-	{
-		if (index == 0)
-			dup2(cmd->fd[0], STDOUT_FILENO);
-		else if (index == cmd->cmd_count - 1)
-			dup2(cmd->fd[index - 1], STDIN_FILENO);
-		else
-		{
-			dup2(cmd->fd[2 * index + 1], STDOUT_FILENO);
-			dup2(cmd->fd[2 * (index - 1)], STDIN_FILENO);
-		}
-	}
-}
 
 int	executor(t_command_block *cmd, char **env, t_expander *exp)
 {
@@ -83,5 +92,6 @@ int	executor(t_command_block *cmd, char **env, t_expander *exp)
 		//çok komut çalışıtr
 		//her birini built in mi kontrol et
 	}
+	return (0);
 }
 

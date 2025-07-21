@@ -138,5 +138,6 @@ char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								executor(t_command_block *cmd, char **env, t_expander *exp);
 int								is_builtin(char *cmd);
+int create_path(t_command_block *tmp_blk, char *word);
 
 #endif

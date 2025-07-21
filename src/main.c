@@ -11,10 +11,15 @@ t_lexer_list	**input_loop(void)
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
 		if (temp_input == NULL)
 		{
-			free(temp_input);
+			free(temp_input); //NULL şeyi freelemek saçma
 			write(1, "exit\n", 5);
 			exit(0); //0 mı 1 mi
 		}
+		if (temp_input[0] == '\0')
+    	{
+        free(temp_input);
+        continue;
+    	}
 		input = ft_strtrim(temp_input, " ");
 		list = lexer_function(input);
 		free(temp_input); // bununla işimiz bitti
@@ -48,9 +53,9 @@ int	main(int argc, char *argv[], char **env)
 	executor(command_block, env, exp);
 
 
-/* int i = 0;
+//int i = 0;
 
-while (command_block != NULL)
+/* while (command_block != NULL)
 {
     printf("command = %s\n", command_block->command);
 
@@ -63,12 +68,8 @@ while (command_block != NULL)
             i++;
         }
     }
-		i = 0;
-        while (i < command_block->operator_count)
-        {
-            printf("fd[%d] = %d\n", i, command_block->fd[i]);
-            i++;
-        }
+	printf("input fd :%d\n", command_block->input_fd);
+	printf("output fd :%d\n", command_block->output_fd);
 	if (command_block->heredoc_delimiters != NULL)
 	{
 		i = 0;
@@ -91,12 +92,5 @@ while (command_block != NULL)
 
     command_block = command_block->next;
 } */
-
-
-	/*while (temp != NULL)
-	{
-		printf("token = %s type = %d\n ", temp->token, temp->type);
-		temp = temp->next;
-	}*/
-	return (0); //sadece enter'a basınca seg fault diyor ??
+	return (0);
 }

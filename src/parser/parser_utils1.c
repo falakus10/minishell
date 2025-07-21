@@ -104,7 +104,9 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 {
 	int *new_array;
 	int i;
-
+	printf("new value :%d\n",(new_value));
+	printf("heredoc count :%d\n",(count));
+	
 	new_array = malloc(sizeof(int) *(count + 1));
 	if(!new_array)
 		return (NULL);
@@ -116,6 +118,7 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 	}
 	new_array[i] = new_value;
 	free(array);
+	printf("new_array[%d], value = %d\n",i,new_array[i]);
 	return (new_array);
 }
 
@@ -132,6 +135,7 @@ t_command_block	*init_command_block(void)
 	new_block->files = NULL;
 	new_block->operators = NULL;
 	new_block->heredoc_delimiters = NULL;
+	new_block->heredoc_fd = malloc(sizeof(int));
 	new_block->heredoc_count = 0;
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;

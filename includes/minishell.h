@@ -51,6 +51,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	char *command;
 	char **args;
 	int *fd; //şuan tutulmuyor (kullanılmıyor)
+	int *heredoc_fd;
 	int cmd_count;
 	int	input_fd;
 	int output_fd;
@@ -138,5 +139,7 @@ char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								executor(t_command_block *cmd, char **env, t_expander *exp);
 int								is_builtin(char *cmd);
+int create_path(t_command_block *tmp_blk, char *word);
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
 
 #endif

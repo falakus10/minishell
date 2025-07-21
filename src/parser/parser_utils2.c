@@ -41,14 +41,27 @@ char *file_path(char *file)
 	ft_strcat(full_path,file);
 	return (full_path);
 }
-void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
+
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // açılan fd'leri close yapmadım henüz, kullanılmayacak olanları close yap
 {
 	char *file_pth;
 	int type;
 
 	type = (*tmp_list)->type;
 	file_pth = file_path((*tmp_list)->next->token);
-	if(type == REDIR_IN)
+
+	if (type == HEREDOC)
+	{
+		(*tmp_blk)->input_fd = open("../../../../tmp/heredoc.txt", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		if ((*tmp_blk)->input_fd < 0)
+		{
+			perror("open");
+			return;
+		}
+		(*tmp_blk)->heredoc_fd = append_to_array2((*tmp_blk)->heredoc_fd,(*tmp_blk)->heredoc_count,(*tmp_blk)->input_fd);
+		//close((*tmp_blk)->input_fd);
+	}
+	else if(type == REDIR_IN)
 	{
 		if(access(file_pth,F_OK) == 0)
 		{
@@ -107,6 +120,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
 	}
 }
 
+
 void	handle_redirect_token(t_joined_lexer_list **temp,
 		t_command_block **temp_block)
 {
@@ -120,6 +134,7 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 	{
 		(*temp_block)->heredoc_delimiters = append_to_array((*temp_block)->heredoc_delimiters,
 				(*temp_block)->heredoc_count, (*temp)->next->token);
+		assign_fd((temp_block),(temp)); //heredoc_fd
 		(*temp_block)->heredoc_count++;
 		*temp = (*temp)->next;
 	}

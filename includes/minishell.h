@@ -50,9 +50,11 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
-	int *fd; //şuan tutulmuyor (kullanılmıyor)
-	int *heredoc_fd;
+	int	status;
+	int	last_output;
+	int *fd;
 	int cmd_count;
+	pid_t pid;
 	int	input_fd;
 	int output_fd;
 	char **files;
@@ -71,6 +73,11 @@ typedef struct s_pipeline_utils
 	int							is_cmd_pointed;
 	int							first_token_flg;
 }								t_pipeline_utils;
+
+typedef struct s_executor
+{
+	int	*fd;
+}		t_executor;
 
 typedef enum e_tokens
 {
@@ -137,9 +144,11 @@ int 							*append_to_array2(int *array, int count, int new_value);
 int 							find_fd(char *file,t_command_block *temp);
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
-int								executor(t_command_block *cmd, char **env, t_expander *exp);
+int								executor(t_command_block *cmd, char **env, t_executor *exe);
 int								is_builtin(char *cmd);
-int create_path(t_command_block *tmp_blk, char *word);
-void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
+int 							create_path(t_command_block *tmp_blk, char *word);
+void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
+void							create_pipe(t_command_block *cmd, t_executor *exe);
+int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 
 #endif

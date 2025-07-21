@@ -46,19 +46,21 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 {
 	char *file_pth;
 	int type;
+	int one_shot_flag;
 
 	type = (*tmp_list)->type;
 	file_pth = file_path((*tmp_list)->next->token);
+	one_shot_flag = 0;
 
 	if (type == HEREDOC)
 	{
-		(*tmp_blk)->input_fd = open("../../../../tmp/heredoc.txt", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+		//(*tmp_blk)->input_fd = open("../../../../tmp/heredoc.txt", O_WRONLY | O_CREAT | O_TRUNC, 0600);
 		if ((*tmp_blk)->input_fd < 0)
 		{
 			perror("open");
 			return;
 		}
-		(*tmp_blk)->heredoc_fd = append_to_array2((*tmp_blk)->heredoc_fd,(*tmp_blk)->heredoc_count,(*tmp_blk)->input_fd);
+		//(*tmp_blk)->heredoc_fd = append_to_array2((*tmp_blk)->heredoc_fd,(*tmp_blk)->heredoc_count,(*tmp_blk)->input_fd);
 		//close((*tmp_blk)->input_fd);
 	}
 	else if(type == REDIR_IN)
@@ -68,16 +70,17 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 			(*tmp_blk)->input_fd = open(file_pth,O_RDONLY);
 			if ((*tmp_blk)->input_fd == -1)
 			{
-				write(2, "bash: (*tmp_list)->next->token: no such file or directory\n",59);
+				write(2, "bash: (*tmp_list)->next->token: no such file or directory\n",59); //openla açamadı mesajı olmalı no such file or directory değil
 				//exit kodu eklenmeli $?
 				ft_error(); //exit yapıyor
 			}
 		}
 		else
-		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
+		{	if (one_shot_flag == 0)
+			{
+				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+				one_shot_flag = 1;
+			}
 		}
 	}
 	else if(type == REDIR_OUT)
@@ -94,9 +97,11 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 		}
 		else
 		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
+			if (one_shot_flag == 0)
+			{
+				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+				one_shot_flag = 1;
+			}
 		}
 	}
 	else if(type == APPEND)
@@ -113,9 +118,11 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 		}
 		else
 		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
+			if (one_shot_flag == 0)
+			{
+				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+				one_shot_flag = 1;
+			}
 		}
 	}
 }
@@ -151,6 +158,14 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils)
 {
+	if ((*tmp) && (*tmp)->next && (*tmp)->next->next &&
+	(*tmp)->type == HEREDOC &&
+	(*tmp)->next->type == WORD &&
+	(*tmp)->next->next->type == PIPE)
+{
+	(*tmp_blk)->lst_typ = HEREDOC;
+}
+
 	int fd_count;
 
 	fd_count = 0;

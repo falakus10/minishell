@@ -57,7 +57,6 @@ t_command_block	*parser(t_joined_lexer_list *list) //lexer_list'ten komut bloğu
 			loop(&temp, &temp_block, &utils);
 		pipeline_available(temp, &utils);
 		check_null(&temp);
-
 	}
 	return (command_block);
 }

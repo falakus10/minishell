@@ -53,6 +53,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int	status;
 	int	last_output;
 	int *fd;
+	int *heredoc_fd;
 	int cmd_count;
 	pid_t pid;
 	int	input_fd;
@@ -64,6 +65,9 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int operator_count;
 	int argument_count;
 	int fd_count;
+	int err_flg;
+	int lst_typ;
+
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 

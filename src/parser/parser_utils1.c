@@ -140,8 +140,10 @@ t_command_block	*init_command_block(void)
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->fd_count = 0;
-	new_block->input_fd = 0;
-	new_block->output_fd = 0;
+	new_block->input_fd = -1;
+	new_block->output_fd = -1;
+	new_block->err_flg = -2;
+	new_block->lst_typ = 0; //Typelar 1 den başlıyor zaten PIPE ile
 	new_block->command = NULL;
 	return (new_block);
 }

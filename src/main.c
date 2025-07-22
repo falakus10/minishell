@@ -86,7 +86,7 @@ void heredoc_handle(int heredoc_count,int heredoc_fd[][2],char **heredoc_delims,
 void run_heredoc(t_command_block *tmp_blk) //kalıcı değişiklik yapacak mıyım ?
 {
 	int heredoc_fd[(tmp_blk)->heredoc_count][2];
-
+	t_command_block *iter = tmp_blk; // orijinal başlangıcı sakla
 		if ((tmp_blk->err_flg) == -2) //hiç hatalı dosya yoksa sadece heredocları çalıştır
 		{
 			while(tmp_blk != NULL)
@@ -102,12 +102,32 @@ void run_heredoc(t_command_block *tmp_blk) //kalıcı değişiklik yapacak mıy�
 				heredoc_handle((tmp_blk)->heredoc_count,heredoc_fd,(tmp_blk)->heredoc_delimiters,(tmp_blk)->lst_typ);
 				tmp_blk = tmp_blk->next;
 			}
-			printf("bash: no such file or directory%s\n",tmp_blk->files[tmp_blk->err_flg]);
-			ft_error();//exit yapıyor
+
+			while(iter != NULL)
+			{
+				if (iter->err_flg != -2)
+				{
+					printf("bash: no such file or directory %s\n",iter->files[iter->err_flg]);
+					ft_error();//exit yapıyor
+				}
+				iter = iter->next;
+			}
 		}
 	
 }
 
+void file_cntrl(t_command_block *iter)
+{
+	while(iter != NULL)
+	{
+		if (iter->err_flg != -2)
+		{
+			printf("bash: no such file or directory %s\n",iter->files[iter->err_flg]);
+			ft_error();//exit yapıyor
+		}
+		iter = iter->next;
+	}
+}
 
 int	main(int argc, char *argv[], char **env)
 {
@@ -130,8 +150,8 @@ int	main(int argc, char *argv[], char **env)
 	remove_quotes(*list);
 	new_list = token_join(temp);
 	command_block = parser(*new_list);
-	run_heredoc(command_block);
-
+	run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
+	file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.
 
 
 /*

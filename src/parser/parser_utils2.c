@@ -52,18 +52,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 	file_pth = file_path((*tmp_list)->next->token);
 	one_shot_flag = 0;
 
-	if (type == HEREDOC)
-	{
-		//(*tmp_blk)->input_fd = open("../../../../tmp/heredoc.txt", O_WRONLY | O_CREAT | O_TRUNC, 0600);
-		if ((*tmp_blk)->input_fd < 0)
-		{
-			perror("open");
-			return;
-		}
-		//(*tmp_blk)->heredoc_fd = append_to_array2((*tmp_blk)->heredoc_fd,(*tmp_blk)->heredoc_count,(*tmp_blk)->input_fd);
-		//close((*tmp_blk)->input_fd);
-	}
-	else if(type == REDIR_IN)
+	if(type == REDIR_IN)
 	{
 		if(access(file_pth,F_OK) == 0)
 		{
@@ -85,48 +74,37 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 	}
 	else if(type == REDIR_OUT)
 	{
-		if(access(file_pth,F_OK) == 0)
-		{
+		
 			(*tmp_blk)->output_fd = open(file_pth,O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			if ((*tmp_blk)->output_fd == -1)
-			{
-				write(2, "no such file or directory\n",26);
+			{		
+				if (one_shot_flag == 0)
+				{
+					(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+					one_shot_flag = 1;
+				}
+				/*write(2, "no such file or directory\n",26);
 				//exit kodu eklenmeli $?
-				ft_error(); //exit yapıyor
+				ft_error(); //exit yapıyor*/
 			}
-		}
-		else
-		{
-			if (one_shot_flag == 0)
-			{
-				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
-				one_shot_flag = 1;
-			}
-		}
 	}
 	else if(type == APPEND)
 	{
-		if(access(file_pth,F_OK) == 0)
-		{
-			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if ((*tmp_blk)->output_fd == -1)
-			{
-				write(2, "bash: (*tmp)no such file or directory\n",26);
-				//exit kodu eklenmeli $?
-				ft_error(); //exit yapıyor
-			}
-		}
-		else
+		(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		if ((*tmp_blk)->output_fd == -1)
 		{
 			if (one_shot_flag == 0)
 			{
 				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
 				one_shot_flag = 1;
 			}
+			/*write(2, "bash: (*tmp)no such file or directory\n",26);
+			//exit kodu eklenmeli $?
+			ft_error(); //exit yapıyor*/
 		}
+	
 	}
 }
-
 
 void	handle_redirect_token(t_joined_lexer_list **temp,
 		t_command_block **temp_block)
@@ -141,7 +119,6 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 	{
 		(*temp_block)->heredoc_delimiters = append_to_array((*temp_block)->heredoc_delimiters,
 				(*temp_block)->heredoc_count, (*temp)->next->token);
-		assign_fd((temp_block),(temp)); //heredoc_fd
 		(*temp_block)->heredoc_count++;
 		*temp = (*temp)->next;
 	}
@@ -158,13 +135,13 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils)
 {
-	if ((*tmp) && (*tmp)->next && (*tmp)->next->next &&
+	if ((*tmp) && (*tmp)->next && (*tmp)->next->next && //komut blogunun son girdisi << delim | ise ;
 	(*tmp)->type == HEREDOC &&
 	(*tmp)->next->type == WORD &&
 	(*tmp)->next->next->type == PIPE)
-{
-	(*tmp_blk)->lst_typ = HEREDOC;
-}
+	{
+		(*tmp_blk)->lst_typ = HEREDOC;  
+	}
 
 	int fd_count;
 

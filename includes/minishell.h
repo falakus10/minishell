@@ -65,9 +65,9 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int operator_count;
 	int argument_count;
 	int fd_count;
-	int err_flg;
 	int lst_typ;
-
+	int err_flg;
+	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 

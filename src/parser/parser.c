@@ -62,5 +62,6 @@ t_command_block	*parser(t_joined_lexer_list *list) //lexer_list'ten komut bloğu
 }
 
 
+
 //tüm komut bloklarındaki heredocların fd'sini bir dizide tutmam lazım
 //static değişken kullanabilirim

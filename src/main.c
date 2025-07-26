@@ -81,53 +81,59 @@ void heredoc_handle(int heredoc_count,int heredoc_fd[][2],char **heredoc_delims,
 			continue; // bu fd'yi komut alacak, açık bırak
 		close(heredoc_fd[i][0]); // Diğer heredoc'ların read uçlarını kapat
 	}
+
+	/*
+	// FD'leri kapat
+	for (i = 0; i < heredoc_count; i++)
+	{
+		if (i == heredoc_count - 1 && lst_type)  // pipedan önceki veya son komut bloğunun sonundaki eleman << delim ise input_fdye heredocun fdsini ata
+			*input_fd = heredoc_fd[i][0]; // son heredoc komutun input'u olacak
+		else
+			close(heredoc_fd[i][0]); // diğerlerini kapat
+	}
+	*/
 }
+
+void file_cntrl(t_command_block *iter,t_command_block *last_error_block)
+{
+	while(iter != NULL) //burası file_control fonksiyonu. Eğer heredoc_count 0 ise, sadece bu fonksiyon çalışısn diyebiliriz.
+	{
+		if (iter->err_flg != -2) //>$ hatası için err_flg -3 tutulup hata mesajları ona göre özelleştirilebilir.
+		{
+			printf("bash: no such file or directory %s\n", iter->files[iter->err_flg]);
+			if (iter == last_error_block)
+				ft_error(); // sadece sonuncusunda çık
+		}
+	iter = iter->next;
+	}
+}
+
 
 void run_heredoc(t_command_block *tmp_blk) //kalıcı değişiklik yapacak mıyım ?
 {
 	int heredoc_fd[(tmp_blk)->heredoc_count][2];
 	t_command_block *iter = tmp_blk; // orijinal başlangıcı sakla
-		if ((tmp_blk->err_flg) == -2) //hiç hatalı dosya yoksa sadece heredocları çalıştır
-		{
-			while(tmp_blk != NULL)
-			{
-				heredoc_handle((tmp_blk)->heredoc_count,heredoc_fd,(tmp_blk)->heredoc_delimiters,(tmp_blk)->lst_typ);
-				tmp_blk = tmp_blk->next;
-			}
-		}
-		else // hatalı dosya varsa önce heredocları çalıştır sonra hata bas
-		{
-			while(tmp_blk != NULL)
-			{
-				heredoc_handle((tmp_blk)->heredoc_count,heredoc_fd,(tmp_blk)->heredoc_delimiters,(tmp_blk)->lst_typ);
-				tmp_blk = tmp_blk->next;
-			}
-
-			while(iter != NULL)
-			{
-				if (iter->err_flg != -2)
-				{
-					printf("bash: no such file or directory %s\n",iter->files[iter->err_flg]);
-					ft_error();//exit yapıyor
-				}
-				iter = iter->next;
-			}
-		}
-	
-}
-
-void file_cntrl(t_command_block *iter)
-{
-	while(iter != NULL)
+	t_command_block *last_error_block = NULL;
+	int err_count = 0;
+	while (iter != NULL)
 	{
 		if (iter->err_flg != -2)
 		{
-			printf("bash: no such file or directory %s\n",iter->files[iter->err_flg]);
-			ft_error();//exit yapıyor
+			last_error_block = iter;
+			err_count++;
 		}
 		iter = iter->next;
 	}
+	iter = tmp_blk;
+	while(tmp_blk != NULL) //her komut bloğununn heredoc count'u ayrı tutuluyor ama her komut bloğunu gezdiğim için hepsini işleyebilmiş oluyorum
+	{
+		heredoc_handle((tmp_blk)->heredoc_count,heredoc_fd,(tmp_blk)->heredoc_delimiters,(tmp_blk)->lst_typ);
+		tmp_blk = tmp_blk->next;
+	}
+	if(err_count != 0)
+		file_cntrl(iter,last_error_block);
 }
+
 
 int	main(int argc, char *argv[], char **env)
 {
@@ -149,10 +155,12 @@ int	main(int argc, char *argv[], char **env)
 	expander(temp, env, exp);
 	remove_quotes(*list);
 	new_list = token_join(temp);
+	
 	command_block = parser(*new_list);
-	run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
-	file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.
 
+	run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
+	//file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.//run_heredoc içine koydum birleştirdim
+	
 
 /*
 int i = 0;

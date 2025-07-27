@@ -107,33 +107,89 @@ void file_cntrl(t_command_block *iter,t_command_block *last_error_block)
 	iter = iter->next;
 	}
 }
-
-
-void run_heredoc(t_command_block *tmp_blk) //kalıcı değişiklik yapacak mıyım ?
+/* 
+int count_pipes(t_joined_lexer_list **temp)
 {
-	int heredoc_fd[(tmp_blk)->heredoc_count][2];
-	t_command_block *iter = tmp_blk; // orijinal başlangıcı sakla
-	t_command_block *last_error_block = NULL;
-	int err_count = 0;
-	while (iter != NULL)
+	int pipe_count;
+
+	pipe_count = 0;
+	while((*temp) != NULL)
 	{
-		if (iter->err_flg != -2)
-		{
-			last_error_block = iter;
-			err_count++;
-		}
-		iter = iter->next;
+		if((*temp)->type == HEREDOC)
 	}
-	iter = tmp_blk;
-	while(tmp_blk != NULL) //her komut bloğununn heredoc count'u ayrı tutuluyor ama her komut bloğunu gezdiğim için hepsini işleyebilmiş oluyorum
-	{
-		heredoc_handle((tmp_blk)->heredoc_count,heredoc_fd,(tmp_blk)->heredoc_delimiters,(tmp_blk)->lst_typ);
-		tmp_blk = tmp_blk->next;
-	}
-	if(err_count != 0)
-		file_cntrl(iter,last_error_block);
 }
 
+void run_heredoc(t_joined_lexer_list **temp) 
+{
+	
+} */
+
+void print_error_check(t_joined_lexer_list *tmp)
+{
+	if(tmp->next->type == REDIR_IN)
+	{
+		printf("bash: syntax error near unexpected token `<'\n");
+		ft_error();
+	}
+	else if(tmp->next->type == REDIR_OUT)
+	{
+		printf("bash: syntax error near unexpected token `>'\n");
+		ft_error();
+	}
+	else if(tmp->next->type == APPEND)
+	{
+		printf("bash: syntax error near unexpected token `>>'\n");
+		ft_error();
+	}
+	else if(tmp->next->type == HEREDOC)
+	{
+		printf("bash: syntax error near unexpected token `<<'\n");
+		ft_error();
+	}
+	else if(tmp->next->type == PIPE)
+	{
+		printf("bash: syntax error near unexpected token `|'\n");
+		ft_error();
+	}
+}
+
+
+void check_tokens(t_joined_lexer_list **temp)
+{
+	t_joined_lexer_list *tmp;
+	
+	tmp = *temp;
+	if((tmp != NULL) && (tmp)->type == PIPE)
+	{
+		printf("bash: syntax error near unexpected token `|'\n");
+		ft_error();
+	}
+	while(tmp != NULL)
+	{	
+		if((tmp->type >= 2 && tmp->type <=5) && (tmp->next == NULL || tmp->next->type == PIPE)) //operatörler tek başına olamaz
+		{
+			if(tmp->next == NULL)
+			{
+				printf("bash: syntax error near unexpected token `newline'\n");
+				ft_error();
+			}
+			else if(tmp->next->type == PIPE)
+			{	
+				printf("bash: syntax error near unexpected token `|'");
+				ft_error();
+			}
+		}
+		while (tmp->type != PIPE && tmp->next != NULL)
+		{
+			if((tmp->type >= 2 && tmp->type <=5))
+			{
+				print_error_check(tmp);
+			}
+		tmp = tmp->next;
+		}
+	tmp = tmp->next;
+	}	
+}
 
 int	main(int argc, char *argv[], char **env)
 {
@@ -142,8 +198,10 @@ int	main(int argc, char *argv[], char **env)
 	(void)env;
 	t_lexer_list	*temp;
 	t_lexer_list	**list;
+	t_env			**env_list;
 	t_expander		*exp;
-	t_command_block	*command_block;
+	//t_env *tmp;
+	//t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
 
 	exp = malloc(sizeof(t_expander));
@@ -152,13 +210,19 @@ int	main(int argc, char *argv[], char **env)
 	signal_handler();
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
 	temp = *list;
-	expander(temp, env, exp);
+	env_list = take_env(env);
+	//tmp = *env_list;
+
+ 	expander(temp, *env_list, exp);
 	remove_quotes(*list);
 	new_list = token_join(temp);
-	
-	command_block = parser(*new_list);
+	check_tokens(new_list);
+	//run_heredoc()
 
-	run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
+
+	//command_block = parser(*new_list);
+
+	//run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
 	//file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.//run_heredoc içine koydum birleştirdim
 	
 

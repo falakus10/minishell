@@ -142,6 +142,7 @@ int	main(int argc, char *argv[], char **env)
 	(void)env;
 	t_lexer_list	*temp;
 	t_lexer_list	**list;
+	t_env			**env_list;
 	t_expander		*exp;
 	t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
@@ -152,13 +153,26 @@ int	main(int argc, char *argv[], char **env)
 	signal_handler();
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
 	temp = *list;
-	expander(temp, env, exp);
-	remove_quotes(*list);
-	new_list = token_join(temp);
+	env_list = take_env(env);
+	t_env *tmp;
+	tmp = *env_list;
+	while (tmp != NULL)
+	{
+		printf("line == %s ********   value ==  %s\n", tmp->line, tmp->value);
+		tmp = tmp->next;
+	}
+/* 	expander(temp, *env_list, exp);
+	while(temp != NULL)
+	{
+		printf("%s\n",temp->token);
+		temp = temp->next;
+	} */
+	//remove_quotes(*list);
+	//new_list = token_join(temp);
 	
-	command_block = parser(*new_list);
+	//command_block = parser(*new_list);
 
-	run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
+	//run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
 	//file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.//run_heredoc içine koydum birleştirdim
 	
 

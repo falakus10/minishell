@@ -39,24 +39,24 @@ char	*ft_strjoin_free(char *token, t_expander *expander)
 	return (new_token);
 }
 
-char *env_value(char **env, const char *key)
+char *env_value(t_env *env_list, const char *key)// expander patlarsa buraya bak önce
 {
 	size_t	key_len;
-	int		i;
 	char	*env_value;
+	t_env *temp;
 
-	if (env == NULL || key == NULL)
+	temp = env_list;
+	if (temp == NULL || key == NULL)
 		return (0);
 	key_len = ft_strlen(key);
-	i = 0;
-	while (env[i])
+	while (temp != NULL)
 	{
-		if (ft_strncmp(env[i], key, key_len) == 0 && env[i][key_len] == '=')
+		if (ft_strncmp(temp->line, key, key_len) == 0 && temp->line[key_len] == '=')
 		{
-			env_value = ft_substr(env[i], key_len + 1, ft_strlen(env[i]) - (key_len + 1));                         
+			env_value = ft_substr(temp->line, key_len + 1, ft_strlen(temp->line) - (key_len + 1));                         
 			return (env_value);
 		}
-		i++;
+		temp = temp->next;
 	}
 	return (NULL);                                
 }

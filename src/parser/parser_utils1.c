@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void	remove_quotes(t_lexer_list *lexer_list)
 {
 	t_lexer_list	*current;

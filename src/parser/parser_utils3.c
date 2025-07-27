@@ -21,7 +21,7 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int create_path(t_command_block *tmp_blk, char *word)
+int create_path(t_command_block *tmp_blk, char *word)  //t_env'ye göre güncelle !!!!
 {
     char *path_env;
 	char **paths;

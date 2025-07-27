@@ -104,7 +104,9 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 {
 	int *new_array;
 	int i;
-
+	printf("new value :%d\n",(new_value));
+	printf("heredoc count :%d\n",(count));
+	
 	new_array = malloc(sizeof(int) *(count + 1));
 	if(!new_array)
 		return (NULL);
@@ -116,6 +118,7 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 	}
 	new_array[i] = new_value;
 	free(array);
+	printf("new_array[%d], value = %d\n",i,new_array[i]);
 	return (new_array);
 }
 
@@ -125,19 +128,23 @@ t_command_block	*init_command_block(void)
 	
 	new_block = malloc(sizeof(t_command_block));
 	if (!new_block)
-	return (NULL);
+		return (NULL);
 	new_block->next = NULL;
 	new_block->args = NULL;
 	new_block->fd = NULL;
 	new_block->files = NULL;
 	new_block->operators = NULL;
 	new_block->heredoc_delimiters = NULL;
+	new_block->heredoc_fd = malloc(sizeof(int));
 	new_block->heredoc_count = 0;
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->fd_count = 0;
 	new_block->input_fd = -1;
 	new_block->output_fd = -1;
+	new_block->err_sign = 0;
+	new_block->err_flg = -2; //öylesine -2 ile başlattım önemli mi ?
+	new_block->lst_typ = 0; //Typelar 1 den başlıyor zaten PIPE ile
 	new_block->command = NULL;
 	return (new_block);
 }

@@ -28,7 +28,7 @@ char *file_path(char *file)
 {
 	char buf[256];
 	char *full_path;
-
+	//file ismi $ ile başlıyorsa hata
 	getcwd(buf, sizeof(buf));
 	full_path = malloc(ft_strlen(buf) + ft_strlen(file) + 2); // / ve \0 için +2
 	if(!full_path)
@@ -41,68 +41,73 @@ char *file_path(char *file)
 	ft_strcat(full_path,file);
 	return (full_path);
 }
-void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
+
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // açılan fd'leri close yapmadım henüz, kullanılmayacak olanları close yap
 {
 	char *file_pth;
 	int type;
 
 	type = (*tmp_list)->type;
 	file_pth = file_path((*tmp_list)->next->token);
+
 	if(type == REDIR_IN)
 	{
 		if(access(file_pth,F_OK) == 0)
 		{
 			(*tmp_blk)->input_fd = open(file_pth,O_RDONLY);
-			if ((*tmp_blk)->input_fd == -1)
+			if ((*tmp_blk)->input_fd == -1) //açamaması da aslında bir hata ama böyle bir şey olmaz
 			{
-				write(2, "bash: (*tmp_list)->next->token: no such file or directory\n",59);
+				write(2, "bash: (*tmp_list)->next->token: no such file or directory\n",59); //openla açamadı mesajı olmalı no such file or directory değil
 				//exit kodu eklenmeli $?
 				ft_error(); //exit yapıyor
 			}
 		}
 		else
-		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
+		{	if ((*tmp_blk)->err_sign == 0) 
+			{
+				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count; //error oluşturan dosyanın fd'sini tutacak
+				(*tmp_blk)->err_sign = 1; //komut bloğunda sorun oluşturan dosya işaretlendi diyoruz
+			}
 		}
 	}
 	else if(type == REDIR_OUT)
 	{
-		if(access(file_pth,F_OK) == 0)
-		{
-			(*tmp_blk)->output_fd = open(file_pth,O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if ((*tmp_blk)->output_fd == -1)
+			if((*tmp_list)->next->token[0] == '$')
 			{
-				write(2, "no such file or directory\n",26);
-				//exit kodu eklenmeli $?
-				ft_error(); //exit yapıyor
+				(*tmp_blk)->err_flg = (*tmp_blk)->operator_count; //error oluşturan dosyanın fd'sini tutacak
+				(*tmp_blk)->err_sign = 1; //komut bloğunda sorun oluşturan dosya işaretlendi diyoruz
 			}
-		}
-		else
-		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
-		}
+			if((*tmp_blk)->err_sign == 0)
+			{
+				(*tmp_blk)->output_fd = open(file_pth,O_WRONLY | O_CREAT | O_TRUNC, 0644); //her zaman açmış olacağı için alttaki koşula hiç girmeyecek
+				if ((*tmp_blk)->output_fd == -1)
+				{		
+					if ((*tmp_blk)->err_sign == 0)//redioutlar için burayı muhtemelen silicem cünkü gerek yok bence ama şuan için kalsın //output fdlerde hata olmaz gereksiz, açamama durumu olabilir ama olmaz, openla dosya açıldığı için fd -1de kalmayacak o yüzden sorun yok
+					{
+						(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+						(*tmp_blk)->err_sign = 1;
+					}
+				}
+			}
 	}
 	else if(type == APPEND)
 	{
-		if(access(file_pth,F_OK) == 0)
+		if((*tmp_list)->next->token[0] == '$')
+		{
+			(*tmp_blk)->err_flg = (*tmp_blk)->operator_count; //error oluşturan dosyanın fd'sini tutacak
+			(*tmp_blk)->err_sign = 1; //komut bloğunda sorun oluşturan dosya işaretlendi diyoruz
+		}
+		if((*tmp_blk)->err_sign == 0)
 		{
 			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if ((*tmp_blk)->output_fd == -1)
+			if ((*tmp_blk)->output_fd == -1)//bu olmaz zaten silinebilir
 			{
-				write(2, "bash: (*tmp)no such file or directory\n",26);
-				//exit kodu eklenmeli $?
-				ft_error(); //exit yapıyor
+				if ((*tmp_blk)->err_sign == 0) //redioutlar için burayı muhtemelen silicem cünkü gerek yok bence ama şuan için kalsın //output fdlerde hata olmaz gereksiz, açamama durumu olabilir ama olmaz 
+				{
+					(*tmp_blk)->err_flg = (*tmp_blk)->operator_count;
+					(*tmp_blk)->err_sign = 1;
+				}
 			}
-		}
-		else
-		{
-			write(2, "no such file or directory\n",26);
-			//exit kodu eklenmeli $?
-			ft_error(); //exit yapıyor
 		}
 	}
 }
@@ -136,6 +141,14 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils)
 {
+	if ((*tmp) && (*tmp)->next && (*tmp)->next->next && //komut blogunun son girdisi << delim | ise ;
+	(*tmp)->type == HEREDOC &&
+	(*tmp)->next->type == WORD &&
+	(*tmp)->next->next->type == PIPE)
+	{
+		(*tmp_blk)->lst_typ = HEREDOC;  
+	}
+
 	int fd_count;
 
 	fd_count = 0;

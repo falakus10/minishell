@@ -29,71 +29,6 @@ t_lexer_list	**input_loop(void)
 	return (list);
 }
 
-
-void heredoc_handle(int heredoc_count,int heredoc_fd[][2],char **heredoc_delims,int lst_type)
-{
-	int		i;
-	pid_t	pid;
-	char	*line;
-
-	for (i = 0; i < heredoc_count; i++)
-	{
-		if (pipe(heredoc_fd[i]) == -1)
-		{
-			perror("pipe");
-			exit(EXIT_FAILURE);
-		}
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0) // child
-		{
-			close(heredoc_fd[i][0]); // read ucunu kapat
-			while (1)
-			{
-				line = readline("> ");
-				if (!line || strcmp(line, heredoc_delims[i]) == 0)
-				{
-					free(line);
-					break;
-				}
-				write(heredoc_fd[i][1], line, strlen(line));
-				write(heredoc_fd[i][1], "\n", 1);
-				free(line);
-			}
-			close(heredoc_fd[i][1]);
-			exit(0);
-		}
-		else // parent
-		{
-			close(heredoc_fd[i][1]); // write ucunu kapat
-			waitpid(pid, NULL, 0);
-		}
-	}
-
-	// İş bittikten sonra: son heredoc komutun input'u olacak mı?
-	for (i = 0; i < heredoc_count; i++)
-	{
-		if (i == heredoc_count - 1 && lst_type)
-			continue; // bu fd'yi komut alacak, açık bırak
-		close(heredoc_fd[i][0]); // Diğer heredoc'ların read uçlarını kapat
-	}
-
-	/*
-	// FD'leri kapat
-	for (i = 0; i < heredoc_count; i++)
-	{
-		if (i == heredoc_count - 1 && lst_type)  // pipedan önceki veya son komut bloğunun sonundaki eleman << delim ise input_fdye heredocun fdsini ata
-			*input_fd = heredoc_fd[i][0]; // son heredoc komutun input'u olacak
-		else
-			close(heredoc_fd[i][0]); // diğerlerini kapat
-	}
-	*/
-}
-
 void file_cntrl(t_command_block *iter,t_command_block *last_error_block)
 {
 	while(iter != NULL) //burası file_control fonksiyonu. Eğer heredoc_count 0 ise, sadece bu fonksiyon çalışısn diyebiliriz.
@@ -107,88 +42,174 @@ void file_cntrl(t_command_block *iter,t_command_block *last_error_block)
 	iter = iter->next;
 	}
 }
-/* 
-int count_pipes(t_joined_lexer_list **temp)
-{
-	int pipe_count;
 
-	pipe_count = 0;
-	while((*temp) != NULL)
+void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
+{
+	int		i;
+	int		fd[2];
+	pid_t	pid;
+	char	*line;
+	int j = 0;
+	int k = 0;
+	for (i = 0; i < heredoc_count; i++)
 	{
-		if((*temp)->type == HEREDOC)
-	}
-}
-
-void run_heredoc(t_joined_lexer_list **temp) 
-{
 	
-} */
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork");
+			exit(EXIT_FAILURE);
+		}
+		else if (pid == 0) // child
+		{
+			close(fd[0]); // read ucunu kapat
+			while (1)
+			{
+				line = readline("> ");
+				if (!line || ft_strcmp(line, mng->heredoc_delims[i]) == 0)
+				{
+					free(line);
+					break;
+				}
+				write(fd[1], line, ft_strlen(line));
+				write(fd[1], "\n", 1);
+				free(line);
+			}
+			close(fd[1]);
+			exit(0);
+		}
+		else // parent
+		{
+			close(fd[1]); // write ucunu kapat
+			waitpid(pid, NULL, 0);
 
-void print_error_check(t_joined_lexer_list *tmp)
-{
-	if(tmp->next->type == REDIR_IN)
-	{
-		printf("bash: syntax error near unexpected token `<'\n");
-		ft_error();
-	}
-	else if(tmp->next->type == REDIR_OUT)
-	{
-		printf("bash: syntax error near unexpected token `>'\n");
-		ft_error();
-	}
-	else if(tmp->next->type == APPEND)
-	{
-		printf("bash: syntax error near unexpected token `>>'\n");
-		ft_error();
-	}
-	else if(tmp->next->type == HEREDOC)
-	{
-		printf("bash: syntax error near unexpected token `<<'\n");
-		ft_error();
-	}
-	else if(tmp->next->type == PIPE)
-	{
-		printf("bash: syntax error near unexpected token `|'\n");
-		ft_error();
+			if(k < mng->heredoc_nums[j])
+				k++;
+			else
+			{
+				if(mng->heredoc_flags[j])
+				mng->heredoc_fds[j] = fd[0];
+				k = 0;
+				j++; 
+			}
+		}
 	}
 }
 
-
-void check_tokens(t_joined_lexer_list **temp)
+int count_heredoc(t_joined_lexer_list **temp)
 {
 	t_joined_lexer_list *tmp;
-	
+	int heredoc_count;
+
 	tmp = *temp;
-	if((tmp != NULL) && (tmp)->type == PIPE)
-	{
-		printf("bash: syntax error near unexpected token `|'\n");
-		ft_error();
-	}
+	heredoc_count = 0;
 	while(tmp != NULL)
-	{	
-		if((tmp->type >= 2 && tmp->type <=5) && (tmp->next == NULL || tmp->next->type == PIPE)) //operatörler tek başına olamaz
-		{
-			if(tmp->next == NULL)
-			{
-				printf("bash: syntax error near unexpected token `newline'\n");
-				ft_error();
-			}
-			else if(tmp->next->type == PIPE)
-			{	
-				printf("bash: syntax error near unexpected token `|'");
-				ft_error();
-			}
-		}
-		while (tmp->type != PIPE && tmp->next != NULL)
-		{
-			if((tmp->type >= 2 && tmp->type <=5))
-			{
-				print_error_check(tmp);
-			}
+	{
+		if(tmp->type == HEREDOC)
+			heredoc_count++;
 		tmp = tmp->next;
+	}
+	return (heredoc_count);
+}
+
+int count_cmd_blk(t_joined_lexer_list **temp)
+{
+	int pipe_count;
+	t_joined_lexer_list *tmp;
+
+	pipe_count = 0;
+	tmp = (*temp);
+	while((tmp) != NULL) //tmp->next != NULL da olur ama böyle kalabilir 
+	{
+		if(tmp->type == PIPE)
+			pipe_count++;
+		tmp=tmp->next;
+	}
+	return (pipe_count + 1);
+}
+
+
+char **free_heredoc_delimiters(char **delims, int last_index) //gerek var mı ?
+{
+	while (--last_index >= 0)
+		free(delims[last_index]);
+	free(delims);
+	return (NULL);
+}
+
+
+void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs)
+{
+	t_joined_lexer_list *tmp;
+	int i = 0;
+	tmp = *temp;
+	while (tmp && i < heredoc_count)
+	{
+		if (tmp->type == HEREDOC && tmp->next && tmp->next->token)
+		{
+			(*mng_heredocs)->heredoc_delims[i] = ft_strdup(tmp->next->token);
+			if (!(*mng_heredocs)->heredoc_delims[i])
+				free_heredoc_delimiters((*mng_heredocs)->heredoc_delims, i); //gerek var mı 
+			i++;
 		}
-	tmp = tmp->next;
-	}	
+		tmp = tmp->next;
+	}
+	(*mng_heredocs)->heredoc_delims[i] = NULL;
+}
+
+void fill_heredoc_nums(t_mng_heredocs **mng_heredocs,t_joined_lexer_list **temp,int heredoc_count)
+{
+	t_joined_lexer_list *tmp;
+	int i;
+
+	tmp = *temp;
+	i = 0;
+	while(tmp != NULL)
+	{
+		if((tmp->type == HEREDOC))
+		{
+			(*mng_heredocs)->heredoc_nums[i]++;
+			if(tmp->next->next == NULL)
+				break;
+			else if (tmp->next->next->type == PIPE)
+				i++;
+		}
+		tmp=tmp->next;
+	}
+}
+
+t_mng_heredocs *fill_hrdc_flgs(t_joined_lexer_list **temp, int cmd_blk_count) 
+{
+	t_mng_heredocs *mng_heredocs;
+	t_joined_lexer_list *tmp;
+	int i;
+
+	mng_heredocs = malloc(sizeof(mng_heredocs));
+	mng_heredocs->heredoc_flags = malloc(sizeof(int) * cmd_blk_count);
+	mng_heredocs->heredoc_fds = malloc(sizeof(int) *  cmd_blk_count);
+	mng_heredocs->heredoc_nums = malloc(sizeof(int) *cmd_blk_count);
+	mng_heredocs->heredoc_delims = malloc(sizeof(char *) * (count_heredoc(temp) + 1));
+	tmp = *temp;
+
+	ft_memset(mng_heredocs->heredoc_flags,0,sizeof(mng_heredocs->heredoc_flags));
+	ft_memset(mng_heredocs->heredoc_fds,-1,sizeof(mng_heredocs->heredoc_fds));
+	ft_memset(mng_heredocs->heredoc_nums,0,sizeof(mng_heredocs)->heredoc_fds);
+	i = 0;
+	while(tmp != NULL)
+	{
+		if((tmp->type == HEREDOC) && (tmp->next != NULL))
+		{
+			if(tmp->next->next == NULL) //son komut bloğunun sonu << delim şeklinde bitiyorsa
+				mng_heredocs->heredoc_flags[i++] = 1;
+			else if(tmp->next->next->type == PIPE) //komut bloğunun sonu << delim şeklinde bitiyorsa
+				mng_heredocs->heredoc_flags[i++] = 1;
+		}
+		tmp = tmp->next;
+	}
+	take_heredoc_delims(temp,count_heredoc(temp),&mng_heredocs);
+	fill_heredoc_nums(&mng_heredocs,temp,count_heredoc(temp));
+	heredoc_handle(mng_heredocs,count_heredoc(temp));
+	return (mng_heredocs);
 }
 
 int	main(int argc, char *argv[], char **env)
@@ -203,25 +224,38 @@ int	main(int argc, char *argv[], char **env)
 	//t_env *tmp;
 	//t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
-
+	t_mng_heredocs *mng_hereodocs;
 	exp = malloc(sizeof(t_expander));
 	if (!exp)
 		return (0);
 	signal_handler();
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
-	temp = *list;
+	temp = *list;	
 	env_list = take_env(env);
-	//tmp = *env_list;
+	//tmp = *env_list;  //tmp e gerek var mı ?
 
  	expander(temp, *env_list, exp);
 	remove_quotes(*list);
 	new_list = token_join(temp);
 	check_tokens(new_list);
-	//run_heredoc()
-
+	mng_hereodocs=fill_hrdc_flgs(new_list,count_cmd_blk(new_list));
+	int heredoc_nbr = count_heredoc(new_list);
+	int cmd_blk_nbr = count_cmd_blk(new_list);
+	int i = 0;
+	while(i < cmd_blk_nbr)
+	{
+		printf("heredoc_flags[%d] = %d\n",i,mng_hereodocs->heredoc_flags[i]);
+		printf("heredoc_fds[%d] = %d\n",i,mng_hereodocs->heredoc_fds[i]);
+		i++;
+	}
+	i = 0;
+	while(i < heredoc_nbr)
+	{
+		printf("heredoc_delims[%d] = %s\n",i,mng_hereodocs->heredoc_delims[i]);
+		i++;
+	}
 
 	//command_block = parser(*new_list);
-
 	//run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
 	//file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.//run_heredoc içine koydum birleştirdim
 	

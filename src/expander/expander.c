@@ -68,7 +68,7 @@ int quote(char *token, t_expander *expander)
 	return (0);
 }
 
-void expander(t_lexer_list *temp,t_env *env_list, t_expander *expander)
+void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 {
 	if (temp == NULL || temp->token == NULL)
 	    return;

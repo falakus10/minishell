@@ -23,6 +23,15 @@ typedef struct s_lexer_list
 	struct s_lexer_list			*next;
 }								t_lexer_list;
 
+typedef struct s_mng_heredocs
+{
+	int *heredoc_flags;
+	int *heredoc_fds;
+	int *heredoc_nums; //hangi heredocların komut bloğunun sonunda olduğunu tutacak
+	char **heredoc_delims;
+
+}t_mng_heredocs;
+
 typedef struct s_env
 {
 	char *line;
@@ -32,7 +41,6 @@ typedef struct s_env
 
 typedef struct s_joined_lexer_list
 {
-	int							heredoc_sign; //pipe'tan önceki veya son komut bloğunun sonu <<delim ise işaretle, onu input fd alıcaz.
 	int							type;
 	char						*token;
 	struct s_joined_lexer_list	*next;
@@ -166,6 +174,7 @@ int 							*append_to_array2(int *array, int count, int new_value);
 int 							find_fd(char *file,t_command_block *temp); //galiba sildim
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
+int								ft_strcmp(const char *s1, const char *s2);
 int								executor(t_command_block *cmd, char **env, t_executor *exe);
 int								is_builtin(char *cmd);
 int 							create_path(t_command_block *tmp_blk, char *word);
@@ -173,7 +182,12 @@ void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
-
-
+void is_first_pipe(t_joined_lexer_list *tmp);
 t_env **take_env(char **env);
+void just_operator(t_joined_lexer_list *tmp);
+void	print_error_check(t_joined_lexer_list *tmp);
+void check_tokens(t_joined_lexer_list **temp);
+
+
+
 #endif

@@ -56,19 +56,19 @@ t_joined_lexer_list	*merge_words(t_lexer_list **temp,t_joined_lexer_list *curren
 t_joined_lexer_list	**token_join(t_lexer_list *lexer_list)
 {
 	t_joined_lexer_list	**list;
-	t_lexer_list		*temp;
 	t_joined_lexer_list	*current;
+	t_lexer_list		*temp;
 	
 	list = malloc(sizeof(t_joined_lexer_list *));
 	if (!list)
-	return (NULL);
+		return (NULL);
 	*list = NULL;
 	temp = lexer_list;
 	while (temp != NULL)
 	{
 		current = add_new_node2(list);
 		if (temp->type > 5)
-		current = merge_words(&temp, current);
+			current = merge_words(&temp, current);
 		else
 		{
 			current->token = temp->token;

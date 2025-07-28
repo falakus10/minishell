@@ -32,6 +32,7 @@ typedef struct s_env
 
 typedef struct s_joined_lexer_list
 {
+	int							heredoc_sign; //pipe'tan önceki veya son komut bloğunun sonu <<delim ise işaretle, onu input fd alıcaz.
 	int							type;
 	char						*token;
 	struct s_joined_lexer_list	*next;
@@ -172,6 +173,7 @@ void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
+char	**env_list_to_envp(t_env *env_list);
 
 
 t_env **take_env(char **env);

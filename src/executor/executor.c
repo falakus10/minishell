@@ -57,7 +57,7 @@ int command_count(t_command_block *cmd)
 	return (count);
 }
 
-int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
+int	run_single_cmd(t_command_block *cmd, t_env *env, int count, t_executor *exe)
 {
 	cmd->pid = fork();
 	if (cmd->pid == 0)
@@ -85,8 +85,11 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 }
 
 
-int	executor(t_command_block *cmd, char **env, t_executor *exe)
+int	executor(t_command_block *cmd, t_env *env, t_executor *exe)
 {
+	char	**envp;
+
+	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	if (cmd->cmd_count == 1)
 	{
@@ -96,7 +99,7 @@ int	executor(t_command_block *cmd, char **env, t_executor *exe)
 		}
 		else
 		{
-			run_single_cmd(cmd, env, cmd->cmd_count, exe);
+			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
 		}
 	}
 	else

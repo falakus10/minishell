@@ -10,9 +10,9 @@ int	built_in(t_command_block *cmd, t_env *env, t_executor *exe)
 	if (which_cmd == 1)
 		value = ft_cd(cmd, env);
 	else if (which_cmd == 2)
-		value = ft_export(cmd, env, exe);
+		value = ft_export(cmd, env);
 	else if (which_cmd == 3)
-		value = ft_unset(cmd, env, exe);
+		value = ft_unset(cmd, &env);
 	else if (which_cmd == 4)
 		value = ft_exit(cmd);
 	else if (which_cmd == 5)

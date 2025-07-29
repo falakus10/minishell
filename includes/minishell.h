@@ -13,7 +13,7 @@
 # include <sys/wait.h>
 # include <termios.h>
 # include <unistd.h>
-
+#include <limits.h>
 
 typedef struct s_lexer_list
 {

@@ -28,7 +28,7 @@ void	close_fd(int index, int count, t_executor *exe)
 		i++;
 	}
 }
-int	child_exec(t_command_block *cmd, char** env, int count, t_executor *exe)
+int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	t_command_block	*tmp;
 	int	i;

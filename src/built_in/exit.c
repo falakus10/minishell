@@ -24,7 +24,7 @@ int	ft_exit(t_command_block *cmd)
 	if (cmd->args[1] != NULL && (cmd->args[2] == NULL))
 	{
 		if (is_number(cmd->args[1]))
-			exit_code = ft_atoi(cmd->args[1]);
+			exit_code = (ft_atoi(cmd->args[1])) % 256;
 		else
 			exit_code = 255;
 	}

@@ -57,13 +57,13 @@ int command_count(t_command_block *cmd)
 	return (count);
 }
 
-int	run_single_cmd(t_command_block *cmd, t_env *env, int count, t_executor *exe)
+int	run_single_cmd(t_command_block *cmd, t_env **env, int count, t_executor *exe)
 {
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
 		make_dup(cmd, -1, count, exe);
-		execve(cmd->command, cmd->args, env);
+		execve(cmd->command, cmd->args, env);//char ** alıcak;
 		perror("execve failed!");
 		exit (1);
 	}
@@ -85,7 +85,7 @@ int	run_single_cmd(t_command_block *cmd, t_env *env, int count, t_executor *exe)
 }
 
 
-int	executor(t_command_block *cmd, t_env *env, t_executor *exe)
+int	executor(t_command_block *cmd, t_env **env, t_executor *exe)
 {
 	char	**envp;
 

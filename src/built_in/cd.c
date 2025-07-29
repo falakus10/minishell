@@ -1,9 +1,30 @@
 #include "minishell.h"
 
-void	update_oldpwd(t_env *env, char *old_pwd) //OLDPWD yok durumu incelenmeli mi
+void	add_deleted(t_env *env, char *line, char* value)
 {
 	t_env	*tmp;
-	int		flag;
+	t_env	*node;
+
+	node = malloc(sizeof(t_env));
+	if (!node || !value || !line)
+	{
+		free(node);
+		free(value);
+		free(line);
+		ft_error();
+	}
+	tmp = env;
+	while (tmp->next != NULL)
+		tmp = tmp->next;
+	tmp->next = node;
+	node->line = line;
+	node->value = value;
+	node->next = NULL;
+}
+
+void	update_oldpwd(t_env *env, char *old_pwd)
+{
+	t_env	*tmp;
 
 	tmp = env;
 	while (tmp)
@@ -13,41 +34,43 @@ void	update_oldpwd(t_env *env, char *old_pwd) //OLDPWD yok durumu incelenmeli mi
 			free(tmp->value);
 			free(tmp->line);
 			tmp->value = ft_strdup(old_pwd);
-			tmp->line = ft_strjoin("OLDPWD=", old_pwd);	
-			break;		
+			tmp->line = ft_strjoin("OLDPWD=", old_pwd);
+			return;
 		}
 		tmp = tmp->next;
 	}
+	add_deleted(env, ft_strjoin("OLDPWD=", old_pwd), ft_strdup(old_pwd));
 }
 
-void	update_pwd(t_env *env, char *path)
+void	update_pwd(t_env *env, char *old_pwd)
 {
-	char	*old_pwd;
 	t_env	*tmp;
+	char	*current_pwd;
+	char	cwd[256];
 
+	current_pwd = ft_strdup(getcwd(cwd, 256));
 	tmp = env;
-	old_pwd = NULL;
 	while (tmp)
 	{
 		if (ft_strncmp("PWD=", tmp->line, 4) == 0)
 		{
-			old_pwd = ft_strdup(tmp->value);
 			free(tmp->value);
 			free(tmp->line);
-			tmp->value = ft_strdup(path);
-			tmp->line = ft_strjoin("PWD=", path);
-			break;			
+			tmp->value = current_pwd;
+			tmp->line = ft_strjoin("PWD=", current_pwd);
+			break;
 		}
 		tmp = tmp->next;
 	}
-	if(old_pwd)
+	if (!tmp)
+		add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd);
+	if (old_pwd)
 	{
 		update_oldpwd(env, old_pwd);
-		free(old_pwd);
 	}
 }
 
-int	go_home(t_env *env)
+int	go_home(t_env *env, char *old_pwd)
 {
 	t_env	*tmp;
 	char 	*home_path;
@@ -62,7 +85,7 @@ int	go_home(t_env *env)
 	}
 	if (home_path == NULL)
 	{
-		perror("cd");
+		write(2, "cd: HOME not set\n", 16);
 		return (1);
 	}
 	if (chdir(home_path) != 0)
@@ -71,36 +94,34 @@ int	go_home(t_env *env)
 		free(home_path);
 		return (1);
 	}
-	update_pwd(env, home_path);
+	update_pwd(env, old_pwd);
 	free(home_path);
 	return (0);
 }
 
 int	ft_cd(t_command_block *cmd, t_env *env)
 {
-	char *path;
-	
-	if (cmd->args[1] == NULL)
+	char	cwd[256];
+	char	*old_pwd;
+	int		status;
+
+	status = 1;
+	old_pwd = ft_strdup(getcwd(cwd, 256));
+	if (!cmd->args[1])
+		status = go_home(env, old_pwd);
+	else if (!cmd->args[2])
 	{
-		if (go_home(env) == 0)
-			return (0);
-		return (1);
-	}
-	else
-	{
-		path = ft_strdup(cmd->args[1]);
-		if (chdir(path) != 0)
-		{
+		if (chdir(cmd->args[1]) != 0)
 			perror("cd");
-			free(path);
-			return (1);
-		}
 		else
 		{
-			update_pwd(env, path);
-			free(path);
-			return (0);
+			update_pwd(env, old_pwd);
+			status = 0;
 		}
 	}
-	return (1);
+	else
+		write(2, "cd: too many arguments\n", 23);
+	free(old_pwd);
+	return (status);
 }
+

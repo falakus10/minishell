@@ -43,174 +43,6 @@ void file_cntrl(t_command_block *iter,t_command_block *last_error_block)
 	}
 }
 
-void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
-{
-	int		i;
-	int		fd[2];
-	pid_t	pid;
-	char	*line;
-	int j = 0;
-	int k = 0;
-	for (i = 0; i < heredoc_count; i++)
-	{
-	
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0) // child
-		{
-			close(fd[0]); // read ucunu kapat
-			while (1)
-			{
-				line = readline("> ");
-				if (!line || ft_strcmp(line, mng->heredoc_delims[i]) == 0)
-				{
-					free(line);
-					break;
-				}
-				write(fd[1], line, ft_strlen(line));
-				write(fd[1], "\n", 1);
-				free(line);
-			}
-			close(fd[1]);
-			exit(0);
-		}
-		else // parent
-		{
-			close(fd[1]); // write ucunu kapat
-			waitpid(pid, NULL, 0);
-
-			if(k < mng->heredoc_nums[j])
-				k++;
-			else
-			{
-				if(mng->heredoc_flags[j])
-				mng->heredoc_fds[j] = fd[0];
-				k = 0;
-				j++; 
-			}
-		}
-	}
-}
-
-int count_heredoc(t_joined_lexer_list **temp)
-{
-	t_joined_lexer_list *tmp;
-	int heredoc_count;
-
-	tmp = *temp;
-	heredoc_count = 0;
-	while(tmp != NULL)
-	{
-		if(tmp->type == HEREDOC)
-			heredoc_count++;
-		tmp = tmp->next;
-	}
-	return (heredoc_count);
-}
-
-int count_cmd_blk(t_joined_lexer_list **temp)
-{
-	int pipe_count;
-	t_joined_lexer_list *tmp;
-
-	pipe_count = 0;
-	tmp = (*temp);
-	while((tmp) != NULL) //tmp->next != NULL da olur ama böyle kalabilir 
-	{
-		if(tmp->type == PIPE)
-			pipe_count++;
-		tmp=tmp->next;
-	}
-	return (pipe_count + 1);
-}
-
-
-char **free_heredoc_delimiters(char **delims, int last_index) //gerek var mı ?
-{
-	while (--last_index >= 0)
-		free(delims[last_index]);
-	free(delims);
-	return (NULL);
-}
-
-
-void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs)
-{
-	t_joined_lexer_list *tmp;
-	int i = 0;
-	tmp = *temp;
-	while (tmp && i < heredoc_count)
-	{
-		if (tmp->type == HEREDOC && tmp->next && tmp->next->token)
-		{
-			(*mng_heredocs)->heredoc_delims[i] = ft_strdup(tmp->next->token);
-			if (!(*mng_heredocs)->heredoc_delims[i])
-				free_heredoc_delimiters((*mng_heredocs)->heredoc_delims, i); //gerek var mı 
-			i++;
-		}
-		tmp = tmp->next;
-	}
-	(*mng_heredocs)->heredoc_delims[i] = NULL;
-}
-
-void fill_heredoc_nums(t_mng_heredocs **mng_heredocs,t_joined_lexer_list **temp,int heredoc_count)
-{
-	t_joined_lexer_list *tmp;
-	int i;
-
-	tmp = *temp;
-	i = 0;
-	while(tmp != NULL)
-	{
-		if((tmp->type == HEREDOC))
-		{
-			(*mng_heredocs)->heredoc_nums[i]++;
-			if(tmp->next->next == NULL)
-				break;
-			else if (tmp->next->next->type == PIPE)
-				i++;
-		}
-		tmp=tmp->next;
-	}
-}
-
-t_mng_heredocs *fill_hrdc_flgs(t_joined_lexer_list **temp, int cmd_blk_count) 
-{
-	t_mng_heredocs *mng_heredocs;
-	t_joined_lexer_list *tmp;
-	int i;
-
-	mng_heredocs = malloc(sizeof(mng_heredocs));
-	mng_heredocs->heredoc_flags = malloc(sizeof(int) * cmd_blk_count);
-	mng_heredocs->heredoc_fds = malloc(sizeof(int) *  cmd_blk_count);
-	mng_heredocs->heredoc_nums = malloc(sizeof(int) *cmd_blk_count);
-	mng_heredocs->heredoc_delims = malloc(sizeof(char *) * (count_heredoc(temp) + 1));
-	tmp = *temp;
-
-	ft_memset(mng_heredocs->heredoc_flags,0,sizeof(mng_heredocs->heredoc_flags));
-	ft_memset(mng_heredocs->heredoc_fds,-1,sizeof(mng_heredocs->heredoc_fds));
-	ft_memset(mng_heredocs->heredoc_nums,0,sizeof(mng_heredocs)->heredoc_fds);
-	i = 0;
-	while(tmp != NULL)
-	{
-		if((tmp->type == HEREDOC) && (tmp->next != NULL))
-		{
-			if(tmp->next->next == NULL) //son komut bloğunun sonu << delim şeklinde bitiyorsa
-				mng_heredocs->heredoc_flags[i++] = 1;
-			else if(tmp->next->next->type == PIPE) //komut bloğunun sonu << delim şeklinde bitiyorsa
-				mng_heredocs->heredoc_flags[i++] = 1;
-		}
-		tmp = tmp->next;
-	}
-	take_heredoc_delims(temp,count_heredoc(temp),&mng_heredocs);
-	fill_heredoc_nums(&mng_heredocs,temp,count_heredoc(temp));
-	heredoc_handle(mng_heredocs,count_heredoc(temp));
-	return (mng_heredocs);
-}
 
 int	main(int argc, char *argv[], char **env)
 {
@@ -221,10 +53,10 @@ int	main(int argc, char *argv[], char **env)
 	t_lexer_list	**list;
 	t_env			**env_list;
 	t_expander		*exp;
-	//t_env *tmp;
-	//t_command_block	*command_block;
+	t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
-	t_mng_heredocs *mng_hereodocs;
+	t_mng_heredocs *mng_heredocs;
+	int flag;
 	exp = malloc(sizeof(t_expander));
 	if (!exp)
 		return (0);
@@ -232,32 +64,31 @@ int	main(int argc, char *argv[], char **env)
 	list = input_loop(); //bu listede lexer'da ayrılmış olan token'ları tutuyoruz 
 	temp = *list;	
 	env_list = take_env(env);
-	//tmp = *env_list;  //tmp e gerek var mı ?
-
  	expander(temp, *env_list, exp);
 	remove_quotes(*list);
 	new_list = token_join(temp);
-	check_tokens(new_list);
-	mng_hereodocs=fill_hrdc_flgs(new_list,count_cmd_blk(new_list));
-	int heredoc_nbr = count_heredoc(new_list);
-	int cmd_blk_nbr = count_cmd_blk(new_list);
+	flag = check_tokens(new_list); //tokenlar kontrol edildi
+	mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
+	if(flag)
+		ft_error();
+	command_block= parser(*new_list);
+	
+	
+	
+	/*
 	int i = 0;
-	while(i < cmd_blk_nbr)
+	while(i < count_cmd_blk(new_list))
 	{
-		printf("heredoc_flags[%d] = %d\n",i,mng_hereodocs->heredoc_flags[i]);
-		printf("heredoc_fds[%d] = %d\n",i,mng_hereodocs->heredoc_fds[i]);
+		printf("heredoc_flags[%d] = %d\n",i,mng_heredocs->heredoc_flags[i]);
+		printf("heredoc_fds[%d] = %d\n",i,mng_heredocs->heredoc_fds[i]);
+		printf("heredoc_nums[%d] = %d\n",i,mng_heredocs->heredoc_nums[i]);
 		i++;
-	}
-	i = 0;
-	while(i < heredoc_nbr)
-	{
-		printf("heredoc_delims[%d] = %s\n",i,mng_hereodocs->heredoc_delims[i]);
-		i++;
-	}
-
-	//command_block = parser(*new_list);
+	}*/
+	
 	//run_heredoc(command_block); //sadece heredoc varsa, hem heredoc hem dosyalar varsa durumu. //heredoc yoksa ve hatalı dosya varsa bu fonksiyon yakalayamıyor onun için bir fonksiyon yazalım
 	//file_cntrl(command_block); //hatalı dosya var ama heredoc hiç yoksa hatalı dosyayı bul ve hatayı bas.//run_heredoc içine koydum birleştirdim
+	
+	
 	
 
 /*

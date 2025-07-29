@@ -25,9 +25,9 @@ typedef struct s_lexer_list
 
 typedef struct s_mng_heredocs
 {
-	int *heredoc_flags;
-	int *heredoc_fds;
-	int *heredoc_nums; //hangi heredocların komut bloğunun sonunda olduğunu tutacak
+	int *heredoc_flags;    
+	int *heredoc_fds; 
+	int *heredoc_nums;
 	char **heredoc_delims;
 
 }t_mng_heredocs;
@@ -182,12 +182,26 @@ void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
-void is_first_pipe(t_joined_lexer_list *tmp);
 t_env **take_env(char **env);
-void just_operator(t_joined_lexer_list *tmp);
-void	print_error_check(t_joined_lexer_list *tmp);
-void check_tokens(t_joined_lexer_list **temp);
+int is_first_pipe(t_joined_lexer_list *tmp);
+int just_operator(t_joined_lexer_list *tmp);
+int	print_error_check(t_joined_lexer_list *tmp);
+int check_tokens(t_joined_lexer_list **temp);
 
+void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count);
+void	fork_or_exit(pid_t *pid);
+void	create_pipe_or_exit(int fd[2]);
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k);
+void	handle_child_process(char *delim, int write_fd);
 
+int count_cmd_blk(t_joined_lexer_list **temp);
+int count_heredoc(t_joined_lexer_list **temp);
+void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp);
+void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs);
+char **free_heredoc_delimiters(char **delims, int last_index);
+
+t_mng_heredocs *run_hrdcs(t_joined_lexer_list **temp, int cmd_blk_count);
+void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp);
+t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp);
 
 #endif

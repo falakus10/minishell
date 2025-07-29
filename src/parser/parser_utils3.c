@@ -7,17 +7,17 @@ int	is_builtin(char *cmd)
 	if (!ft_strncmp(cmd, "cd", ft_strlen(cmd)))
 		return (1);
 	if (!ft_strncmp(cmd, "export", ft_strlen(cmd)))
-		return (1);
+		return (2);
 	if (!ft_strncmp(cmd, "unset", ft_strlen(cmd)))
-		return (1);
+		return (3);
 	if (!ft_strncmp(cmd, "exit", ft_strlen(cmd)))
-		return (1);
+		return (4);
 	if (!ft_strncmp(cmd, "echo", ft_strlen(cmd)))
-		return (1);
+		return (5);
 	if (!ft_strncmp(cmd, "pwd", ft_strlen(cmd)))
-		return (1);
+		return (6);
 	if (!ft_strncmp(cmd, "env", ft_strlen(cmd)))
-		return (1);
+		return (7);
 	return (0);
 }
 

@@ -71,8 +71,37 @@ int	main(int argc, char *argv[], char **env)
 	mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
 	if(flag)
 		ft_error();
-	command_block= parser(*new_list);
+	command_block= parser(*new_list,mng_heredocs);
+	int i = 0;
 	
+	while (command_block != NULL)
+	{
+		printf("command = %s\n", command_block->command);
+	
+		if (command_block->files != NULL)
+		{
+			i = 0;
+			while (command_block->files[i] != NULL)
+			{
+				printf("files[%d] = %s\n", i, command_block->files[i]);
+				i++;
+			}
+		}
+		printf("input fd :%d\n", command_block->input_fd);
+		printf("output fd :%d\n", command_block->output_fd);
+		if (command_block->args != NULL)
+		{
+			i = 0;
+			while (command_block->args[i] != NULL)
+			{
+				printf("args[%d] = %s\n", i, command_block->args[i]);
+				i++;
+			}
+		}
+		command_block = command_block->next;
+	}
+
+
 	
 	
 	/*
@@ -91,53 +120,6 @@ int	main(int argc, char *argv[], char **env)
 	
 	
 
-/*
-int i = 0;
 
- while (command_block != NULL)
-{
-    printf("command = %s\n", command_block->command);
-
-    if (command_block->files != NULL)
-    {
-        i = 0;
-        while (command_block->files[i] != NULL)
-        {
-            printf("files[%d] = %s\n", i, command_block->files[i]);
-            i++;
-        }
-    }
-	printf("input fd :%d\n", command_block->input_fd);
-	printf("output fd :%d\n", command_block->output_fd);
-	if (command_block->heredoc_delimiters != NULL)
-	{
-		i = 0;
-		while (command_block->heredoc_delimiters[i] != NULL)
-		{
-			printf("heredoc_delimiters[%d] = %s\n", i, command_block->heredoc_delimiters[i]);
-			i++;
-		}
-	}
-	if (command_block->heredoc_fd != NULL)
-	{
-		i = 0;
-		while (i < command_block->heredoc_count)
-		{
-			printf("heredoc_fd[%d] = %d\n", i, command_block->heredoc_fd[i]);
-			i++;
-		}
-	}
-    if (command_block->args != NULL)
-    {
-        i = 0;
-        while (command_block->args[i] != NULL)
-        {
-            printf("args[%d] = %s\n", i, command_block->args[i]);
-            i++;
-        }
-    }
-		printf("heredoc count : %d\n",command_block->heredoc_count);
-    command_block = command_block->next;
-}*/
 	return (0);
 }

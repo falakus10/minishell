@@ -13,6 +13,7 @@
 # include <sys/wait.h>
 # include <termios.h>
 # include <unistd.h>
+#include  <errno.h>
 
 
 typedef struct s_lexer_list
@@ -25,8 +26,9 @@ typedef struct s_lexer_list
 
 typedef struct s_mng_heredocs
 {
+	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
 	int *heredoc_flags;    
-	int *heredoc_fds; 
+	int *heredoc_fds;
 	int *heredoc_nums;
 	char **heredoc_delims;
 
@@ -81,21 +83,22 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int operator_count;
 	int argument_count;
 	int fd_count;
-	int lst_typ;
 	int err_flg;
 	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
+	int file_err;
+	int cmd_err;
+	char *wrong_cmd;
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 
 typedef struct s_pipeline_utils
 {
-	int							last_token_type;
 	int							is_cmd_pointed;
-	int							first_token_flg;
 }								t_pipeline_utils;
 
 typedef struct s_executor
 {
+	t_expander *exp;
 	int	*fd;
 }		t_executor;
 
@@ -149,7 +152,8 @@ int								special_ch_check(char c);
 char							*env_value(t_env *env_list, const char *key);
 char							*ft_strjoin_free(char *token,
 									t_expander *expander);
-t_command_block					*parser(t_joined_lexer_list *list);
+t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs);
+
 t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 t_joined_lexer_list				*add_new_node2(t_joined_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
@@ -162,14 +166,13 @@ t_command_block					*init_command_block(void);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);
-void							first_pipe_ctrl(t_joined_lexer_list *temp);
 void							handle_redirect_token(t_joined_lexer_list **temp,
-									t_command_block **temp_block);
+									t_command_block **temp_block,t_mng_heredocs *mng_heredocs);
 void							handle_token_logic(t_joined_lexer_list **tmp,
 									t_command_block **tmp_blk,
-									t_pipeline_utils *utils);
-void							first_tkn_chck(t_pipeline_utils *utils,
-									t_joined_lexer_list *temp);
+									t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
+void	loop(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
+		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
 int 							*append_to_array2(int *array, int count, int new_value);
 int 							find_fd(char *file,t_command_block *temp); //galiba sildim
 char 							*ft_strcpy(char *dest, const char *src);

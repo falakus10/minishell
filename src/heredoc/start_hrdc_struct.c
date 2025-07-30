@@ -7,6 +7,7 @@ t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
 	mng = malloc(sizeof(t_mng_heredocs));
 	if (!mng)
 		return (NULL);
+	mng->index = 0;
 	mng->heredoc_flags = malloc(sizeof(int) * count);
 	mng->heredoc_fds = malloc(sizeof(int) * count);
 	mng->heredoc_nums = malloc(sizeof(int) * count);

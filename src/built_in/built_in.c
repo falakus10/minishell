@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int	built_in(t_command_block *cmd, t_env *env, t_executor *exe)
+int	built_in(t_command_block *cmd, t_env *env)
 {
 	int	which_cmd;
 	int value;

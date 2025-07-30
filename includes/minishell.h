@@ -25,8 +25,9 @@ typedef struct s_lexer_list
 
 typedef struct s_env
 {
-	char *line;
-	char *value;
+	char	*line;
+	char	*value;
+	int		flag;
 	struct s_env *next;
 }				t_env;
 
@@ -41,6 +42,7 @@ typedef struct s_joined_lexer_list
 typedef struct s_expander
 {
 	int							index;
+	int							exit_value;
 	int							key_len;
 	int							val_len;
 	int							dollar_index;
@@ -88,8 +90,10 @@ typedef struct s_pipeline_utils
 
 typedef struct s_executor
 {
-	int	*fd;
-}		t_executor;
+	int			*fd;
+	t_expander	*exp;
+	t_env		*env;
+}				t_executor;
 
 typedef enum e_tokens
 {
@@ -174,7 +178,16 @@ void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
 char	**env_list_to_envp(t_env *env_list);
-
-
+char 							*ft_strncpy(char *dest, const char *src, size_t n);
+int	built_in(t_command_block *cmd, t_env *env);
+int	ft_cd(t_command_block *cmd, t_env *env);
+int	ft_echo(t_command_block *cmd);
+int ft_env(t_env *env);
+int	ft_exit(t_command_block *cmd);
 t_env **take_env(char **env);
+int	ft_export(t_command_block *cmd, t_env  *env);
+int ft_pwd(void);
+int	ft_unset(t_command_block *cmd, t_env **env);
+char	*format_export_line(t_env *node);
+char	*add_quotes(char *str);
 #endif

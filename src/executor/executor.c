@@ -24,9 +24,9 @@ void	create_pipe(t_command_block *cmd, t_executor *exe)
 
 void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 {
-	if (cmd->input_fd != -1)
+	if (cmd->input_fd != -3)
 		dup2(cmd->input_fd, STDIN_FILENO);
-	if (cmd->output_fd != -1)
+	if (cmd->output_fd != -3)
 		dup2(cmd->output_fd, STDOUT_FILENO);
 	if (cmd->output_fd == -1 && cmd->input_fd == -1)
 	{
@@ -57,15 +57,23 @@ int command_count(t_command_block *cmd)
 	return (count);
 }
 
-int	run_single_cmd(t_command_block *cmd, t_env **env, int count, t_executor *exe)
+int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
 		make_dup(cmd, -1, count, exe);
-		execve(cmd->command, cmd->args, env);//char ** alıcak;
-		perror("execve failed!");
-		exit (1);
+		if (is_builtin(cmd->command))
+		{
+			exe->exp->exit_value = built_in(cmd, exe->env);
+			exit (exe->exp->exit_value);
+		}
+		else
+		{
+			execve(cmd->command, cmd->args, env);//char ** alıcak;
+			perror("execve failed!");
+			exit (1);
+		}
 	}
 	else if (cmd->pid < 0)
 	{
@@ -85,22 +93,12 @@ int	run_single_cmd(t_command_block *cmd, t_env **env, int count, t_executor *exe
 }
 
 
-int	executor(t_command_block *cmd, t_env **env, t_executor *exe)
+int	executor(t_command_block *cmd, char **env, t_executor *exe)
 {
-	char	**envp;
-
-	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	if (cmd->cmd_count == 1)
 	{
-		if (is_builtin(cmd->command))
-		{
-			//built in çalışıtr
-		}
-		else
-		{
-			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
-		}
+		run_single_cmd(cmd, env, cmd->cmd_count, exe);
 	}
 	else
 	{

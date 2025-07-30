@@ -107,7 +107,7 @@ int	ft_cd(t_command_block *cmd, t_env *env)
 
 	status = 1;
 	old_pwd = ft_strdup(getcwd(cwd, 256));
-	if (!cmd->args[1])
+	if (!cmd->args[1] || (cmd->args[1][0] == '~' && cmd->args[1][0] == '\0'))
 		status = go_home(env, old_pwd);
 	else if (!cmd->args[2])
 	{

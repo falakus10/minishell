@@ -67,7 +67,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	if (cmd->pid == 0)
 	{
 		make_dup(cmd, 0, count, exe);
-		if (is_builtin(cmd->command))
+		if (is_builtin(cmd->command))//CHİLD DA ÇALIŞMASIN
 		{
 			exe->exp->exit_value = built_in(cmd, exe->env);
 			exit (exe->exp->exit_value);

@@ -16,38 +16,7 @@ void	print_export(t_env *env)
 		tmp = tmp->next;
 	}
 }
-/* void	print_export(t_env *env)
-{
-	char	*equal_point;
-	int		index;
-	t_env	*tmp;
-	char	*q_line;
-	char	*result;
 
-	tmp = env;
-	while (tmp)
-	{
-		index = -1;
-		equal_point = ft_strchr(tmp->line, '=');
-		if (equal_point)
-			index = equal_point - tmp->line;
-		write(STDOUT_FILENO, "declare -x ", 11);
-		if (index != -1)
-		{
-			q_line = add_quotes(tmp->value);
-			result = malloc(ft_strlen(tmp->line) + 3);
-			ft_strncpy(result, tmp->line, index + 1);
-			ft_strlcat(result, q_line, ft_strlen(tmp->line) + ft_strlen(q_line) + 1);
-			write(STDOUT_FILENO, result, ft_strlen(result));
-			free(q_line);
-			free(result);
-		}
-		else
-			write(STDOUT_FILENO, tmp->line, ft_strlen(tmp->line));
-		write(STDOUT_FILENO, "\n", 1);
-		tmp = tmp->next;
-	}
-} */
 
 char	*add_quotes(char *str)
 {
@@ -134,7 +103,7 @@ int	ft_export(t_command_block *cmd, t_env  *env)
 		if (check_valid(cmd->args[i]))
 		{	
 			flag = 1;
-			printf("minishell: export : '%s': not a valid identifier", cmd->args[i]);
+			printf("minishell: export : '%s': not a valid identifier\n", cmd->args[i]);
 			continue;
 		}
 		equal_point = ft_strchr(cmd->args[i], '=');

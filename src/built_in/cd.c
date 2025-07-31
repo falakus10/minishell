@@ -49,6 +49,7 @@ void	update_pwd(t_env *env, char *old_pwd)
 	char	cwd[256];
 
 	current_pwd = ft_strdup(getcwd(cwd, 256));
+	printf("%s\n", current_pwd);
 	tmp = env;
 	while (tmp)
 	{

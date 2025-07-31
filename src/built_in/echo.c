@@ -36,7 +36,7 @@ int	ft_echo(t_command_block *cmd)
 			i = new_line_check(cmd);
 			new_line = 0;
 		}
-		while (cmd->args[i] )
+		while (cmd->args[i])
 		{
 			write(STDOUT_FILENO, cmd->args[i], ft_strlen(cmd->args[i]));
 			if (cmd->args[i + 1] != NULL)

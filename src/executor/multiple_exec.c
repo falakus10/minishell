@@ -40,7 +40,11 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
-
+			if (tmp->file_err || tmp->cmd_err)
+			{
+				close_fd(i, count, exe);  // Pipe'ları kapat
+				exit(0);  //sonra değişcez Başarılı gibi çık
+			}
 			make_dup(tmp, i, count, exe);
 			close_fd(i, count, exe);
 			if (is_builtin(tmp->command))

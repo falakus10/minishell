@@ -5,9 +5,11 @@ src/parser/parser_utils1.c src/parser/parser_utils2.c src/utils/utils1.c \
 src/parser/parser_utils3.c src/executor/executor.c src/executor/multiple_exec.c \
 src/built_in/built_in.c src/built_in/cd.c src/built_in/echo.c src/built_in/env.c \
 src/built_in/exit.c src/built_in/export.c src/built_in/pwd.c src/built_in/unset.c \
-src/built_in/utils.c
+src/built_in/utils.c src/utils/token_checks.c src/heredoc/run_heredocs.c \
+src/heredoc/start_hrdc_struct.c src/heredoc/take_counts.c
+
 LIBFT = libft/libft.a
-CC = gcc
+CC = cc
 CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g
 
 OBJS = $(SRCS:.c=.o)

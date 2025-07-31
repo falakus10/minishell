@@ -139,11 +139,13 @@ t_command_block	*init_command_block(void)
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->fd_count = 0;
-	new_block->input_fd = -1;
-	new_block->output_fd = -1;
-	new_block->err_sign = 0;
-	new_block->err_flg = -2; //öylesine -2 ile başlattım önemli mi ?
-	new_block->lst_typ = 0; //Typelar 1 den başlıyor zaten PIPE ile
+	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
+	new_block->output_fd = -3;
+	new_block->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
+	new_block->err_sign = 0; // sanırım kullanılmıyor
+	new_block->file_err = 0;
+	new_block->cmd_err = 0;
 	new_block->command = NULL;
+	new_block->wrong_cmd = NULL;
 	return (new_block);
 }

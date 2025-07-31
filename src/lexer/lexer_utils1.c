@@ -23,7 +23,6 @@ t_joined_lexer_list	*add_new_node2(t_joined_lexer_list **lexer_list)
 	t_joined_lexer_list	*node;
 	t_joined_lexer_list	*temp;
 	node = malloc(sizeof(t_joined_lexer_list));
-	node->heredoc_sign = 0;
 	node->next = NULL;
 	if (*lexer_list == NULL)
 		*lexer_list = node;

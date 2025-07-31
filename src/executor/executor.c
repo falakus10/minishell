@@ -28,17 +28,19 @@ void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 		dup2(cmd->input_fd, STDIN_FILENO);
 	if (cmd->output_fd != -3)
 		dup2(cmd->output_fd, STDOUT_FILENO);
-	if (cmd->output_fd == -1 && cmd->input_fd == -1)
+	if (cmd->output_fd == -3)
 	{
+		if (count == 1)
+			return ;
 		if (index == 0)
 			dup2(exe->fd[1], STDOUT_FILENO);
-		else if (index == count - 1)
-			dup2(exe->fd[2 * (index - 1)], STDIN_FILENO);
-		else
-		{
+		else if (index != count - 1)
 			dup2(exe->fd[2 * index + 1], STDOUT_FILENO);
-			dup2(exe->fd[2 * (index - 1)], STDIN_FILENO);  
-		}
+	}
+	if (cmd->input_fd == -3)
+	{
+		if (index != 0)
+			dup2(exe->fd[2 * (index - 1)], STDIN_FILENO);
 	}
 }
 
@@ -59,10 +61,12 @@ int command_count(t_command_block *cmd)
 
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
+	if (cmd->file_err || cmd->cmd_err) //DÜZENLE
+		return (1);
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
-		make_dup(cmd, -1, count, exe);
+		make_dup(cmd, 0, count, exe);
 		if (is_builtin(cmd->command))
 		{
 			exe->exp->exit_value = built_in(cmd, exe->env);

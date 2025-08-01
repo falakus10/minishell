@@ -76,12 +76,12 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 	i = 0;
 	create_pipe(tmp, exe);
 	if (child_exec(cmd, env, cmd_count, exe) != 0)
-		return (1);
+		return (1);//exit value buraya mı eklenmeli?????
 	close_fd(-1, cmd_count, exe);
 	while (i < cmd_count)
 	{
 		waitpid(tmp->pid, &tmp->status, 0);
-		tmp->last_output = (tmp->status >> 8) & 0xFF;
+		exe->exp->exit_value = (tmp->status >> 8) & 0xFF;
 		tmp = tmp->next;
 		i++;
 	}

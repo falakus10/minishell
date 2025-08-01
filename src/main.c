@@ -16,6 +16,7 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 	{
 		
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
+		add_history(temp_input);
 		if (temp_input == NULL)
 		{
 			free(temp_input); //NULL şeyi freelemek saçma

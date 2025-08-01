@@ -43,7 +43,7 @@ typedef struct s_env
 }				t_env;
 
 typedef struct s_joined_lexer_list
-{
+{	
 	int							type;
 	char						*token;
 	struct s_joined_lexer_list	*next;

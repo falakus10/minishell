@@ -27,7 +27,7 @@ int	question_mark(t_lexer_list *temp, int i, t_expander *expander)
 		while (temp->token[i] != '\0' && is_valid_ch(temp->token, i))
 			i++;
 		expander->env_key = "?";
-		expander->env_val = "0";
+		expander->env_val = ft_itoa(expander->exit_value);
 		temp->token = ft_strjoin_free(temp->token, expander);
 		expander->i = 0;
 		return (1);

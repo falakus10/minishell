@@ -83,7 +83,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 			perror("waitpid failed!");
 			return (1);
 		}
-		cmd->last_output = (cmd->status >> 8) & 0xFF;
+		exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
 	}
 	return (0);
 }

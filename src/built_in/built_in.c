@@ -5,6 +5,8 @@ int	built_in(t_command_block *cmd, t_env *env)
 	int	which_cmd;
 	int value;
 
+	if (cmd->file_err || cmd->cmd_err) //DÜZENLE
+		return (1);
 	value = 0;
 	which_cmd = is_builtin(cmd->command);
 	if (which_cmd == 1)

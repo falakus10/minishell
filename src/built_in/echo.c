@@ -27,9 +27,7 @@ int	ft_echo(t_command_block *cmd)
 
 	i = 1;
 	new_line = 1;
-	if (cmd->args[1] == NULL)
-		write(STDOUT_FILENO, "\n", 1);
-	else
+	if (cmd->args[1] != NULL)
 	{
 		if(new_line_check(cmd) > 1)
 		{

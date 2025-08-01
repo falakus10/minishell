@@ -9,6 +9,7 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 	t_expander		*expnd;
 	t_mng_heredocs *mng_heredocs;
 	expnd = malloc(sizeof(t_expander));
+	expnd->exit_value = 0;
 	int flag = 0;
 	exe->exp = expnd;
 
@@ -32,12 +33,12 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 		list = lexer_function(input);
 		expander((*list), env_list, expnd);
 		remove_quotes(*list);
-		new_list = token_join((*list));
+		new_list = token_join(*list);
 		flag = check_tokens(new_list); //tokenlar kontrol edildi
 		mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
 		if(flag)
 			ft_error();
-		command_block= parser(*new_list,mng_heredocs);
+		command_block= parser(*new_list,mng_heredocs,expnd);
 		executor(command_block, env, exe);
 		free(temp_input); // bununla işimiz bitti
 		// input'u da işimiz bitince free'lemeliyiz

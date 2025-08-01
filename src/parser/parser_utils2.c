@@ -46,7 +46,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 		if((*tmp_blk)->file_err == 0) //bu komut bloğunda henüz redirection hatası çıkmadıysa 
 		{
 			(*tmp_blk)->input_fd = open(file_pth, O_RDONLY);
-			if ((*tmp_blk)->input_fd == -1)
+			if ((*tmp_blk)->input_fd == -1) 
 			{
 				if(errno == EISDIR)
 					printf("bash: %s: Is a directory\n", (*tmp_list)->next->token);
@@ -54,6 +54,8 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
 				else 
 					perror("bash");
+				(*tmp_blk)->last_fault = 1;
+				(*tmp_blk)->expnd->exit_value = 1;
 				(*tmp_blk)->file_err = 1; //bu komut bloğunda file_error var demek. //Dolayısıyla bu komut bloğundaki diğer redirectionlara bakmayacak
 				//flag tutulacak //eğer öncesinde input_fd hatası varsa onu da tutmalıyım ki (flag olarak olabilir) hem daha sonrasında input_fd hatası olursa onları basmasın hem de komut hatası varsa onu kontrol etmek için //bu flag sayesinde ilgili komut bloğu çalıştırılmayacak
 			}
@@ -64,14 +66,19 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 		if((*tmp_blk)->file_err == 0)
 		{
 			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			if ((*tmp_blk)->input_fd == -1)
+			if ((*tmp_blk)->output_fd == -1)
 			{
 				if(errno == EISDIR)
 					printf("bash: %s: Is a directory\n", (*tmp_list)->next->token);
 				else if(errno == ENOENT)
+				{
 					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
+
+				}
 				else
 					perror("bash");
+				(*tmp_blk)->last_fault = 1;
+				(*tmp_blk)->expnd->exit_value = 1;
 				(*tmp_blk)->file_err = 1;
 			}
 		}
@@ -89,6 +96,8 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
 				else
 					perror("bash");
+				(*tmp_blk)->last_fault = 1;
+				(*tmp_blk)->expnd->exit_value = 1;
 				(*tmp_blk)->file_err = 1;
 			}
 		}
@@ -133,16 +142,21 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		{
 			if (is_builtin((*tmp)->token)) //command'e burada atama yapılacak
 				(*tmp_blk)->command = ft_strdup((*tmp)->token); //tokenları direk liste olarak free'leriz o yüzden *tmp->token olarak atamayalım
+			else if(!ft_strncmp("./",(*tmp)->token,2))
+			{
+				(*tmp_blk)->command = ft_substr((*tmp)->token,2,ft_strlen((*tmp)->token) -2); //sonra free'lenmeli
+				
+			}
 			else //command ataması create_path içinde oluyor
 			{
 				if(!create_path((*tmp_blk),(*tmp)->token) && (*tmp_blk)->cmd_err == 0)
 				{
-					(*tmp_blk)->command = (*tmp)->token;
+					(*tmp_blk)->command = ft_strdup((*tmp)->token); 
 					(*tmp_blk)->wrong_cmd = (*tmp)->token; //strdup ile mi atmalıyım (bence illa strdup a gerek yok parserdan sonra joined lexer list freelenebilir)!!!
 					(*tmp_blk)->cmd_err = 1;
 				}
 			}
-			(*tmp_blk)->args = append_to_array((*tmp_blk)->args,(*tmp_blk)->argument_count,(*tmp)->token);
+			(*tmp_blk)->args = append_to_array((*tmp_blk)->args,(*tmp_blk)->argument_count,(*tmp_blk)->command);
 			utils->is_cmd_pointed = 1;
 			(*tmp_blk)->argument_count++;
 		}

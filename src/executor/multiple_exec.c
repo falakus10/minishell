@@ -42,7 +42,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		{
 			if (tmp->file_err || tmp->cmd_err)
 			{
-				close_fd(i, count, exe);  // Pipe'ları kapat
+				close_fd(i, count, exe); // Pipe'ları kapat
 				exit(0);  //sonra değişcez Başarılı gibi çık
 			}
 			make_dup(tmp, i, count, exe);
@@ -70,20 +70,29 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 	int				i;
 	t_command_block *tmp;
 	int				cmd_count;
-	
+	int				last_status;
+	int				flag;
+
 	cmd_count = cmd->cmd_count;
 	tmp = cmd;
 	i = 0;
+	flag = 0;
 	create_pipe(tmp, exe);
 	if (child_exec(cmd, env, cmd_count, exe) != 0)
-		return (1);
+		return (1);//exit value buraya mı eklenmeli?????
 	close_fd(-1, cmd_count, exe);
 	while (i < cmd_count)
 	{
+		if (tmp->next == NULL && tmp->last_fault)
+			flag = 1;
 		waitpid(tmp->pid, &tmp->status, 0);
-		tmp->last_output = (tmp->status >> 8) & 0xFF;
+		if (i == cmd_count - 1)
+			last_status = tmp->status;
 		tmp = tmp->next;
 		i++;
 	}
+	//printf("%d\n", flag);
+	if (!flag)
+		exe->exp->exit_value = (last_status >> 8) & 0xFF;
 	return (0);
 }

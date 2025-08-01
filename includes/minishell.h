@@ -42,12 +42,6 @@ typedef struct s_env
 	struct s_env *next;
 }				t_env;
 
-typedef struct s_joined_lexer_list
-{	
-	int							type;
-	char						*token;
-	struct s_joined_lexer_list	*next;
-}								t_joined_lexer_list;
 
 typedef struct s_expander
 {
@@ -66,12 +60,20 @@ typedef struct s_expander
 	char						ch;
 }								t_expander;
 
+typedef struct s_joined_lexer_list
+{	
+	t_expander *exp;
+	int							type;
+	char						*token;
+	struct s_joined_lexer_list	*next;
+}								t_joined_lexer_list;
+
 typedef struct s_command_block // arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
 	int	status;
-	int	last_output;
+	int	last_fault;
 	int *fd;
 	int *heredoc_fd;
 	int cmd_count;
@@ -80,7 +82,6 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int output_fd;
 	char **files;
 	int *operators;            //şuan tutulmuyor (kullanılmıyor)
-	char **heredoc_delimiters; // HEREDOC için kullanılacak
 	int heredoc_count;         // kaç tane heredoc var
 	int operator_count;
 	int argument_count;
@@ -90,6 +91,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
+	t_expander *expnd;
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 
@@ -156,9 +158,8 @@ int								special_ch_check(char c);
 char							*env_value(t_env *env_list, const char *key);
 char							*ft_strjoin_free(char *token,
 									t_expander *expander);
-t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs);
+t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs,t_expander *expander);
 
-t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 t_joined_lexer_list				*add_new_node2(t_joined_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
 t_joined_lexer_list				*merge_words(t_lexer_list **temp,
@@ -166,7 +167,7 @@ t_joined_lexer_list				*merge_words(t_lexer_list **temp,
 t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 char							**append_to_array(char **array, int count,
 									char *new_value);
-t_command_block					*init_command_block(void);
+t_command_block					*init_command_block(t_expander *expander);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);

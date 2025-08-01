@@ -34,6 +34,8 @@ t_command_block	*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs) 
 			loop(&temp, &temp_block, &utils,mng_heredocs);
 		if(temp_block->file_err == 0 && temp_block->cmd_err == 1)
 			printf("bash: %s: command not found\n",(temp_block)->wrong_cmd);
+		else if(temp_block->file_err == 0 && temp_block->command == NULL)
+			temp_block->file_err = 1;
 		mng_heredocs->index++;
 		check_null(&temp);
 	}

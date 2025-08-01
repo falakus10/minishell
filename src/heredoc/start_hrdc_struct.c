@@ -24,14 +24,28 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 {
 	t_joined_lexer_list *tmp;
 	int i;
+	t_joined_lexer_list *scan;
+	int heredoc_valid;
 
 	tmp = *temp;
 	i = 0;
-	while (tmp != NULL)
+	while (tmp)
 	{
-		if (tmp->type == HEREDOC && tmp->next != NULL)
+		if (tmp->type == HEREDOC && tmp->next)
 		{
-			if (!tmp->next->next || tmp->next->next->type == PIPE)
+			heredoc_valid = 1;
+			scan = tmp->next->next;
+
+			while (scan && scan->type != PIPE)
+			{
+				if (scan->type == REDIR_IN)
+				{
+					heredoc_valid = 0;  // heredoc geçersiz oldu çünkü daha sonra < geldi
+					break;
+				}
+				scan = scan->next;
+			}
+			if (heredoc_valid)
 				mng->heredoc_flags[i] = 1;
 		}
 		if (tmp->type == PIPE)

@@ -28,7 +28,7 @@ void	close_fd(int index, int count, t_executor *exe)
 		i++;
 	}
 }
-int	child_exec(t_command_block *cmd, char** env, int count, t_executor *exe)
+int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	t_command_block	*tmp;
 	int	i;
@@ -40,8 +40,15 @@ int	child_exec(t_command_block *cmd, char** env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
+			if (tmp->file_err || tmp->cmd_err)
+			{
+				close_fd(i, count, exe);  // Pipe'ları kapat
+				exit(0);  //sonra değişcez Başarılı gibi çık
+			}
 			make_dup(tmp, i, count, exe);
 			close_fd(i, count, exe);
+			if (is_builtin(tmp->command))
+				exit(built_in(tmp, exe->env));
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);
@@ -62,7 +69,7 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 {
 	int				i;
 	t_command_block *tmp;
-	int	cmd_count;
+	int				cmd_count;
 	
 	cmd_count = cmd->cmd_count;
 	tmp = cmd;

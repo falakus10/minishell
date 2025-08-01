@@ -13,6 +13,25 @@ char *ft_strcpy(char *dest, const char *src)
 	return dest;
 }
 
+char	*ft_strncpy(char *dest, const char *src, size_t n)
+{
+	size_t i;
+
+	i = 0;
+	while (i < n && src[i])
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = '\0';
+	while (i < n)
+	{
+		dest[i] = '\0';
+		i++;
+	}
+	return dest;
+}
+
 char *ft_strcat(char *dest, const char *src)
 {
 	int i = 0;
@@ -50,6 +69,7 @@ t_env	*add_new_node3(t_env **env_list)
 	node = malloc(sizeof(t_env));
 	node->next = NULL;
 	node->value = NULL;
+	node->flag = 0;
 	if (*env_list == NULL)
 		*env_list = node;
 	else
@@ -69,24 +89,23 @@ t_env   **take_env(char **env)
 	t_env **env_list;
 	t_env *current;
 
-	i = 0;
+	i = -1;
 	env_list = malloc(sizeof(t_env*));
 	*env_list = NULL;
-	while (env[i] != NULL)
+	while (env[++i] != NULL)
 	{
-		j = 0;
+		j = -1;
 		current = add_new_node3(env_list);
 		current->line = ft_strdup(env[i]);
-		while (env[i][j] != '\0')
+		while (env[i][++j] != '\0')
 		{
 			if (env[i][j] == '=')
 			{
+				current->flag = 1;
 				current->value = ft_strdup(&env[i][j + 1]);
 				break;
 			}
-			j++;
 		}
-		i++;
 	}
 	return (env_list);
 }

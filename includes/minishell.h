@@ -38,11 +38,12 @@ typedef struct s_env
 {
 	char *line;
 	char *value;
+	int		flag;
 	struct s_env *next;
 }				t_env;
 
 typedef struct s_joined_lexer_list
-{
+{	
 	int							type;
 	char						*token;
 	struct s_joined_lexer_list	*next;
@@ -55,6 +56,7 @@ typedef struct s_expander
 	int							val_len;
 	int							dollar_index;
 	int							last_output;
+	int							exit_value;
 	size_t						i;
 	size_t						start;
 	size_t						token_len;
@@ -98,9 +100,11 @@ typedef struct s_pipeline_utils
 
 typedef struct s_executor
 {
-	t_expander *exp;
-	int	*fd;
-}		t_executor;
+	int			*fd;
+	t_expander	*exp;
+	t_env		*env;
+}				t_executor;
+
 
 typedef enum e_tokens
 {
@@ -125,7 +129,7 @@ typedef enum e_built_in
 	ENV
 }			e_built_in;
 
-t_lexer_list					**input_loop(void);
+void							input_loop(t_command_block *command_block, t_env *env_list, char **env, t_executor *exe);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
@@ -206,5 +210,17 @@ char **free_heredoc_delimiters(char **delims, int last_index);
 t_mng_heredocs *run_hrdcs(t_joined_lexer_list **temp, int cmd_blk_count);
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp);
 t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp);
+int		ft_echo(t_command_block *cmd);
+int		ft_exit(t_command_block *cmd);
+int		ft_cd(t_command_block *cmd, t_env *env);
+int		ft_export(t_command_block *cmd, t_env  *env);
+int		ft_unset(t_command_block *cmd, t_env **env);
+int		ft_pwd(void);
+int		ft_env(t_env *env);
+int		built_in(t_command_block *cmd, t_env *env);
+char	*format_export_line(t_env *node);
+char	*add_quotes(char *str);
+char	**env_list_to_envp(t_env *env_list);
+char	*ft_strncpy(char *dest, const char *src, size_t n);
 
 #endif

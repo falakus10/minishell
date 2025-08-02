@@ -28,7 +28,7 @@ int create_path(t_command_block *tmp_blk, char *word)  //t_env'ye göre güncell
 	int is_vld_pth;
 	char *path;
 	int i;
-
+	
 	path_env = getenv("PATH");
 	paths = ft_split(path_env, ':');
 	i = 0;

@@ -27,7 +27,7 @@ typedef struct s_lexer_list
 typedef struct s_mng_heredocs
 {
 	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
-	int *heredoc_flags;    
+	int *heredoc_flags;
 	int *heredoc_fds;
 	int *heredoc_nums;
 	char **heredoc_delims;
@@ -42,15 +42,10 @@ typedef struct s_env
 	struct s_env *next;
 }				t_env;
 
-typedef struct s_joined_lexer_list
-{
-	int							type;
-	char						*token;
-	struct s_joined_lexer_list	*next;
-}								t_joined_lexer_list;
 
 typedef struct s_expander
 {
+	int							dlr_flag;
 	int							index;
 	int							key_len;
 	int							val_len;
@@ -66,12 +61,20 @@ typedef struct s_expander
 	char						ch;
 }								t_expander;
 
+typedef struct s_joined_lexer_list
+{	
+	t_expander *exp;
+	int							type;
+	char						*token;
+	struct s_joined_lexer_list	*next;
+}								t_joined_lexer_list;
+
 typedef struct s_command_block // arg count tutulmalı mı ?
 {
 	char *command;
 	char **args;
 	int	status;
-	int	last_output;
+	int	last_fault;
 	int *fd;
 	int *heredoc_fd;
 	int cmd_count;
@@ -80,7 +83,6 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int output_fd;
 	char **files;
 	int *operators;            //şuan tutulmuyor (kullanılmıyor)
-	char **heredoc_delimiters; // HEREDOC için kullanılacak
 	int heredoc_count;         // kaç tane heredoc var
 	int operator_count;
 	int argument_count;
@@ -90,6 +92,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
+	t_expander *expnd;
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 
@@ -156,9 +159,8 @@ int								special_ch_check(char c);
 char							*env_value(t_env *env_list, const char *key);
 char							*ft_strjoin_free(char *token,
 									t_expander *expander);
-t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs);
+t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs,t_expander *expander);
 
-t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 t_joined_lexer_list				*add_new_node2(t_joined_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
 t_joined_lexer_list				*merge_words(t_lexer_list **temp,
@@ -166,7 +168,7 @@ t_joined_lexer_list				*merge_words(t_lexer_list **temp,
 t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 char							**append_to_array(char **array, int count,
 									char *new_value);
-t_command_block					*init_command_block(void);
+t_command_block					*init_command_block(t_expander *expander);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);
@@ -198,7 +200,7 @@ int check_tokens(t_joined_lexer_list **temp);
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count);
 void	fork_or_exit(pid_t *pid);
 void	create_pipe_or_exit(int fd[2]);
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k);
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k);
 void	handle_child_process(char *delim, int write_fd);
 
 int count_cmd_blk(t_joined_lexer_list **temp);
@@ -222,5 +224,6 @@ char	*format_export_line(t_env *node);
 char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env *env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
+
 
 #endif

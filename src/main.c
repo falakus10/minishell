@@ -6,14 +6,18 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 	char *temp_input;
 	t_lexer_list **list;
 	t_joined_lexer_list **new_list;
-	t_expander		*exp;
+	t_expander		*expnd;
 	t_mng_heredocs *mng_heredocs;
-	exp = malloc(sizeof(t_expander));
+	expnd = malloc(sizeof(t_expander));
+	expnd->exit_value = 0;
 	int flag = 0;
+	exe->exp = expnd;
 
 	while (1)
 	{
+		
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
+		add_history(temp_input);
 		if (temp_input == NULL)
 		{
 			free(temp_input); //NULL şeyi freelemek saçma
@@ -27,14 +31,14 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
     	}
 		input = ft_strtrim(temp_input, " ");
 		list = lexer_function(input);
-		expander((*list), env_list, exp);
+		expander((*list), env_list, expnd);
 		remove_quotes(*list);
-		new_list = token_join((*list));
+		new_list = token_join(*list);
 		flag = check_tokens(new_list); //tokenlar kontrol edildi
 		mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
 		if(flag)
 			ft_error();
-		command_block= parser(*new_list,mng_heredocs);
+		command_block= parser(*new_list,mng_heredocs,expnd);
 		executor(command_block, env, exe);
 		free(temp_input); // bununla işimiz bitti
 		// input'u da işimiz bitince free'lemeliyiz

@@ -67,17 +67,9 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	if (cmd->pid == 0)
 	{
 		make_dup(cmd, 0, count, exe);
-		if (is_builtin(cmd->command))//CHİLD DA ÇALIŞMASIN
-		{
-			exe->exp->exit_value = built_in(cmd, exe->env);
-			exit (exe->exp->exit_value);
-		}
-		else
-		{
-			execve(cmd->command, cmd->args, env);//char ** alıcak;
-			perror("execve failed!");
-			exit (1);
-		}
+		execve(cmd->command, cmd->args, env);
+		perror("execve failed!");
+		exit (1);
 	}
 	else if (cmd->pid < 0)
 	{
@@ -91,7 +83,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 			perror("waitpid failed!");
 			return (1);
 		}
-		cmd->last_output = (cmd->status >> 8) & 0xFF;
+		exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
 	}
 	return (0);
 }
@@ -102,7 +94,12 @@ int	executor(t_command_block *cmd, char **env, t_executor *exe)
 	cmd->cmd_count = command_count(cmd);
 	if (cmd->cmd_count == 1)
 	{
-		run_single_cmd(cmd, env, cmd->cmd_count, exe);
+		if (is_builtin(cmd->command))
+		{	
+			run_single_builtin(cmd, exe);
+		}
+		else
+			run_single_cmd(cmd, env, cmd->cmd_count, exe);
 	}
 	else
 	{

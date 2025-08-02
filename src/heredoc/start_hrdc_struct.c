@@ -1,5 +1,16 @@
 #include "minishell.h"
 
+void	fill_int_array(int *arr, int count, int value)
+{
+	int	i;
+
+	i = 0;
+	while (i < count)
+	{
+		arr[i] = value;
+		i++;
+	}
+}
 t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
 {
 	t_mng_heredocs *mng;
@@ -10,13 +21,13 @@ t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
 	mng->index = 0;
 	mng->heredoc_flags = malloc(sizeof(int) * count);
 	mng->heredoc_fds = malloc(sizeof(int) * count);
-	mng->heredoc_nums = malloc(sizeof(int) * count);
+	mng->heredoc_nums = malloc(sizeof(int) * (count+1));
 	mng->heredoc_delims = malloc(sizeof(char *) * (count_heredoc(temp) + 1));
 	if (!mng->heredoc_flags || !mng->heredoc_fds || !mng->heredoc_nums || !mng->heredoc_delims)
 		return (NULL);
-	ft_memset(mng->heredoc_flags, 0, sizeof(int) * count);
-	ft_memset(mng->heredoc_fds, -1, sizeof(int) * count);
-	ft_memset(mng->heredoc_nums, 0, sizeof(int) * count);
+	fill_int_array(mng->heredoc_flags, 0, sizeof(int) * count);
+	fill_int_array(mng->heredoc_fds, -3, sizeof(int) * count);
+	fill_int_array(mng->heredoc_nums, 0, sizeof(int) * count);
 	return (mng);
 }
 
@@ -24,18 +35,37 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 {
 	t_joined_lexer_list *tmp;
 	int i;
+	t_joined_lexer_list *scan;
+	int heredoc_valid;
 
 	tmp = *temp;
 	i = 0;
-	while (tmp != NULL)
+	while (tmp)
 	{
-		if (tmp->type == HEREDOC && tmp->next != NULL)
+		if (tmp->type == HEREDOC && tmp->next)
 		{
-			if (!tmp->next->next || tmp->next->next->type == PIPE)
+			heredoc_valid = 1;
+			scan = tmp->next->next; 
+
+			while (scan && scan->type != PIPE)
+			{		
+				if (scan->type == REDIR_IN)
+				{
+					heredoc_valid = 0;  // heredoc geçersiz oldu çünkü daha sonra < geldi
+					break;
+				}
+				scan = scan->next;
+			}
+			if (heredoc_valid)
+			{
 				mng->heredoc_flags[i] = 1;
+			}
 		}
 		if (tmp->type == PIPE)
+		{
 			i++;
+
+		}
 		tmp = tmp->next;
 	}
 }

@@ -111,6 +111,8 @@ void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k)
 		else
 			close(fd[0]);
 		*k = 0;
+		printf("*j :%d",*j);
+		printf("heredoc fd %d\n",mng->heredoc_fds[1]);
 		(*j)++;
 	}
 }

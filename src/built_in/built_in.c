@@ -1,10 +1,31 @@
 #include "minishell.h"
 
+void	run_single_builtin(t_command_block *cmd, t_executor *exe)
+{
+	int saved_stdin;
+	int saved_stdout;
+
+
+	saved_stdin = dup(STDIN_FILENO);
+	saved_stdout = dup(STDOUT_FILENO);
+	if (saved_stdin == -1 || saved_stdout == -1)
+		perror("dup");
+	make_dup(cmd, 0, 1, exe);
+	built_in(cmd, exe->env);
+	if (dup2(saved_stdin, STDIN_FILENO) == -1 ||
+		dup2(saved_stdout, STDOUT_FILENO) == -1)
+		perror("dup2 restore");
+	close(saved_stdin);
+	close(saved_stdout);
+}
+
 int	built_in(t_command_block *cmd, t_env *env)
 {
 	int	which_cmd;
 	int value;
 
+	if (cmd->file_err || cmd->cmd_err) //DÜZENLE
+		return (1);
 	value = 0;
 	which_cmd = is_builtin(cmd->command);
 	if (which_cmd == 1)

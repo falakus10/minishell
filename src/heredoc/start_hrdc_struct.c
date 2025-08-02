@@ -15,7 +15,7 @@ t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
 	if (!mng->heredoc_flags || !mng->heredoc_fds || !mng->heredoc_nums || !mng->heredoc_delims)
 		return (NULL);
 	ft_memset(mng->heredoc_flags, 0, sizeof(int) * count);
-	ft_memset(mng->heredoc_fds, -1, sizeof(int) * count);
+	ft_memset(mng->heredoc_fds, -3, sizeof(int) * count);
 	ft_memset(mng->heredoc_nums, 0, sizeof(int) * count);
 	return (mng);
 }

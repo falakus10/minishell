@@ -52,7 +52,7 @@ int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_li
 	else//burayı < > >> << göre güncelle null olma durumunu
 	{
 		expander->i = ft_strlen(expander->env_key);
-	} 
+	}
 	return (0);
 }
 

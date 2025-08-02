@@ -67,7 +67,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	if (cmd->pid == 0)
 	{
 		make_dup(cmd, 0, count, exe);
-		execve(cmd->command, cmd->args, env);//char ** alıcak;
+		execve(cmd->command, cmd->args, env);
 		perror("execve failed!");
 		exit (1);
 	}
@@ -95,9 +95,8 @@ int	executor(t_command_block *cmd, char **env, t_executor *exe)
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-		{		
-			make_dup(cmd, 0, cmd->cmd_count, exe);
-			exe->exp->exit_value = built_in(cmd, exe->env);
+		{	
+			run_single_builtin(cmd, exe);
 		}
 		else
 			run_single_cmd(cmd, env, cmd->cmd_count, exe);

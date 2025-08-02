@@ -96,8 +96,7 @@ int	executor(t_command_block *cmd, char **env, t_executor *exe)
 	{
 		if (is_builtin(cmd->command))
 		{	
-			make_dup(cmd, 0, cmd->cmd_count, exe);
-			exe->exp->exit_value = built_in(cmd, exe->env);
+			run_single_builtin(cmd, exe);
 		}
 		else
 			run_single_cmd(cmd, env, cmd->cmd_count, exe);

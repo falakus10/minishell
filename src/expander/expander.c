@@ -34,7 +34,7 @@ int	question_mark(t_lexer_list *temp, int i, t_expander *expander)
 	}
 	return (0);
 }
-int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list)
+int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list) //return değeri expanderda continue'ya girmek için kullanılıyor
 {
 	expander->start = i;
 	while (temp->token[i] != '\0' && (is_valid_ch(temp->token ,i)))
@@ -48,10 +48,12 @@ int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_li
 		temp->token = ft_strjoin_free(temp->token, expander);
 		expander->i = 0;
 		return (1);
-	}
-	else//burayı < > >> << göre güncelle null olma durumunu
+	}//burayı < > >> << göre güncelle null olma durumunu
+	else
 	{
+		temp->token = ft_strdup("");
 		expander->i = ft_strlen(expander->env_key);
+		//return (1); olunca da çalışıyor // iki türlü de döngüyü tamamlıyor
 	}
 	return (0);
 }
@@ -75,7 +77,7 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 	expander->token_len = ft_strlen(temp->token);
 	while (temp != NULL)
 	{
-		expander->i = 0;//$$$$USER$$$USER$$USER$USE
+		expander->i = 0; //$$$$USER$$$USER$$USER$USE
 		while (temp->token[expander->i] != '\0')
 		{
 			if (quote(temp->token, expander))

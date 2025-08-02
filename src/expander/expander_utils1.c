@@ -16,10 +16,10 @@ char	*ft_strjoin_free(char *token, t_expander *expander)
 	char	*new_token;
 
 	j = 0;
-	expander->key_len = ft_strlen(expander->env_key);
-	expander->val_len = ft_strlen(expander->env_val);
 	if (!token || !expander->env_val)
 		return (NULL);
+	expander->key_len = ft_strlen(expander->env_key);
+	expander->val_len = ft_strlen(expander->env_val);
 	expander->new_len = ft_strlen(token) + (expander->val_len - expander->key_len);
 	new_token = malloc(expander->new_len + 1);
 	if (!new_token)
@@ -58,7 +58,7 @@ char *env_value(t_env *env_list, const char *key)// expander patlarsa buraya bak
 		}
 		temp = temp->next;
 	}
-	return (NULL);                                
+	return (NULL);
 }
 
 int is_valid_ch(char *token, int i) //$ işaretinden sonraki karakter geçerli bir karakter mi kontrol eder

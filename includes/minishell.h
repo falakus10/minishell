@@ -27,7 +27,7 @@ typedef struct s_lexer_list
 typedef struct s_mng_heredocs
 {
 	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
-	int *heredoc_flags;    
+	int *heredoc_flags;
 	int *heredoc_fds;
 	int *heredoc_nums;
 	char **heredoc_delims;
@@ -45,6 +45,7 @@ typedef struct s_env
 
 typedef struct s_expander
 {
+	int							dlr_flag;
 	int							index;
 	int							key_len;
 	int							val_len;
@@ -199,7 +200,7 @@ int check_tokens(t_joined_lexer_list **temp);
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count);
 void	fork_or_exit(pid_t *pid);
 void	create_pipe_or_exit(int fd[2]);
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k);
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k);
 void	handle_child_process(char *delim, int write_fd);
 
 int count_cmd_blk(t_joined_lexer_list **temp);

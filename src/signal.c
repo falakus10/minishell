@@ -23,7 +23,7 @@ static void	suppress_output(void)
 	termios_p.c_lflag &= ~ECHOCTL;		// 3. Terminal yerel ayar bayraklarından ECHOCTL bayrağını kapatıyor(Bu, Ctrl+C gibi kontrol karakterlerinin ^C şeklinde ekranda görünmesini engeller)
 	if (tcsetattr(0, 0, &termios_p) != 0)	// 4. Güncellenmiş terminal ayarlarını hemen (TCSANOW) standart girişe uyguluyor
 		perror("Minishell: tcsetattr");		// Eğer başarısız olursa hata mesajı yazdırıyor
-}
+} 
 
 void	signal_handler(void)
 {

@@ -2,7 +2,7 @@
 
 int	is_builtin(char *cmd)
 {
-	if (!cmd)
+	if (!cmd || cmd[0] == '\0')
 		return (0);
 	if (!ft_strncmp(cmd, "cd", ft_strlen(cmd)))
 		return (1);
@@ -21,33 +21,61 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int create_path(t_command_block *tmp_blk, char *word)  //t_env'ye göre güncelle !!!!
+void	check_path_validity(char *path)
 {
-    char *path_env;
-	char **paths;
-	int is_vld_pth;
-	char *path;
-	int i;
-	
-	path_env = getenv("PATH");
-	paths = ft_split(path_env, ':');
-	i = 0;
-	while(paths[i] != NULL)
+	struct stat	st;
+
+	stat(path, &st);
+	if (S_ISDIR(st.st_mode))
 	{
-		path = malloc(ft_strlen(paths[i]) + ft_strlen(word) + 1 + 1); //+1 / ve +1 \0 için
-		ft_strcpy(path,paths[i]);
-		ft_strcat(path,"/");
-		ft_strcat(path,word); //ft_strcat fonksiyonu \0 ekliyor
-		is_vld_pth = access(path,F_OK);
-		if (!is_vld_pth)
+		printf("%s: Is a directory\n", path);
+		// ft_error();
+	}
+	if (!(st.st_mode & S_IXUSR))
+	{
+		printf("%s: Permission denied\n", path);
+		// ft_error();
+	}
+}
+
+int create_path(t_command_block *tmp_blk, char *word, int i) //buranın leaklerine bak
+{
+	char		*path_env;
+	char		**paths;
+	char		*tmp;
+	char		*path;
+	struct stat	st;
+
+	path_env = getenv("PATH"); //düzeltilmeli mi ?
+	if (!path_env)
+		return (0);
+	paths = ft_split(path_env, ':');
+	if (!paths)
+		return (0);
+	while (paths[i])
+	{
+		if (!ft_strchr(word, '/'))
 		{
+			tmp = ft_strjoin(paths[i], "/");
+			path = ft_strjoin(tmp, word);
+			free(tmp);
+		}
+		else
+			path = ft_strdup(word);
+		if (stat(path, &st) == 0)
+		{
+			check_path_validity(path);
 			tmp_blk->command = ft_strdup(path);
+			free(path);
+			free_arr(paths);
 			return (1);
 		}
 		free(path);
 		i++;
 	}
+	free_arr(paths);
 	return (0);
 }
+
 
 

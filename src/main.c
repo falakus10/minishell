@@ -26,10 +26,16 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 		}
 		if (temp_input[0] == '\0')
     	{
-        free(temp_input);
-        continue;
+     	   free(temp_input);
+      		continue;
     	}
 		input = ft_strtrim(temp_input, " ");
+		if(input[0] == '\0')
+		{
+			free(input);
+			free(temp_input);
+			continue;
+		}
 		list = lexer_function(input);
 		expander((*list), env_list, expnd);
 		remove_quotes(*list);
@@ -38,7 +44,7 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 		mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
 		if(flag)
 			ft_error();
-		command_block= parser(*new_list,mng_heredocs,expnd);
+		command_block= parser(*new_list,mng_heredocs,expnd);	
 		executor(command_block, env, exe);
 		free(temp_input); // bununla işimiz bitti
 		// input'u da işimiz bitince free'lemeliyiz

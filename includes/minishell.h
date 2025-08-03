@@ -14,7 +14,7 @@
 # include <termios.h>
 # include <unistd.h>
 #include  <errno.h>
-
+#include <sys/stat.h>
 
 typedef struct s_lexer_list
 {
@@ -132,6 +132,7 @@ typedef enum e_built_in
 	ENV
 }			e_built_in;
 
+void	free_arr(char **arr);
 void							input_loop(t_command_block *command_block, t_env *env_list, char **env, t_executor *exe);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
@@ -186,7 +187,7 @@ char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
 int								executor(t_command_block *cmd, char **env, t_executor *exe);
 int								is_builtin(char *cmd);
-int 							create_path(t_command_block *tmp_blk, char *word);
+int 							create_path(t_command_block *tmp_blk, char *word, int i);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
@@ -224,6 +225,6 @@ char	*format_export_line(t_env *node);
 char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env *env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
-
+int	run_single_builtin(t_command_block *cmd, t_executor *exe);
 
 #endif

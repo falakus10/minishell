@@ -10,12 +10,15 @@ src/heredoc/start_hrdc_struct.c src/heredoc/take_counts.c
 
 LIBFT = libft/libft.a
 CC = cc
-CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g
+CFLAGS =  -Wall -Wextra -Werror -Iincludes  -Ilibft -g #-fsanitize=address
 
 OBJS = $(SRCS:.c=.o)
 RM = rm -f
 
 all: $(READLINE) $(NAME)
+
+run: all
+	@./$(NAME)
 
 $(READLINE):
 	@echo "$(BOLD)$(YELLOW)[DOWNLOADING READLINE...]$(RESET)"

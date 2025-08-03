@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void	close_fd(int input_fd, int output_fd, int index, int count, t_executor *exe)
 {
 	int	i;
@@ -33,6 +32,7 @@ void	close_fd(int input_fd, int output_fd, int index, int count, t_executor *exe
 		i++;
 	}
 }
+
 int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	t_command_block	*tmp;
@@ -96,7 +96,6 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 		tmp = tmp->next;
 		i++;
 	}
-	//printf("%d\n", flag);
 	if (!flag)
 		exe->exp->exit_value = (last_status >> 8) & 0xFF;
 	return (0);

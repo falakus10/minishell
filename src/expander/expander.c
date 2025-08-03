@@ -36,7 +36,9 @@ int	question_mark(t_lexer_list *temp, int i, t_expander *expander)
 }
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list) //return değeri expanderda continue'ya girmek için kullanılıyor
 {
-	expander->start = i;
+	char *str;
+
+	expander->start = i;//$EMPTY
 	while (temp->token[i] != '\0' && (is_valid_ch(temp->token ,i)))
 	{
 		i++;
@@ -51,9 +53,12 @@ int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_li
 	}//burayı < > >> << göre güncelle null olma durumunu
 	else
 	{
-		temp->token = ft_strdup("");
-		expander->i = ft_strlen(expander->env_key);
-		//return (1); olunca da çalışıyor // iki türlü de döngüyü tamamlıyor
+		str = ft_substr(temp->token,0,expander->start - 1);
+		temp->token = ft_strdup(str);
+		free(str);
+		expander->i = 0;
+		//+= yaptım , $sakjda bir şey değişmiyor ama sada$kaasf durumu için lazımdı
+		return (1); //olunca da çalışıyor // iki türlü de döngüyü tamamlıyor
 	}
 	return (0);
 }
@@ -80,25 +85,31 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 		expander->i = 0; //$$$$USER$$$USER$$USER$USE
 		while (temp->token[expander->i] != '\0')
 		{
+			/* printf("i : %zu\n",expander->i); */
 			if (quote(temp->token, expander))
 				continue;
-			if(temp->type == HEREDOC && temp->next->token[0] == '$')
+			if(temp->type == HEREDOC && temp->next !=NULL)
 			{
 				temp = temp->next;
 				expander->i = ft_strlen(temp->token);
 			}
-			else if((temp->type >= 2 && temp->type <= 4) && temp->next->token[0] == '$')
+			else if((temp->type >= 2 && temp->type <= 4) && temp->next != NULL)
 			{
-				temp = temp->next; //< $USER 
-				if(!env_value(env_list,temp->token+1))
-					expander->i = ft_strlen(temp->token);
-				else
-					continue;
+				if(temp->next->token[0] == '$')
+				{
+					temp = temp->next; //< $USER 
+					if(!env_value(env_list,temp->token+1))
+						expander->i = ft_strlen(temp->token);
+					else
+						continue;
+				}
 			}
 			else if (temp->token[expander->i] == '$')
-			{
+			{ //"adad$"
 				expander->dollar_index = expander->i;
 				expander->i++;
+				if(temp->token[expander->i] == '\0' || temp->token[expander->i] == '\"' || temp->token[expander->i] == ' ')
+					continue;
 				if (special_character(temp->token, expander))
 					continue;
 				if (question_mark(temp, expander->i, expander))
@@ -106,7 +117,10 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 				if (change_to_env(temp, expander->i, expander, env_list))
 					continue;
 			}
+
 			expander->i++;
+			/* printf("i : %zu\n",expander->i);
+			printf("token : %s\n",temp->token); */
 		}
 		temp = temp->next;
 	}

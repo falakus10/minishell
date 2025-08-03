@@ -95,8 +95,8 @@ int	executor(t_command_block *cmd, char **env, t_executor *exe)
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-		{	
-			run_single_builtin(cmd, exe);
+		{
+			exe->exp->exit_value = run_single_builtin(cmd, exe);
 		}
 		else
 			run_single_cmd(cmd, env, cmd->cmd_count, exe);

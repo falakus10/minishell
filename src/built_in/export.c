@@ -103,7 +103,9 @@ int	ft_export(t_command_block *cmd, t_env  *env)
 		if (check_valid(cmd->args[i]))
 		{	
 			flag = 1;
-			printf("minishell: export : '%s': not a valid identifier\n", cmd->args[i]);
+			write(2, "bash: export: '", 20);
+			write(2, cmd->args[i], ft_strlen(cmd->args[i]));
+			write(2, "': not a valid identifier\n", 26);
 			continue;
 		}
 		equal_point = ft_strchr(cmd->args[i], '=');

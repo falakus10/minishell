@@ -146,8 +146,15 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 	{
 		if (!utils->is_cmd_pointed)
 		{
+			if((*tmp)->token[0] == '\0')
+			{
+				(*tmp) = (*tmp)->next;
+				return;
+			}
 			if (is_builtin((*tmp)->token)) //command'e burada atama yapılacak
+			{
 				(*tmp_blk)->command = ft_strdup((*tmp)->token); //tokenları direk liste olarak free'leriz o yüzden *tmp->token olarak atamayalım
+			}
 			else if(!ft_strncmp("./",(*tmp)->token,2))
 			{
 				(*tmp_blk)->command = ft_substr((*tmp)->token,2,ft_strlen((*tmp)->token) -2); //sonra free'lenmeli
@@ -155,7 +162,7 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 			}
 			else //command ataması create_path içinde oluyor
 			{
-				if(!create_path((*tmp_blk),(*tmp)->token) && (*tmp_blk)->cmd_err == 0)
+				if(!create_path((*tmp_blk),(*tmp)->token, 0) && (*tmp_blk)->cmd_err == 0)
 				{
 					(*tmp_blk)->command = ft_strdup((*tmp)->token); 
 					(*tmp_blk)->wrong_cmd = (*tmp)->token; //strdup ile mi atmalıyım (bence illa strdup a gerek yok parserdan sonra joined lexer list freelenebilir)!!!

@@ -37,13 +37,12 @@ void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp
 	{
 		if (tmp->type == HEREDOC)
 			(*mng_heredocs)->heredoc_nums[i]++;
-
+			
 		if (tmp->type == PIPE)
 			i++;
 
 		tmp = tmp->next;
 	}
-	(*mng_heredocs)->heredoc_nums[++i] = -1;
 }
 
 int count_heredoc(t_joined_lexer_list **temp)

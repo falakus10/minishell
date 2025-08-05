@@ -39,6 +39,14 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 	int type;
 
 	type = (*tmp_list)->type;
+	if((*tmp_list)->next->token[0] == '$')
+	{
+		write(2,"bash: ",6);
+		write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+		write(2,": ambiguous redirect\n",21);
+		(*tmp_blk)->expnd->exit_value = 1;
+		(*tmp_blk)->file_err = 1; 
+	}
 	file_pth = file_path((*tmp_list)->next->token);
 
 	if(type == REDIR_IN) //dosya isminin $ ile başlama durumuna bakılabilir
@@ -46,12 +54,20 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 		if((*tmp_blk)->file_err == 0) //bu komut bloğunda henüz redirection hatası çıkmadıysa 
 		{
 			(*tmp_blk)->input_fd = open(file_pth, O_RDONLY);
-			if ((*tmp_blk)->input_fd == -1) 
+			if ((*tmp_blk)->input_fd == -1)
 			{
 				if(errno == EISDIR)
-					printf("bash: %s: Is a directory\n", (*tmp_list)->next->token);
+				{		
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": Is a directory\n",17);
+				}
 				else if(errno == ENOENT)
-					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
+				{
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": no such file or directory\n",28);
+				}
 				else 
 					perror("bash");
 				(*tmp_blk)->last_fault = 1;
@@ -69,11 +85,16 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 			if ((*tmp_blk)->output_fd == -1)
 			{
 				if(errno == EISDIR)
-					printf("bash: %s: Is a directory\n", (*tmp_list)->next->token);
+				{
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": Is a directory\n",17);
+				}
 				else if(errno == ENOENT)
 				{
-					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
-
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": no such file or directory\n",28);
 				}
 				else
 					perror("bash");
@@ -91,9 +112,17 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list) // aç
 			if ((*tmp_blk)->output_fd == -1)//bu olmaz zaten silinebilir
 			{
 				if(errno == EISDIR)
-					printf("bash: %s: Is a directory\n", (*tmp_list)->next->token);
+				{
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": Is a directory\n",17);
+				}
 				else if(errno == ENOENT)
-					printf("bash: %s: No such file or directory\n", (*tmp_list)->next->token);
+				{
+					write(2,"bash: ",6);
+					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
+					write(2,": no such file or directory\n",28);
+				}
 				else
 					perror("bash");
 				(*tmp_blk)->last_fault = 1;
@@ -111,7 +140,6 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 		{
 			if(mng_heredocs->heredoc_flags[mng_heredocs->index]) //bu varsa redir_in ler hiç çalışmasın diyemem çünkü o zaman hata mesajını alamam (ama hata almayana kadarla sınırlasam ?)
 				(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
-			printf("heredocss fdd %d\n",(*temp_block)->input_fd);
 			*temp = (*temp)->next;
 			return;
 		}
@@ -150,7 +178,7 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 			}
 			else //command ataması create_path içinde oluyor
 			{
-				if(!create_path((*tmp_blk),(*tmp)->token) && (*tmp_blk)->cmd_err == 0)
+				if(!create_path((*tmp_blk),(*tmp)->token,0) && (*tmp_blk)->cmd_err == 0)
 				{
 					(*tmp_blk)->command = ft_strdup((*tmp)->token); 
 					(*tmp_blk)->wrong_cmd = (*tmp)->token; //strdup ile mi atmalıyım (bence illa strdup a gerek yok parserdan sonra joined lexer list freelenebilir)!!!

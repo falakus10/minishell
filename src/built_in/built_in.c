@@ -44,5 +44,6 @@ int	built_in(t_command_block *cmd, t_env *env)
 		value = ft_env(env);
 	else
 		return (-1);
+	cmd->expnd->exit_value = value;
 	return (value);
 }

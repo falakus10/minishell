@@ -34,10 +34,16 @@ void	input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe
 		expander((*list), env_list, expnd);
 		remove_quotes(*list);
 		new_list = token_join(*list);
-		flag = check_tokens(new_list); //tokenlar kontrol edildi
-		mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
+		flag = check_tokens(new_list,expnd); //tokenlar kontrol edildi
+		int a = count_heredoc(new_list);
+		mng_heredocs = init_heredoc_struct(count_cmd_blk(new_list), new_list);
+		if(a != 0)
+			mng_heredocs = run_hrdcs(mng_heredocs, new_list); //heredoclar işlendi
 		if(flag)
-			ft_error();
+		{
+			//free
+			continue; //exit atıyordum.
+		}	
 		command_block= parser(*new_list,mng_heredocs,expnd,env_list);
 		executor(command_block, env_list, exe);
 		free(temp_input); // bununla işimiz bitti

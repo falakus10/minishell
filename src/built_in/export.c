@@ -86,6 +86,7 @@ int	check_valid(char *str)
 	return (0);
 }
 
+
 int	ft_export(t_command_block *cmd, t_env  *env)
 {
 	int		i;

@@ -54,11 +54,8 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 	}
 }
 
-t_mng_heredocs *run_hrdcs(t_joined_lexer_list **temp, int cmd_blk_count)
+t_mng_heredocs *run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 {
-	t_mng_heredocs *mng;
-
-	mng = init_heredoc_struct(cmd_blk_count, temp);
 	fill_heredoc_flags(mng, temp);
 	take_heredoc_delims(temp, count_heredoc(temp), &mng);
 	fill_heredoc_nums(&mng, temp);

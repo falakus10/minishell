@@ -109,3 +109,13 @@ t_env   **take_env(char **env)
 	}
 	return (env_list);
 }
+
+void	free_arr(char **arr)
+{
+	int i = 0;
+	if (!arr)
+		return;
+	while (arr[i])
+		free(arr[i++]);
+	free(arr);
+}

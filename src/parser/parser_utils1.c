@@ -101,26 +101,6 @@ char	**append_to_array(char **array, int count, char *new_value)
 	return (new_array);
 }
 
-int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
-{
-	int *new_array;
-	int i;
-	
-	new_array = malloc(sizeof(int) *(count + 1));
-	if(!new_array)
-		return (NULL);
-	i = 0;
-	while (i < count)
-	{
-		new_array[i] = array[i];
-		i++;
-	}
-	new_array[i] = new_value;
-	free(array);
-	printf("new_array[%d], value = %d\n",i,new_array[i]);
-	return (new_array);
-}
-
 t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 {
 	t_command_block	*new_block;

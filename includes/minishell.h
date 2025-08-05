@@ -14,7 +14,7 @@
 # include <termios.h>
 # include <unistd.h>
 #include  <errno.h>
-
+#include <sys/stat.h>
 
 typedef struct s_lexer_list
 {
@@ -73,7 +73,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	char *command;
 	char **args;
 	int	status;
-	int	last_fault;
+	int	last_fault; //bu ne içindi
 	int *fd;
 	int *heredoc_fd;
 	int cmd_count;
@@ -133,6 +133,8 @@ typedef enum e_built_in
 	ENV
 }			e_built_in;
 
+
+void	free_arr(char **arr);
 void							input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
@@ -180,22 +182,21 @@ void							handle_token_logic(t_joined_lexer_list **tmp,
 									t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
 void	loop(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
-int 							*append_to_array2(int *array, int count, int new_value);
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
 int								executor(t_command_block *cmd,t_env *env, t_executor *exe);
 int								is_builtin(char *cmd);
-int 							create_path(t_command_block *tmp_blk, char *word);
+int 							create_path(t_command_block *tmp_blk, char *word,int i);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
 t_env **take_env(char **env);
-int is_first_pipe(t_joined_lexer_list *tmp);
-int just_operator(t_joined_lexer_list *tmp);
-int	print_error_check(t_joined_lexer_list *tmp);
-int check_tokens(t_joined_lexer_list **temp);
+int is_first_pipe(t_joined_lexer_list *tmp, t_expander *expnd);
+int just_operator(t_joined_lexer_list *tmp, t_expander *expnd);
+int	print_error_check(t_joined_lexer_list *tmp, t_expander *expnd);
+int check_tokens(t_joined_lexer_list **temp, t_expander *expnd);
 
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count);
 void	fork_or_exit(pid_t *pid);
@@ -209,7 +210,7 @@ void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp
 void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs);
 char **free_heredoc_delimiters(char **delims, int last_index);
 
-t_mng_heredocs *run_hrdcs(t_joined_lexer_list **temp, int cmd_blk_count);
+t_mng_heredocs *run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp);
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp);
 t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp);
 int		ft_echo(t_command_block *cmd);
@@ -225,5 +226,6 @@ char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env *env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
 void	run_single_builtin(t_command_block *cmd, t_executor *exe);
+t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp);
 
 #endif

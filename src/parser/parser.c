@@ -32,10 +32,10 @@ t_command_block	*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs ,
 		pass_cmd_blk(&command_block, &new_block, &temp_block); //sonraki komut bloğuna geçer
 		while (temp != NULL && temp->type != PIPE)
 			loop(&temp, &temp_block, &utils,mng_heredocs);
-		printf("fill err= %d, path err = %d\n", temp_block->file_err, temp_block->path_err);
 		if(temp_block->file_err == 0 && temp_block->cmd_err == 1)
 		{
-			printf("bash: %s: command not found\n",(temp_block)->wrong_cmd);
+			write(2,temp_block->wrong_cmd,ft_strlen(temp_block->wrong_cmd));
+			write(2,": command not found\n",20);
 			temp_block->last_fault = 1;
 			temp_block->expnd->exit_value = 127;
 		}
@@ -48,7 +48,6 @@ t_command_block	*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs ,
 		}
 		else if(temp_block->file_err == 0 && temp_block->command == NULL)
 			temp_block->file_err = 1;
-		
 		mng_heredocs->index++;
 		check_null(&temp);
 	}

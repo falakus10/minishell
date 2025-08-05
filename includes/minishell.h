@@ -206,7 +206,7 @@ void	handle_child_process(char *delim, int write_fd);
 
 int count_cmd_blk(t_joined_lexer_list **temp);
 int count_heredoc(t_joined_lexer_list **temp);
-void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp);
+void	fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp);
 void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs);
 char **free_heredoc_delimiters(char **delims, int last_index);
 

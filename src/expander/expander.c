@@ -1,5 +1,22 @@
 #include "minishell.h"
 
+char	*remove_env_from_token(char *token, int dollar_index, int key_len)
+{
+	char	*before;
+	char	*after;
+	char	*new_token;
+
+	before = ft_substr(token, 0, dollar_index); // '$' öncesi
+	after = ft_strdup(token + dollar_index + key_len + 1); // '$' + key sonrası
+	new_token = ft_strjoin(before, after);
+
+	free(before);
+	free(after);
+	free(token);
+	return (new_token);
+}
+
+
 int special_character(char *token, t_expander *expander)
 {
 	if (token[expander->i] == '$')
@@ -36,8 +53,6 @@ int	question_mark(t_lexer_list *temp, int i, t_expander *expander)
 }
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list) //return değeri expanderda continue'ya girmek için kullanılıyor
 {
-	char *str;
-
 	expander->start = i;//$EMPTY
 	while (temp->token[i] != '\0' && (is_valid_ch(temp->token ,i)))
 	{
@@ -53,12 +68,8 @@ int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_li
 	}//burayı < > >> << göre güncelle null olma durumunu
 	else
 	{
-		str = ft_substr(temp->token,0,expander->start - 1);
-		temp->token = ft_strdup(str);
-		free(str);
-		expander->i = 0;
-		//+= yaptım , $sakjda bir şey değişmiyor ama sada$kaasf durumu için lazımdı
-		return (1); //olunca da çalışıyor // iki türlü de döngüyü tamamlıyor
+		temp->token = remove_env_from_token(temp->token, expander->start - 1, i - expander->start);
+		expander->i = expander->start - 2; // <-- kritik değişiklik
 	}
 	return (0);
 }

@@ -17,7 +17,6 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 	{
 		
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
-		add_history(temp_input);
 		if (temp_input == NULL)
 		{
 			free(temp_input); //NULL şeyi freelemek saçma
@@ -26,10 +25,11 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 		}
 		if (temp_input[0] == '\0')
     	{
-     	   free(temp_input);
-      		continue;
+			free(temp_input);
+			continue;
     	}
 		input = ft_strtrim(temp_input, " ");
+		add_history(input);
 		if(input[0] == '\0')
 		{
 			free(input);
@@ -41,7 +41,9 @@ void	input_loop(t_command_block *command_block, t_env *env_list, char **env, t_e
 		remove_quotes(*list);
 		new_list = token_join(*list);
 		flag = check_tokens(new_list); //tokenlar kontrol edildi
-		mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
+		int a = count_heredoc(new_list);
+		if(a != 0)
+			mng_heredocs = run_hrdcs(new_list,count_cmd_blk(new_list)); //heredoclar işlendi
 		if(flag)
 			ft_error();
 		command_block= parser(*new_list,mng_heredocs,expnd);	

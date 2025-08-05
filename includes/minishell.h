@@ -104,6 +104,7 @@ typedef struct s_pipeline_utils
 
 typedef struct s_executor
 {
+	int			count;
 	int			*fd;
 	t_expander	*exp;
 	t_env		*env;

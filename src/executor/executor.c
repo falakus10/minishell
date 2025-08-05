@@ -51,8 +51,6 @@ int command_count(t_command_block *cmd)
 
 	count = 0;
 	temp = cmd;
-	//if(temp == NULL)
-		//printf("temp null\n");
 	while (temp != NULL)
 	{
 		count++;
@@ -97,6 +95,7 @@ int	executor(t_command_block *cmd, t_env *env, t_executor *exe)
 
 	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
+	exe->count = cmd->cmd_count;
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))

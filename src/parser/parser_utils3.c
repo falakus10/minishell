@@ -21,6 +21,20 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
+char *take_path(t_env *env)
+{
+	char *path;
+
+	path = NULL;
+	while(env != NULL)
+	{
+		if(!strncmp("PATH=",env->line,5))
+			path = ft_strdup(env->line);
+		env = env->next;
+	}
+	return (path);
+}
+
 int create_path(t_command_block *tmp_blk, char *word)  //t_env'ye göre güncelle !!!!
 {
     char *path_env;
@@ -29,7 +43,13 @@ int create_path(t_command_block *tmp_blk, char *word)  //t_env'ye göre güncell
 	char *path;
 	int i;
 	
-	path_env = getenv("PATH");
+	path_env = take_path(tmp_blk->env);
+	if(path_env == NULL)
+	{
+		tmp_blk->wrong_cmd = word;
+		tmp_blk->path_err = 1;
+		return (1);
+	}
 	paths = ft_split(path_env, ':');
 	i = 0;
 	while(paths[i] != NULL)

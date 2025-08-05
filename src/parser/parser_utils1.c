@@ -84,6 +84,8 @@ char	**append_to_array(char **array, int count, char *new_value)
 	char	**new_array;
 	int		i;
 	
+	if(new_value == NULL)
+		return NULL;
 	new_array = malloc(sizeof(char *) * (count + 2)); // count + 2 olmasının sebebi : yeni eleman + NULL için
 	if (!new_array)
 		return (NULL);
@@ -103,8 +105,6 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 {
 	int *new_array;
 	int i;
-	printf("new value :%d\n",(new_value));
-	printf("heredoc count :%d\n",(count));
 	
 	new_array = malloc(sizeof(int) *(count + 1));
 	if(!new_array)
@@ -121,7 +121,7 @@ int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
 	return (new_array);
 }
 
-t_command_block	*init_command_block(t_expander *expander)
+t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 {
 	t_command_block	*new_block;
 	
@@ -148,5 +148,7 @@ t_command_block	*init_command_block(t_expander *expander)
 	new_block->command = NULL;
 	new_block->wrong_cmd = NULL;
 	new_block->expnd = expander;
+	new_block->path_err = 0;
+	new_block->env = environ;
 	return (new_block);
 }

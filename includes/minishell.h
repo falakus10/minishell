@@ -91,6 +91,8 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
+	int path_err;
+	t_env *env;
 	t_expander *expnd;
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
@@ -131,7 +133,7 @@ typedef enum e_built_in
 	ENV
 }			e_built_in;
 
-void							input_loop(t_command_block *command_block, t_env *env_list, char **env, t_executor *exe);
+void							input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
@@ -158,7 +160,7 @@ int								special_ch_check(char c);
 char							*env_value(t_env *env_list, const char *key);
 char							*ft_strjoin_free(char *token,
 									t_expander *expander);
-t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs,t_expander *expander);
+t_command_block					*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs,t_expander *expander, t_env *env);
 
 t_joined_lexer_list				*add_new_node2(t_joined_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
@@ -167,7 +169,7 @@ t_joined_lexer_list				*merge_words(t_lexer_list **temp,
 t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 char							**append_to_array(char **array, int count,
 									char *new_value);
-t_command_block					*init_command_block(t_expander *expander);
+t_command_block					*init_command_block(t_expander *expander,t_env *env);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);
@@ -179,11 +181,10 @@ void							handle_token_logic(t_joined_lexer_list **tmp,
 void	loop(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
 int 							*append_to_array2(int *array, int count, int new_value);
-int 							find_fd(char *file,t_command_block *temp); //galiba sildim
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
-int								executor(t_command_block *cmd, char **env, t_executor *exe);
+int								executor(t_command_block *cmd,t_env *env, t_executor *exe);
 int								is_builtin(char *cmd);
 int 							create_path(t_command_block *tmp_blk, char *word);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);

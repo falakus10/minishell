@@ -121,7 +121,6 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 		(*temp_block)->operator_count++; // işime yarıyor mu ? yarıyorsa işlenişi değişebilir.
 		if(mng_heredocs->heredoc_flags[mng_heredocs->index]) //bu varsa redir_in ler hiç çalışmasın diyemem çünkü o zaman hata mesajını alamam (ama hata almayana kadarla sınırlasam ?)
 			(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
-		printf("heredoc fd =%d\n",(*temp_block)->input_fd);
 		*temp = (*temp)->next;
 }
 

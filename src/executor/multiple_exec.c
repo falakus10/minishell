@@ -45,7 +45,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
-			if (tmp->file_err || tmp->cmd_err)
+			if (tmp->file_err || tmp->cmd_err || tmp->path_err)
 			{
 				close_fd(tmp->input_fd, tmp->output_fd, i, count, exe); // Pipe'ları kapat
 				exit (1);  //sonra değişcez Başarılı gibi çık
@@ -96,7 +96,6 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 		tmp = tmp->next;
 		i++;
 	}
-	//printf("%d\n", flag);
 	if (!flag)
 		exe->exp->exit_value = (last_status >> 8) & 0xFF;
 	return (0);

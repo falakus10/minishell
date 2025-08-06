@@ -66,6 +66,11 @@ t_joined_lexer_list	**token_join(t_lexer_list *lexer_list)
 	temp = lexer_list;
 	while (temp != NULL)
 	{
+		/* if (temp->token[0] == '\0')
+		{
+			temp = temp->next;
+			continue;
+		} */
 		current = add_new_node2(list);
 		if (temp->type > 5)
 		current = merge_words(&temp, current);
@@ -118,7 +123,7 @@ t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 	new_block->heredoc_count = 0;
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
-	new_block->fd_count = 0;
+	new_block->cmd_count = 0;
 	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
 	new_block->output_fd = -3;
 	new_block->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
@@ -129,6 +134,7 @@ t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 	new_block->wrong_cmd = NULL;
 	new_block->expnd = expander;
 	new_block->path_err = 0;
+	new_block->wrong_path = 0;
 	new_block->env = environ;
 	return (new_block);
 }

@@ -61,7 +61,7 @@ int command_count(t_command_block *cmd)
 
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
-	if (cmd->file_err || cmd->cmd_err || cmd->path_err) //DÜZENLE
+	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path) //DÜZENLE
 		return (1);
 	cmd->pid = fork();
 	if (cmd->pid == 0)

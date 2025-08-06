@@ -16,7 +16,7 @@ void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_her
 	tmp = *temp;
 	while (tmp && i < heredoc_count)
 	{
-		if (tmp->type == HEREDOC && tmp->next && tmp->next->token)
+		if (tmp->type == HEREDOC && tmp->next && tmp->next->token) //if (tmp->type == HEREDOC && tmp->next && tmp->next->type)
 		{
 			(*mng_heredocs)->heredoc_delims[i] = ft_strdup(tmp->next->token);
 			if (!(*mng_heredocs)->heredoc_delims[i])
@@ -55,7 +55,7 @@ int count_heredoc(t_joined_lexer_list **temp)
 	while(tmp != NULL)
 	{
 		if(tmp->type == HEREDOC)
-			heredoc_count++;
+				heredoc_count++;
 		tmp = tmp->next;
 	}
 	return (heredoc_count);

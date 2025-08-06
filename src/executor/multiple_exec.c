@@ -45,7 +45,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
-			if (tmp->file_err || tmp->cmd_err || tmp->path_err)
+			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
 			{
 				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
 				exit (1);  //sonra değişcez Başarılı gibi çık

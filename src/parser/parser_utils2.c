@@ -157,9 +157,8 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs)
 {
-	int fd_count;
-
-	fd_count = 0;
+	if ((*tmp)->token[0] == '\0' && (*tmp)->next != NULL)
+		(*tmp) = (*tmp)->next;
 	if ((*tmp)->next != NULL && ((*tmp)->type == REDIR_IN 		//veya != WORD && != PIPE
 			|| (*tmp)->type == REDIR_OUT || (*tmp)->type == APPEND
 			|| (*tmp)->type == HEREDOC))
@@ -169,8 +168,15 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 	{
 		if (!utils->is_cmd_pointed)
 		{
+			if ((*tmp)->token[0] == '\0')
+			{
+				(*tmp) = (*tmp)->next; 
+				return;
+			}
 			if (is_builtin((*tmp)->token)) //command'e burada atama yapılacak
+			{
 				(*tmp_blk)->command = ft_strdup((*tmp)->token); //tokenları direk liste olarak free'leriz o yüzden *tmp->token olarak atamayalım
+			}
 			else if(!ft_strncmp("./",(*tmp)->token,2))
 			{
 				(*tmp_blk)->command = ft_substr((*tmp)->token,2,ft_strlen((*tmp)->token) -2); //sonra free'lenmeli
@@ -181,7 +187,7 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 				if(!create_path((*tmp_blk),(*tmp)->token,0) && (*tmp_blk)->cmd_err == 0)
 				{
 					(*tmp_blk)->command = ft_strdup((*tmp)->token); 
-					(*tmp_blk)->wrong_cmd = (*tmp)->token; //strdup ile mi atmalıyım (bence illa strdup a gerek yok parserdan sonra joined lexer list freelenebilir)!!!
+					(*tmp_blk)->wrong_cmd = ft_strdup((*tmp)->token); //strdup ile mi atmalıyım (bence illa strdup a gerek yok parserdan sonra joined lexer list freelenebilir)!!!
 					(*tmp_blk)->cmd_err = 1;
 				}
 			}
@@ -196,6 +202,5 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 			(*tmp_blk)->argument_count++;
 		}
 	}
-	fd_count++; //bunu niye tuttum ?
 	(*tmp) = (*tmp)->next;
 }

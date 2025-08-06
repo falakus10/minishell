@@ -85,13 +85,13 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int heredoc_count;         // kaç tane heredoc var
 	int operator_count;
 	int argument_count;
-	int fd_count;
 	int err_flg;
 	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
 	int path_err;
+	int	wrong_path;
 	t_env *env;
 	t_expander *expnd;
 	struct s_command_block *next; // sonraki komut bloğu için
@@ -104,6 +104,7 @@ typedef struct s_pipeline_utils
 
 typedef struct s_executor
 {
+	int			count;
 	int			*fd;
 	t_expander	*exp;
 	t_env		*env;

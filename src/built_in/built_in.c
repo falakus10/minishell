@@ -24,7 +24,7 @@ int	built_in(t_command_block *cmd, t_env *env)
 	int	which_cmd;
 	int value;
 
-	if (cmd->file_err || cmd->cmd_err) //DÜZENLE
+	if (cmd->file_err || cmd->cmd_err) //path le ilgili error ler buraya gelmez çünkü işi yok path  le
 		return (1);
 	value = 0;
 	which_cmd = is_builtin(cmd->command);

@@ -13,13 +13,15 @@ void	delete_node(t_env **env, char *key)
 	{
 		if (ft_strncmp(curr->line, key, len) == 0 && (curr->line[len] == '=' || curr->line[len] == '\0'))
 		{
-			if (prev == NULL)
+			if (!prev)
+			{
 				*env = curr->next;
+			}
 			else
 				prev->next = curr->next;
-			free(curr->line);
+			free(curr->line);	
 			if(curr->value)
-				free(curr->value);
+				free(curr->value); 
 			free(curr);
 			return;
 		}

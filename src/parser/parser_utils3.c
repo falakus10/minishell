@@ -42,6 +42,7 @@ void	check_path_validity(t_command_block *tmp_blk, char *path)
 	stat(path, &st);
 	if (S_ISDIR(st.st_mode))
 	{
+		write(2, "bash: ", 6);
 		write(2, path, ft_strlen(path));
 		write(2, ": Is a directory\n", 17);
 		tmp_blk->wrong_path = 1;
@@ -49,6 +50,7 @@ void	check_path_validity(t_command_block *tmp_blk, char *path)
 	}
 	if (!(st.st_mode & S_IXUSR))
 	{
+		write(2, "bash: ", 6);
 		write(2, path, ft_strlen(path));
 		write(2, ": Permission denied\n", 20);
 		tmp_blk->wrong_path = 1;

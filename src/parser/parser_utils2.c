@@ -177,11 +177,11 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 			{
 				(*tmp_blk)->command = ft_strdup((*tmp)->token); //tokenları direk liste olarak free'leriz o yüzden *tmp->token olarak atamayalım
 			}
-			else if(!ft_strncmp("./",(*tmp)->token,2))
+			/* else if(!ft_strncmp("./",(*tmp)->token,2))
 			{
 				(*tmp_blk)->command = ft_substr((*tmp)->token,2,ft_strlen((*tmp)->token) -2); //sonra free'lenmeli
 				
-			}
+			} */
 			else //command ataması create_path içinde oluyor
 			{
 				if(!create_path((*tmp_blk),(*tmp)->token,0) && (*tmp_blk)->cmd_err == 0)

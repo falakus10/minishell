@@ -10,7 +10,7 @@ char	**env_list_to_envp(t_env *env_list)
 	i = 0;
 	count = 0;
 	tmp = env_list;
-	while (tmp != NULL)
+	while (tmp)
 	{
 		count++;
 		tmp = tmp->next;
@@ -21,6 +21,11 @@ char	**env_list_to_envp(t_env *env_list)
 	tmp = env_list;
 	while (tmp)
 	{
+		if (!*tmp->line)
+		{
+			tmp = tmp->next;
+			continue;
+		}		
 		envp[i++] = ft_strdup(tmp->line);
 		tmp = tmp->next;
 	}

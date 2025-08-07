@@ -39,7 +39,6 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 	int type;
 	int old_outfd;
 	int old_infd;
-
 	type = (*tmp_list)->type;
 	if((*tmp_list)->next->token[0] == '$')
 	{
@@ -80,8 +79,11 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 			}
 			else
 			{
-				if((*tmp_blk)->input_fd > -1 && old_infd != -3 && !mng->heredoc_flags[mng->index])
+				if(mng->heredoc_flags[mng->index])
+					close((*tmp_blk)->input_fd);				
+				else if((*tmp_blk)->input_fd > -1 && old_infd != -3)
 					close(old_infd);
+				
 			}
 		}
 	}
@@ -89,7 +91,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 	{
 		if((*tmp_blk)->file_err == 0)
 		{
-			old_outfd = (*tmp_blk)->output_fd; //-3
+			old_outfd = (*tmp_blk)->output_fd; 
 			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 			if ((*tmp_blk)->output_fd == -1)
 			{
@@ -125,7 +127,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 		{
 			old_outfd = (*tmp_blk)->output_fd;
 			(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
-			if ((*tmp_blk)->output_fd == -1)//bu olmaz zaten silinebilir
+			if ((*tmp_blk)->output_fd == -1)
 			{
 				if(errno == EISDIR)
 				{

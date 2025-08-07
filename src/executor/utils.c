@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-char	**env_list_to_envp(t_env *env_list)
+char	**env_list_to_envp(t_env **env_list)
 {
 	char	**envp;
 	int		count;
@@ -9,7 +9,7 @@ char	**env_list_to_envp(t_env *env_list)
 
 	i = 0;
 	count = 0;
-	tmp = env_list;
+	tmp = *env_list;
 	while (tmp)
 	{
 		count++;
@@ -18,7 +18,7 @@ char	**env_list_to_envp(t_env *env_list)
 	envp = malloc(sizeof(char *) * (count + 1));
 	if (!envp)
 		ft_error();
-	tmp = env_list;
+	tmp = (*env_list);
 	while (tmp)
 	{
 		if (!*tmp->line)

@@ -11,7 +11,7 @@ void	run_single_builtin(t_command_block *cmd, t_executor *exe)
 	if (saved_stdin == -1 || saved_stdout == -1)
 		perror("dup");
 	make_dup(cmd, 0, 1, exe);
-	built_in(cmd, exe->env);
+	built_in(cmd, &exe->env);
 	if (dup2(saved_stdin, STDIN_FILENO) == -1 ||
 		dup2(saved_stdout, STDOUT_FILENO) == -1)
 		perror("dup2 restore");
@@ -19,7 +19,7 @@ void	run_single_builtin(t_command_block *cmd, t_executor *exe)
 	close(saved_stdout);
 }
 
-int	built_in(t_command_block *cmd, t_env *env)
+int	built_in(t_command_block *cmd, t_env **env)
 {
 	int	which_cmd;
 	int value;
@@ -29,11 +29,11 @@ int	built_in(t_command_block *cmd, t_env *env)
 	value = 0;
 	which_cmd = is_builtin(cmd->command);
 	if (which_cmd == 1)
-		value = ft_cd(cmd, env);
+		value = ft_cd(cmd, *env);
 	else if (which_cmd == 2)
-		value = ft_export(cmd, env);
+		value = ft_export(cmd, *env);
 	else if (which_cmd == 3)
-		value = ft_unset(cmd, &env);
+		value = ft_unset(cmd, env);
 	else if (which_cmd == 4)
 		value = ft_exit(cmd);
 	else if (which_cmd == 5)
@@ -41,7 +41,7 @@ int	built_in(t_command_block *cmd, t_env *env)
 	else if (which_cmd == 6)
 		value = ft_pwd();
 	else if (which_cmd == 7)
-		value = ft_env(env);
+		value = ft_env(*env);
 	else
 		return (-1);
 	cmd->expnd->exit_value = value;

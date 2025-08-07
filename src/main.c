@@ -45,7 +45,7 @@ void	input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe
 			continue; //exit atıyordum.
 		}	
 		command_block= parser(*new_list,mng_heredocs,expnd,env_list);
-		executor(command_block, env_list, exe);
+		executor(command_block, exe);
 		free(temp_input); // bununla işimiz bitti
 		// input'u da işimiz bitince free'lemeliyiz
 	}

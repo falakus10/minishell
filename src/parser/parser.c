@@ -50,8 +50,6 @@ t_command_block	*parser(t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs ,
 			temp_block->file_err = 1;
 		mng_heredocs->index++;
 		check_null(&temp);
-		printf("output fd :%d\n",new_block->output_fd);
-		printf("input fd :%d\n",new_block->input_fd);
 	}
 	return (command_block);
 }

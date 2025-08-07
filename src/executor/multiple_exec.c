@@ -60,7 +60,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 			make_dup(tmp, i, count, exe);
 			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
 			if (is_builtin(tmp->command))
-				exit(built_in(tmp, exe->env));
+				exit(built_in(tmp, &exe->env));
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);

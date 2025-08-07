@@ -88,7 +88,6 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	return (0);
 }
 
-
 int	executor(t_command_block *cmd, t_env *env, t_executor *exe)
 {
 	char  **envp;
@@ -103,7 +102,10 @@ int	executor(t_command_block *cmd, t_env *env, t_executor *exe)
 			run_single_builtin(cmd, exe);
 		}
 		else
+		{
 			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
+			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
+		}
 	}
 	else
 	{

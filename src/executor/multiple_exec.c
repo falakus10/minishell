@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 {
 	int	i;
@@ -13,7 +12,14 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	used_in = -1;
 	used_out = -1;
 
-	if (index == 0 && output_fd > -1)
+	if (index == -1)
+	{
+		if (input_fd > 2)
+			close(input_fd);
+		if (output_fd > 2)
+			close(output_fd);
+	}
+	else if (index == 0 && output_fd > -1)
 		used_out = 1;
 	else if (index == exe->count - 1 && input_fd > -1)
 		used_in = 2 * (index - 1);
@@ -27,12 +33,13 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	while (i < fd_count)
 	{
 		if (i != used_in && i != used_out)
-		{
 			close(exe->fd[i]);
-		}
 		i++;
 	}
 }
+
+
+
 int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	t_command_block	*tmp;

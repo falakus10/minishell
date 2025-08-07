@@ -9,6 +9,7 @@ void	delete_node(t_env **env, char *key)
 	curr = *env;
 	prev = NULL;
 	len = ft_strlen(key);
+	printf("key == %s  len == %d \n", key, len);
 	while (curr)
 	{
 		if (ft_strncmp(curr->line, key, len) == 0 && (curr->line[len] == '=' || curr->line[len] == '\0'))

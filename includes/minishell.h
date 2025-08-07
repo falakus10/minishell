@@ -16,6 +16,8 @@
 #include  <errno.h>
 #include <sys/stat.h>
 
+extern int	g_signal;
+
 typedef struct s_lexer_list
 {
 	int							type;
@@ -173,6 +175,7 @@ t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 char							**append_to_array(char **array, int count,
 									char *new_value);
 t_command_block					*init_command_block(t_expander *expander,t_env *env);
+void	close_fd(int input_fd, int output_fd, int index, t_executor *exe);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);

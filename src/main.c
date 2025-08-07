@@ -51,6 +51,7 @@ void	input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe
 	}
 }
 
+
 int	main(int argc, char *argv[], char **env)
 {
 	(void)argc;

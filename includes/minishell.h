@@ -16,6 +16,8 @@
 #include  <errno.h>
 #include <sys/stat.h>
 
+extern int	g_signal;
+
 typedef struct s_lexer_list
 {
 	int							type;
@@ -85,13 +87,13 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int heredoc_count;         // kaç tane heredoc var
 	int operator_count;
 	int argument_count;
-	int fd_count;
 	int err_flg;
 	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
 	int path_err;
+	int	wrong_path;
 	t_env *env;
 	t_expander *expnd;
 	struct s_command_block *next; // sonraki komut bloğu için
@@ -136,7 +138,7 @@ typedef enum e_built_in
 
 
 void	free_arr(char **arr);
-void							input_loop(t_command_block *command_block, t_env *env_list, t_executor *exe);
+void							input_loop(t_command_block *command_block, t_env **env_list, t_executor *exe);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
@@ -173,6 +175,7 @@ t_joined_lexer_list				**token_join(t_lexer_list *lexer_list);
 char							**append_to_array(char **array, int count,
 									char *new_value);
 t_command_block					*init_command_block(t_expander *expander,t_env *env);
+void	close_fd(int input_fd, int output_fd, int index, t_executor *exe);
 void							pass_cmd_blk(t_command_block **cmd,
 									t_command_block **new,
 									t_command_block **tmp);
@@ -186,7 +189,7 @@ void	loop(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
-int								executor(t_command_block *cmd,t_env *env, t_executor *exe);
+int								executor(t_command_block *cmd, t_executor *exe, t_env **env);
 int								is_builtin(char *cmd);
 int 							create_path(t_command_block *tmp_blk, char *word,int i);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
@@ -221,12 +224,12 @@ int		ft_export(t_command_block *cmd, t_env  *env);
 int		ft_unset(t_command_block *cmd, t_env **env);
 int		ft_pwd(void);
 int		ft_env(t_env *env);
-int		built_in(t_command_block *cmd, t_env *env);
+int		built_in(t_command_block *cmd, t_env **env);
 char	*format_export_line(t_env *node);
 char	*add_quotes(char *str);
-char	**env_list_to_envp(t_env *env_list);
+char	**env_list_to_envp(t_env **env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
-void	run_single_builtin(t_command_block *cmd, t_executor *exe);
+void	run_single_builtin(t_command_block *cmd, t_executor *exe, t_env **env);
 t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp);
 
 #endif

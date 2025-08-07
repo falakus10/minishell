@@ -1,6 +1,5 @@
 #include "minishell.h"
 
-
 void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 {
 	int	i;
@@ -13,7 +12,14 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	used_in = -1;
 	used_out = -1;
 
-	if (index == 0 && output_fd > -1)
+	if (index == -1)
+	{
+		if (input_fd > 2)
+			close(input_fd);
+		if (output_fd > 2)
+			close(output_fd);
+	}
+	else if (index == 0 && output_fd > -1)
 		used_out = 1;
 	else if (index == exe->count - 1 && input_fd > -1)
 		used_in = 2 * (index - 1);
@@ -27,12 +33,13 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	while (i < fd_count)
 	{
 		if (i != used_in && i != used_out)
-		{
 			close(exe->fd[i]);
-		}
 		i++;
 	}
 }
+
+
+
 int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	t_command_block	*tmp;
@@ -45,7 +52,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
-			if (tmp->file_err || tmp->cmd_err || tmp->path_err)
+			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
 			{
 				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
 				exit (1);  //sonra değişcez Başarılı gibi çık
@@ -53,7 +60,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 			make_dup(tmp, i, count, exe);
 			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
 			if (is_builtin(tmp->command))
-				exit(built_in(tmp, exe->env));
+				exit(built_in(tmp, &exe->env));
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);

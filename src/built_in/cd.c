@@ -85,7 +85,7 @@ int	go_home(t_env *env, char *old_pwd)
 	}
 	if (home_path == NULL)
 	{
-		write(2, "cd: HOME not set\n", 16);
+		write(2, "bash: cd: HOME not set\n", 23);
 		return (1);
 	}
 	if (chdir(home_path) != 0)

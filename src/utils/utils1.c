@@ -67,6 +67,8 @@ t_env	*add_new_node3(t_env **env_list)
 	t_env	*node;
 	t_env	*temp;
 	node = malloc(sizeof(t_env));
+	if (!node)
+		ft_error();
 	node->next = NULL;
 	node->value = NULL;
 	node->flag = 0;
@@ -82,7 +84,7 @@ t_env	*add_new_node3(t_env **env_list)
 	return (node);
 }
 
-t_env   **take_env(char **env)
+t_env	**take_env(char **env)
 {
 	int	i;
 	int	j;

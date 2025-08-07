@@ -29,11 +29,13 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 
 	tmp = *temp;
 	i = 0;
+	heredoc_valid = 0;
 	while (tmp)
 	{
 		if (tmp->type == HEREDOC && tmp->next)
 		{
-			heredoc_valid = 1;
+			if (tmp->next->type == WORD)
+				heredoc_valid = 1;
 			scan = tmp->next->next;
 
 			while (scan && scan->type != PIPE)

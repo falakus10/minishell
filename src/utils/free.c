@@ -8,7 +8,7 @@ void	free_cmd_blk(t_command_block *cmd)
 	while (cmd)
 	{
         //printf("command :%s\n",cmd->command);
-            tmp = cmd->next;
+        tmp = cmd->next;
 		if (cmd->command)
 			free(cmd->command);
 		free_arr(cmd->args);
@@ -57,6 +57,7 @@ void	free_lexer_expander(t_lexer_list **lex, t_expander *exp)
 		*lex = tmp;
 	}
 	*lex = NULL; // dışarıdaki pointer'ı da sıfırla
+	free(lex);
 	if (exp)
 	{
 		if (exp->env_key)
@@ -80,7 +81,7 @@ void	free_joined_exec(t_joined_lexer_list **jll, t_executor *exe)
 		*jll = tmp;
 	}
 	*jll = NULL; // dışarıdaki pointer'ı da sıfırla
-
+	free(jll);
 	if (exe)
 	{
 		if (exe->fd)

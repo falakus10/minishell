@@ -148,7 +148,7 @@ typedef struct s_init
 }					t_init;
 
 void	free_arr(char **arr);
-void							input_loop(t_command_block *command_block, t_env **env_list, t_executor *exe);
+void							input_loop(char **env);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);

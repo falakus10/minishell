@@ -2,7 +2,6 @@
 
 void init_heredoc_struct(t_mng_heredocs *mng, int count, t_joined_lexer_list **temp, t_env *env_list)
 {
-	(void)temp;
 	mng->index = 0;
 	mng->heredoc_flags = malloc(sizeof(int) * count);
 	mng->heredoc_fds = malloc(sizeof(int) * count);

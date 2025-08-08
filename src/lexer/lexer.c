@@ -102,5 +102,6 @@ void	lexer_function(t_lexer_list **lexer_list, char *input)
 			array = word_assign(input, &i, *lexer_list);
 		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
 		(current)->type = set_type(array);
+		free(array);
 	}
 }

@@ -1,8 +1,5 @@
 #include "minishell.h"
 
-void init1();
-void init2();
-
 /*
 malloclananlar
 
@@ -45,7 +42,7 @@ void init_cmd_blk(t_command_block *cmd, t_env *env_list, t_expander *exp)
 	cmd->last_fault = 0;
 	cmd->files = NULL;
 	cmd->operators = NULL;
-	cmd->heredoc_fd = malloc(sizeof(int));
+	cmd->heredoc_fd = NULL;
 	cmd->heredoc_count = 0;
 	cmd->operator_count = 0;
 	cmd->argument_count = 0;
@@ -95,40 +92,42 @@ void initialize_structs(t_init *init, t_env *env_list)
 	init_mng_heredocs(init->mng_hrdcs, env_list);
 }
 
-void	input_loop(t_command_block *command_block, t_env **env_list, t_executor *exe)
+void	input_loop(char **env)
 {
 	char *input;
 	char *temp_input;
-
-	//if malloc fail kontrolleri 
-	t_init *init = malloc(sizeof(t_init));
-
-	
+	t_env			**env_list;
+	t_executor		*exe;
+	t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
-	new_list = malloc(sizeof(t_joined_lexer_list *));
-	*new_list = NULL;
-
 	t_expander		*expnd;
-	expnd = malloc(sizeof(t_expander));
-
 	t_mng_heredocs *mng_heredocs;
-	mng_heredocs = malloc(sizeof(t_mng_heredocs));
-	
-
 	t_lexer_list **lexer_list;
-	lexer_list = malloc(sizeof(t_lexer_list *));
-	*lexer_list = NULL;
-
-	init_structs(init,env_list,lexer_list,expnd);
-	init2(init,new_list,command_block,exe);
-	init3(init,mng_heredocs);
-	
-	expnd->exit_value = 0;
-	int flag = 0;
-	exe->exp = expnd;
+	t_init *init;
+	//if malloc fail
 	
 	while (1)
 	{
+		init = malloc(sizeof(t_init));
+		env_list = malloc(sizeof(t_env *));
+		*env_list = NULL;
+		exe = malloc(sizeof(t_executor));
+		command_block = malloc (sizeof(t_command_block));
+		env_list = take_env(env_list, env);
+		exe->env = *env_list;
+		new_list = malloc(sizeof(t_joined_lexer_list *));
+		*new_list = NULL;
+		expnd = malloc(sizeof(t_expander));
+		mng_heredocs = malloc(sizeof(t_mng_heredocs));
+		lexer_list = malloc(sizeof(t_lexer_list *));
+		*lexer_list = NULL;
+		
+		expnd->exit_value = 0;
+		int flag = 0;
+		//exe->exp = expnd;
+		init_structs(init,env_list,lexer_list,expnd);
+		init2(init,new_list,command_block,exe);
+		init3(init,mng_heredocs);
 		initialize_structs(init,*env_list);
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
 		if (temp_input == NULL)
@@ -143,26 +142,27 @@ void	input_loop(t_command_block *command_block, t_env **env_list, t_executor *ex
 			continue;
     	}
 		input = ft_strtrim(temp_input, " ");
+		free(temp_input); // bununla işimiz bitti
 		add_history(input);
 		lexer_function(lexer_list,input);
+		free(input);
 		expander((*lexer_list), *env_list, expnd);
 		remove_quotes(*lexer_list);
 		token_join(new_list, *lexer_list);
 		flag = check_tokens(new_list,expnd); //tokenlar kontrol edildi
 		int a = count_heredoc(new_list);
-		init_heredoc_struct(mng_heredocs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
+		if(a != 0)
+			init_heredoc_struct(mng_heredocs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
 		if(a != 0)
 			run_hrdcs(mng_heredocs, new_list); //heredoclar işlendi
 		if(flag)
 		{
 			free_all(init, env_list);
-			exit(1);
 			continue; //exit atıyordum.
 		}
 		parser(&command_block, *new_list, mng_heredocs,expnd); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
 		executor(command_block, exe, env_list);
-		free(temp_input); // bununla işimiz bitti
-		// input'u da işimiz bitince free'lemeliyiz
+		//free_all(init, env_list);
 	}
 }
 
@@ -170,19 +170,7 @@ int	main(int argc, char *argv[], char **env)
 {
 	(void)argc;
 	(void)argv;
-	t_env			**env_list;
-	t_executor		*exe;
-	t_command_block	*command_block;
-	
-	//if malloc fail
-	env_list = malloc(sizeof(t_env *));
-	*env_list = NULL;
-	exe = malloc(sizeof(t_executor));
-	command_block = malloc (sizeof(t_command_block));
-
 	signal_handler();
-	env_list = take_env(env_list, env);
-	exe->env = *env_list;
-	input_loop(command_block, env_list, exe);
+	input_loop(env);
 	return (0);
 }

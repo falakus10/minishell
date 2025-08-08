@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	close_fd(int input_fd, int output_fd, int index, int count, t_executor *exe)
+void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 {
 	int	i;
 	int	fd_count;
@@ -8,13 +8,20 @@ void	close_fd(int input_fd, int output_fd, int index, int count, t_executor *exe
 	int used_out;
 
 	i = 0;
-	fd_count = 2 * (count - 1);
+	fd_count = 2 * (exe->count - 1);
 	used_in = -1;
 	used_out = -1;
 
-	if (index == 0 && output_fd > -1)
+	if (index == -1)
+	{
+		if (input_fd > 2)
+			close(input_fd);
+		if (output_fd > 2)
+			close(output_fd);
+	}
+	else if (index == 0 && output_fd > -1)
 		used_out = 1;
-	else if (index == count - 1 && input_fd > -1)
+	else if (index == exe->count - 1 && input_fd > -1)
 		used_in = 2 * (index - 1);
 	else
 	{
@@ -26,12 +33,12 @@ void	close_fd(int input_fd, int output_fd, int index, int count, t_executor *exe
 	while (i < fd_count)
 	{
 		if (i != used_in && i != used_out)
-		{
 			close(exe->fd[i]);
-		}
 		i++;
 	}
 }
+
+
 
 int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
@@ -45,15 +52,15 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
-			if (tmp->file_err || tmp->cmd_err)
+			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
 			{
-				close_fd(tmp->input_fd, tmp->output_fd, i, count, exe); // Pipe'ları kapat
+				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
 				exit (1);  //sonra değişcez Başarılı gibi çık
 			}
 			make_dup(tmp, i, count, exe);
-			close_fd(tmp->input_fd, tmp->output_fd, i, count, exe);
+			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
 			if (is_builtin(tmp->command))
-				exit(built_in(tmp, exe->env));
+				exit(built_in(tmp, &exe->env));
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);
@@ -85,7 +92,7 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 	create_pipe(tmp, exe);
 	if (child_exec(cmd, env, cmd_count, exe) != 0)
 		return (1);//exit value buraya mı eklenmeli?????
-	close_fd(cmd->input_fd, tmp->output_fd, -1, cmd_count, exe);
+	close_fd(cmd->input_fd, tmp->output_fd, -1, exe);
 	while (i < cmd_count)
 	{
 		if (tmp->next == NULL && tmp->last_fault)

@@ -61,7 +61,7 @@ int command_count(t_command_block *cmd)
 
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
-	if (cmd->file_err || cmd->cmd_err) //DÜZENLE
+	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path) //DÜZENLE
 		return (1);
 	cmd->pid = fork();
 	if (cmd->pid == 0)
@@ -88,23 +88,31 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	return (0);
 }
 
-
-int	executor(t_command_block *cmd, char **env, t_executor *exe)
+int	executor(t_command_block *cmd, t_executor *exe, t_env **env)
 {
+	char  **envp;
+
+	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
+	exe->count = cmd->cmd_count;
+
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-		{
-			exe->exp->exit_value = run_single_builtin(cmd, exe);
+		{	
+			run_single_builtin(cmd, exe, env);
 		}
 		else
-			run_single_cmd(cmd, env, cmd->cmd_count, exe);
+		{
+			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
+			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
+		}
 	}
 	else
 	{
-		multiple_exec(cmd, env, exe);
+		multiple_exec(cmd, envp, exe);
 	}
+	
 	return (0);
 }
 

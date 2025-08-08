@@ -53,30 +53,30 @@ t_joined_lexer_list	*merge_words(t_lexer_list **temp,t_joined_lexer_list *curren
 	return (current);
 }
 
-t_joined_lexer_list	**token_join(t_lexer_list *lexer_list)
+void	token_join(t_joined_lexer_list **new_list ,t_lexer_list *lexer_list)
 {
-	t_joined_lexer_list	**list;
 	t_joined_lexer_list	*current;
 	t_lexer_list		*temp;
 	
-	list = malloc(sizeof(t_joined_lexer_list *));
-	if (!list)
-		return (NULL);
-	*list = NULL;
+	*new_list = NULL; //mainde var ama içeri de koydum, içeri koymayınca bozuluyordu (içerde var ama mainde yokken de çalışıyor ama mainde de kalsın dedim)
 	temp = lexer_list;
 	while (temp != NULL)
 	{
-		current = add_new_node2(list);
+		/* if (temp->token[0] == '\0')
+		{
+			temp = temp->next;
+			continue;
+		} */
+		current = add_new_node2(new_list);
 		if (temp->type > 5)
 		current = merge_words(&temp, current);
 		else
 		{
-			current->token = temp->token;
+			current->token = ft_strdup(temp->token);
 			current->type = temp->type;
 		}
 		temp = temp->next;
 	}
-	return (list);
 }
 
 char	**append_to_array(char **array, int count, char *new_value)
@@ -84,6 +84,8 @@ char	**append_to_array(char **array, int count, char *new_value)
 	char	**new_array;
 	int		i;
 	
+	if(new_value == NULL)
+		return NULL;
 	new_array = malloc(sizeof(char *) * (count + 2)); // count + 2 olmasının sebebi : yeni eleman + NULL için
 	if (!new_array)
 		return (NULL);
@@ -99,29 +101,7 @@ char	**append_to_array(char **array, int count, char *new_value)
 	return (new_array);
 }
 
-int *append_to_array2(int *array, int count, int new_value) //fd'leri tutan dizi
-{
-	int *new_array;
-	int i;
-	printf("new value :%d\n",(new_value));
-	printf("heredoc count :%d\n",(count));
-	
-	new_array = malloc(sizeof(int) *(count + 1));
-	if(!new_array)
-		return (NULL);
-	i = 0;
-	while (i < count)
-	{
-		new_array[i] = array[i];
-		i++;
-	}
-	new_array[i] = new_value;
-	free(array);
-	printf("new_array[%d], value = %d\n",i,new_array[i]);
-	return (new_array);
-}
-
-t_command_block	*init_command_block(t_expander *expander)
+t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 {
 	t_command_block	*new_block;
 	
@@ -138,7 +118,7 @@ t_command_block	*init_command_block(t_expander *expander)
 	new_block->heredoc_count = 0;
 	new_block->operator_count = 0;
 	new_block->argument_count = 0;
-	new_block->fd_count = 0;
+	new_block->cmd_count = 0;
 	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
 	new_block->output_fd = -3;
 	new_block->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
@@ -148,5 +128,8 @@ t_command_block	*init_command_block(t_expander *expander)
 	new_block->command = NULL;
 	new_block->wrong_cmd = NULL;
 	new_block->expnd = expander;
+	new_block->path_err = 0;
+	new_block->wrong_path = 0;
+	new_block->env = environ;
 	return (new_block);
 }

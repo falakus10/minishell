@@ -1,34 +1,19 @@
 #include "minishell.h"
 
-void	fill_int_array(int *arr, int count, int value)
+void init_heredoc_struct(t_mng_heredocs *mng, int count, t_joined_lexer_list **temp, t_env *env_list)
 {
-	int	i;
-
-	i = 0;
-	while (i < count)
-	{
-		arr[i] = value;
-		i++;
-	}
-}
-t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
-{
-	t_mng_heredocs *mng;
-
-	mng = malloc(sizeof(t_mng_heredocs));
-	if (!mng)
-		return (NULL);
+	(void)temp;
 	mng->index = 0;
 	mng->heredoc_flags = malloc(sizeof(int) * count);
 	mng->heredoc_fds = malloc(sizeof(int) * count);
-	mng->heredoc_nums = malloc(sizeof(int) * (count+1));
+	mng->heredoc_nums = malloc(sizeof(int) * count);
 	mng->heredoc_delims = malloc(sizeof(char *) * (count_heredoc(temp) + 1));
+	mng->env = env_list;
 	if (!mng->heredoc_flags || !mng->heredoc_fds || !mng->heredoc_nums || !mng->heredoc_delims)
-		return (NULL);
-	fill_int_array(mng->heredoc_flags, 0, sizeof(int) * count);
-	fill_int_array(mng->heredoc_fds, -3, sizeof(int) * count);
-	fill_int_array(mng->heredoc_nums, 0, sizeof(int) * count);
-	return (mng);
+		return; //burası return NULL'dı ama return'e çevirdim sorun olur mu ? 
+	ft_memset(mng->heredoc_flags, 0, sizeof(int) * count);
+	ft_memset(mng->heredoc_fds, -3, sizeof(int) * count); //int dolduran fonksiyonla değiştir
+	ft_memset(mng->heredoc_nums, 0, sizeof(int) * count);
 }
 
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
@@ -40,15 +25,17 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 
 	tmp = *temp;
 	i = 0;
+	heredoc_valid = 0;
 	while (tmp)
 	{
 		if (tmp->type == HEREDOC && tmp->next)
 		{
-			heredoc_valid = 1;
-			scan = tmp->next->next; 
+			if (tmp->next->type == WORD)
+				heredoc_valid = 1;
+			scan = tmp->next->next;
 
 			while (scan && scan->type != PIPE)
-			{		
+			{
 				if (scan->type == REDIR_IN)
 				{
 					heredoc_valid = 0;  // heredoc geçersiz oldu çünkü daha sonra < geldi
@@ -57,28 +44,19 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 				scan = scan->next;
 			}
 			if (heredoc_valid)
-			{
 				mng->heredoc_flags[i] = 1;
-			}
 		}
 		if (tmp->type == PIPE)
-		{
 			i++;
-
-		}
 		tmp = tmp->next;
 	}
 }
 
-t_mng_heredocs *run_hrdcs(t_joined_lexer_list **temp, int cmd_blk_count)
+void run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 {
-	t_mng_heredocs *mng;
-
-	mng = init_heredoc_struct(cmd_blk_count, temp);
 	fill_heredoc_flags(mng, temp);
 	take_heredoc_delims(temp, count_heredoc(temp), &mng);
 	fill_heredoc_nums(&mng, temp);
 	heredoc_handle(mng, count_heredoc(temp));
-	return (mng);
 }
 

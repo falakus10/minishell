@@ -80,14 +80,12 @@ int	is_meta(const char *input, int i)
 	return (meta_type);
 }
 
-t_lexer_list	**lexer_function(char *input)
+void	lexer_function(t_lexer_list **lexer_list, char *input)
 {
 	int				i;
 	char			*array;
-	t_lexer_list	**lexer_list;
 	t_lexer_list    *current;
 
-	lexer_list = malloc(sizeof(t_lexer_list *));
 	*lexer_list = NULL;
 	array = NULL;
 	i = 0;
@@ -105,5 +103,4 @@ t_lexer_list	**lexer_function(char *input)
 		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
 		(current)->type = set_type(array);
 	}
-	return (lexer_list);
 }

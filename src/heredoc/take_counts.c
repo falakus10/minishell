@@ -8,7 +8,6 @@ char **free_heredoc_delimiters(char **delims, int last_index) //gerek var mı ?
 	return (NULL);
 }
 
-
 void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs)
 {
 	t_joined_lexer_list *tmp;
@@ -16,7 +15,7 @@ void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_her
 	tmp = *temp;
 	while (tmp && i < heredoc_count)
 	{
-		if (tmp->type == HEREDOC && tmp->next && tmp->next->token)
+		if (tmp->type == HEREDOC && tmp->next && tmp->next->type == WORD) //if (tmp->type == HEREDOC && tmp->next && tmp->next->type)
 		{
 			(*mng_heredocs)->heredoc_delims[i] = ft_strdup(tmp->next->token);
 			if (!(*mng_heredocs)->heredoc_delims[i])
@@ -35,14 +34,14 @@ void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp
 
 	while (tmp != NULL)
 	{
-		if (tmp->type == HEREDOC)
-			(*mng_heredocs)->heredoc_nums[i]++;
+		if (tmp->type == HEREDOC && tmp->next)
+			if(tmp->next->type == WORD)
+				(*mng_heredocs)->heredoc_nums[i]++;
 		if (tmp->type == PIPE)
 			i++;
 
 		tmp = tmp->next;
 	}
-	(*mng_heredocs)->heredoc_nums[++i] = -1;
 }
 
 int count_heredoc(t_joined_lexer_list **temp)
@@ -54,8 +53,9 @@ int count_heredoc(t_joined_lexer_list **temp)
 	heredoc_count = 0;
 	while(tmp != NULL)
 	{
-		if(tmp->type == HEREDOC)
-			heredoc_count++;
+		if(tmp->type == HEREDOC && tmp->next)
+			if (tmp->next->type == WORD)
+				heredoc_count++;
 		tmp = tmp->next;
 	}
 	return (heredoc_count);

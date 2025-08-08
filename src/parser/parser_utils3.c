@@ -21,20 +21,40 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-void	check_path_validity(char *path)
+char *take_path(t_env *env)
+{
+	char *path;
+
+	path = NULL;
+	while(env != NULL)
+	{
+		if(!strncmp("PATH=",env->line,5))
+			path = ft_strdup(env->line);
+		env = env->next;
+	}
+	return (path);
+}
+
+void	check_path_validity(t_command_block *tmp_blk, char *path)
 {
 	struct stat	st;
 
 	stat(path, &st);
 	if (S_ISDIR(st.st_mode))
 	{
-		printf("%s: Is a directory\n", path);
-		// ft_error();
+		write(2, "bash: ", 6);
+		write(2, path, ft_strlen(path));
+		write(2, ": Is a directory\n", 17);
+		tmp_blk->wrong_path = 1;
+		tmp_blk->expnd->exit_value = 126;
 	}
 	if (!(st.st_mode & S_IXUSR))
 	{
-		printf("%s: Permission denied\n", path);
-		// ft_error();
+		write(2, "bash: ", 6);
+		write(2, path, ft_strlen(path));
+		write(2, ": Permission denied\n", 20);
+		tmp_blk->wrong_path = 1;
+		tmp_blk->expnd->exit_value = 126;
 	}
 }
 
@@ -46,7 +66,7 @@ int create_path(t_command_block *tmp_blk, char *word, int i) //buranın leakleri
 	char		*path;
 	struct stat	st;
 
-	path_env = getenv("PATH"); //düzeltilmeli mi ?
+	path_env = take_path(tmp_blk->env);
 	if (!path_env)
 		return (0);
 	paths = ft_split(path_env, ':');
@@ -64,7 +84,7 @@ int create_path(t_command_block *tmp_blk, char *word, int i) //buranın leakleri
 			path = ft_strdup(word);
 		if (stat(path, &st) == 0)
 		{
-			check_path_validity(path);
+			check_path_validity(tmp_blk ,path);
 			tmp_blk->command = ft_strdup(path);
 			free(path);
 			free_arr(paths);
@@ -76,6 +96,5 @@ int create_path(t_command_block *tmp_blk, char *word, int i) //buranın leakleri
 	free_arr(paths);
 	return (0);
 }
-
 
 

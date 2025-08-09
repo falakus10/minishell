@@ -139,6 +139,12 @@ void	input_loop(char **env)
 			continue;
     	}
 		input = ft_strtrim(temp_input, " ");
+		if (input == NULL || input[0] == '\0')
+		{
+			free(temp_input);
+			free(input);
+			continue;
+		}
 		free(temp_input); // bununla işimiz bitti
 		add_history(input);
 		lexer_function(lexer_list,input);

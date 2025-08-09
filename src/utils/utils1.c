@@ -121,3 +121,14 @@ void	free_arr(char **arr)
 		free(arr[i++]);
 	free(arr);
 }
+void	fill_int_array(int *arr, int value, int count)
+{
+    int i;
+
+	i = 0;
+    while (i < count)
+    {
+        arr[i] = value;
+        i++;
+    }
+}

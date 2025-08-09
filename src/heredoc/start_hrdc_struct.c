@@ -10,9 +10,9 @@ void init_heredoc_struct(t_mng_heredocs *mng, int count, t_joined_lexer_list **t
 	mng->env = env_list;
 	if (!mng->heredoc_flags || !mng->heredoc_fds || !mng->heredoc_nums || !mng->heredoc_delims)
 		return; //burası return NULL'dı ama return'e çevirdim sorun olur mu ? 
-	ft_memset(mng->heredoc_flags, 0, sizeof(int) * count);
-	ft_memset(mng->heredoc_fds, -3, sizeof(int) * count); //int dolduran fonksiyonla değiştir
-	ft_memset(mng->heredoc_nums, 0, sizeof(int) * count);
+	fill_int_array(mng->heredoc_flags, 0, count);
+	fill_int_array(mng->heredoc_fds, -3, count); //int dolduran fonksiyonla değiştir
+	fill_int_array(mng->heredoc_nums, 0, count);
 }
 
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)

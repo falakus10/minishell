@@ -213,7 +213,7 @@ int check_tokens(t_joined_lexer_list **temp, t_expander *expnd);
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init);
 void	fork_or_exit(pid_t *pid);
 void	create_pipe_or_exit(int fd[2]);
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k);
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k);
 void	handle_child_process(char *delim, int write_fd, t_init *init);
 
 int count_cmd_blk(t_joined_lexer_list **temp);
@@ -242,5 +242,6 @@ void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_e
 void	free_all(t_init	*init);
 int command_count(t_command_block *cmd);
 void	free_cmd_blk(t_command_block *cmd);
+void	fill_int_array(int *arr, int value, int count);
 
 #endif

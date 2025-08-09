@@ -49,7 +49,6 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 		(*tmp_blk)->expnd->exit_value = 1;
 		(*tmp_blk)->file_err = 1; 
 	}
-	printf("file token = %s\n", (*tmp_list)->next->token);
 	file_pth = file_path((*tmp_list)->next->token);
 
 	if(type == REDIR_IN) //dosya isminin $ ile başlama durumuna bakılabilir

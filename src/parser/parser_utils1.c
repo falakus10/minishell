@@ -67,6 +67,13 @@ void	token_join(t_joined_lexer_list **new_list ,t_lexer_list *lexer_list)
 			temp = temp->next;
 			continue;
 		} */
+/* 		if(temp->next)
+		{
+			if (temp->type == PIPE && temp->next->type == PIPE)
+			{
+				write(2, "bash: syntax error near unexpected token `|'\n", 42);
+			}
+		} */
 		current = add_new_node2(new_list);
 		if (temp->type > 5)
 		current = merge_words(&temp, current);

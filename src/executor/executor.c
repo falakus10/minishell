@@ -88,11 +88,11 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	return (0);
 }
 
-int	executor(t_command_block *cmd, t_executor *exe)
+int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
 	char  **envp;
 
-	envp = env_list_to_envp(&exe->env);
+	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	exe->count = cmd->cmd_count;
 
@@ -100,7 +100,7 @@ int	executor(t_command_block *cmd, t_executor *exe)
 	{
 		if (is_builtin(cmd->command))
 		{	
-			run_single_builtin(cmd, exe);
+			run_single_builtin(cmd, exe, env, init);
 		}
 		else
 		{
@@ -110,7 +110,7 @@ int	executor(t_command_block *cmd, t_executor *exe)
 	}
 	else
 	{
-		multiple_exec(cmd, envp, exe);
+		multiple_exec(cmd, envp, exe, init);
 	}
 	
 	return (0);

@@ -42,7 +42,7 @@ int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_lis
 		++i;
 	}
 	if (input[i] == '\0')         /* kapanış yok → hata           */
-		ft_error();
+		ft_error();//Promt mu beklemeli exit mi atmalı
 	
 	if (input[i + 1] == ' ' || input [i + 1] == '\t')
 		temp->is_next_space = 1;
@@ -80,14 +80,12 @@ int	is_meta(const char *input, int i)
 	return (meta_type);
 }
 
-t_lexer_list	**lexer_function(char *input)
+void	lexer_function(t_lexer_list **lexer_list, char *input)
 {
 	int				i;
 	char			*array;
-	t_lexer_list	**lexer_list;
 	t_lexer_list    *current;
 
-	lexer_list = malloc(sizeof(t_lexer_list *));
 	*lexer_list = NULL;
 	array = NULL;
 	i = 0;
@@ -104,6 +102,6 @@ t_lexer_list	**lexer_function(char *input)
 			array = word_assign(input, &i, *lexer_list);
 		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
 		(current)->type = set_type(array);
+		free(array);
 	}
-	return (lexer_list);
 }

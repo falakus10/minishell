@@ -167,10 +167,7 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 			*temp = (*temp)->next;
 			return;
 		}
-		(*temp_block)->files = append_to_array((*temp_block)->files,
-				(*temp_block)->operator_count, (*temp)->next->token);
 		assign_fd((temp_block),(temp),mng_heredocs); //!!! fd'ler güncelleniyor ama önceki fd'ler kapanmıyor !!!
-		(*temp_block)->operator_count++;
 		if(mng_heredocs->heredoc_flags[mng_heredocs->index]) //bu varsa redir_in ler hiç çalışmasın diyemem çünkü o zaman hata mesajını alamam (ama hata almayana kadarla sınırlasam ?)
 			(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
 		*temp = (*temp)->next;

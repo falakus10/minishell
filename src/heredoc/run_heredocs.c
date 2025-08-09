@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	handle_child_process(char *delim, int write_fd)
+void	handle_child_process(char *delim, int write_fd, t_init *init)
 {
 	char *line;
 
@@ -18,6 +18,7 @@ void	handle_child_process(char *delim, int write_fd)
 		free(line);
 	}
 	close(write_fd);
+	free_all(init, init->env); // Çıkmadan önce child'da leakleri temizle
 	exit(0);
 }
 
@@ -63,7 +64,7 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
-void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
+void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 {
 	int	fd[2];
 	pid_t	pid;
@@ -79,7 +80,7 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
 		create_pipe_or_exit(fd);
 		fork_or_exit(&pid);
 		if (pid == 0)
-			handle_child_process(mng->heredoc_delims[i], fd[1]);
+			handle_child_process(mng->heredoc_delims[i], fd[1],init);
 		else
 			handle_parent_process(mng, fd, &j, &k);
 		i++;

@@ -84,16 +84,14 @@ t_env	*add_new_node3(t_env **env_list)
 	return (node);
 }
 
-t_env	**take_env(char **env)
+t_env	**take_env(t_env **env_list, char **env)
 {
 	int	i;
 	int	j;
-	t_env **env_list;
 	t_env *current;
 
+	*env_list = NULL; //mainde de yaptım, sorun olur mu ? sanmıyorum
 	i = -1;
-	env_list = malloc(sizeof(t_env*));
-	*env_list = NULL;
 	while (env[++i] != NULL)
 	{
 		j = -1;
@@ -114,9 +112,13 @@ t_env	**take_env(char **env)
 
 void	free_arr(char **arr)
 {
-	int i = 0;
+	int i;
+
+	i = 0;
+	//printf("buradayiz\n");
 	if (!arr)
 		return;
+	//printf("buradayiz 2\n");
 	while (arr[i])
 		free(arr[i++]);
 	free(arr);

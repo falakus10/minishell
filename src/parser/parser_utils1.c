@@ -47,22 +47,18 @@ t_joined_lexer_list	*merge_words(t_lexer_list **temp,t_joined_lexer_list *curren
 	}
 	else
 	{
-		current->token = (*temp)->token;
+		current->token = ft_strdup((*temp)->token);
 		current->type = (*temp)->type;
 	}
 	return (current);
 }
 
-t_joined_lexer_list	**token_join(t_lexer_list *lexer_list)
+void	token_join(t_joined_lexer_list **new_list ,t_lexer_list *lexer_list)
 {
-	t_joined_lexer_list	**list;
 	t_joined_lexer_list	*current;
 	t_lexer_list		*temp;
 	
-	list = malloc(sizeof(t_joined_lexer_list *));
-	if (!list)
-		return (NULL);
-	*list = NULL;
+	*new_list = NULL; //mainde var ama içeri de koydum, içeri koymayınca bozuluyordu (içerde var ama mainde yokken de çalışıyor ama mainde de kalsın dedim)
 	temp = lexer_list;
 	while (temp != NULL)
 	{
@@ -71,17 +67,16 @@ t_joined_lexer_list	**token_join(t_lexer_list *lexer_list)
 			temp = temp->next;
 			continue;
 		} */
-		current = add_new_node2(list);
+		current = add_new_node2(new_list);
 		if (temp->type > 5)
 		current = merge_words(&temp, current);
 		else
 		{
-			current->token = temp->token;
+			current->token = ft_strdup(temp->token);
 			current->type = temp->type;
 		}
 		temp = temp->next;
 	}
-	return (list);
 }
 
 char	**append_to_array(char **array, int count, char *new_value)
@@ -117,11 +112,7 @@ t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 	new_block->args = NULL;
 	new_block->fd = NULL;
 	new_block->last_fault = 0;
-	new_block->files = NULL;
-	new_block->operators = NULL;
-	new_block->heredoc_fd = malloc(sizeof(int));
 	new_block->heredoc_count = 0;
-	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->cmd_count = 0;
 	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?

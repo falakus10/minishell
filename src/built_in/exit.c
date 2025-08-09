@@ -40,6 +40,7 @@ int	ft_exit(t_command_block *cmd, t_init *init)
 		else
 			write(2, "minishell: exit: numeric argument required\n", 43);
 	}
-	free_all(init, init->env); //env_list'i de freele
+	init->exit_flag = 1;
+	free_all(init); //env_list'i de freele
 	exit (exit_code);
 }

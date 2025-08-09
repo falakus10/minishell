@@ -14,15 +14,15 @@ void	check_null(t_joined_lexer_list **tmp)
 
 void	parser(t_command_block **command_block ,t_joined_lexer_list *list,t_mng_heredocs *mng_heredocs ,t_expander *expander) //lexer_list'ten komut bloğu listesine geçiyoruz
 {
-	t_command_block		*new_block;
+	t_command_block		*new_block; //yeni komut bloğu 
 
-	t_command_block		*temp_block;
+	t_command_block		*temp_block;// command_block node'larını gezmek için
 	t_joined_lexer_list	*temp;
 	t_pipeline_utils	utils; //silinecek
 
-	*command_block = NULL;
 	temp_block = NULL;
 	temp = list;
+	new_block = NULL;
 	if (temp == NULL)
 		return; //return NULL'dı şimdi sadece return sorun olur mu ?
 	while (temp != NULL)
@@ -49,6 +49,7 @@ void	parser(t_command_block **command_block ,t_joined_lexer_list *list,t_mng_her
 		else if(temp_block->file_err == 0 && temp_block->command == NULL)
 			temp_block->file_err = 1;
 		mng_heredocs->index++;
+
 		check_null(&temp);
 	}
 }

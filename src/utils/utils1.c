@@ -115,10 +115,8 @@ void	free_arr(char **arr)
 	int i;
 
 	i = 0;
-	//printf("buradayiz\n");
 	if (!arr)
 		return;
-	//printf("buradayiz 2\n");
 	while (arr[i])
 		free(arr[i++]);
 	free(arr);

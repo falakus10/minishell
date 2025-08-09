@@ -112,7 +112,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	{
 		multiple_exec(cmd, envp, exe, init);
 	}
-	
+	free_arr(envp);
 	return (0);
 }
 

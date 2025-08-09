@@ -18,6 +18,7 @@ içerden sildiysem ok verdim, void yapıcam
 void init3(t_init *init, t_mng_heredocs *mng)
 {
 	init->mng_hrdcs = mng;
+	init->exit_flag = 0;
 }
 
 void init2(t_init *init, t_joined_lexer_list **jnd_lst ,t_command_block *cmd, t_executor *exe)
@@ -34,28 +35,28 @@ void init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_e
 	init->expnd = expander;
 }
 
-void init_cmd_blk(t_command_block *cmd, t_env *env_list, t_expander *exp)
-{
-	cmd->next = NULL;
-	cmd->args = NULL;
-	cmd->fd = NULL;
-	cmd->last_fault = 0;
-	cmd->heredoc_count = 0;
-	cmd->argument_count = 0;
-	cmd->cmd_count = 0;
-	cmd->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
-	cmd->output_fd = -3;
-	cmd->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
-	cmd->err_sign = 0; // sanırım kullanılmıyor
-	cmd->file_err = 0;
-	cmd->cmd_err = 0;
-	cmd->command = NULL;
-	cmd->wrong_cmd = NULL;
-	cmd->expnd = exp;
-	cmd->path_err = 0;
-	cmd->wrong_path = 0;
-	cmd->env = env_list;
-}
+// void init_cmd_blk(t_command_block *cmd, t_env *env_list, t_expander *exp)
+// {
+// 	cmd->next = NULL;
+// 	cmd->args = NULL;
+// 	cmd->fd = NULL;
+// 	cmd->last_fault = 0;
+// 	cmd->heredoc_count = 0;
+// 	cmd->argument_count = 0;
+// 	cmd->cmd_count = 0;
+// 	cmd->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
+// 	cmd->output_fd = -3;
+// 	cmd->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
+// 	cmd->err_sign = 0; // sanırım kullanılmıyor
+// 	cmd->file_err = 0;
+// 	cmd->cmd_err = 0;
+// 	cmd->command = NULL;
+// 	cmd->wrong_cmd = NULL;
+// 	cmd->expnd = exp;
+// 	cmd->path_err = 0;
+// 	cmd->wrong_path = 0;
+// 	cmd->env = env_list;
+// }
 void	init_exe(t_executor *exe, t_expander *exp, t_env *envp)
 {
 	exe->fd = NULL;
@@ -80,7 +81,7 @@ void	init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
 
 void initialize_structs(t_init *init, t_env *env_list)
 {
-	init_cmd_blk(init->cmd_blk,env_list, init->expnd);
+	// init_cmd_blk(init->cmd_blk,env_list, init->expnd);
 	//init_lexer(init->lxr_lst);
 	//init_jnd_lexer(init->jnd_lxr_lst);
 	init_exe(init->exec, init->expnd, env_list);
@@ -93,44 +94,44 @@ void	input_loop(char **env)
 	char *input;
 	char *temp_input;
 	t_env			**env_list;
-	t_executor		*exe;
-	t_command_block	*command_block;
 	t_joined_lexer_list **new_list;
 	t_expander		*expnd;
-	t_mng_heredocs *mng_heredocs;
 	t_lexer_list **lexer_list;
 	t_init *init;
+	int flag;
 	//if malloc fail
+	env_list = malloc(sizeof(t_env *));
+	*env_list = NULL;
+	env_list = take_env(env_list, env);//dışarı alınması lazım unset PATH yapınca gidiyor
+	expnd = malloc(sizeof(t_expander));
+	expnd->exit_value = 0;
 	
 	while (1)
 	{
+		flag = 0;
 		init = malloc(sizeof(t_init));
-		env_list = malloc(sizeof(t_env *));
-		*env_list = NULL;
-		exe = malloc(sizeof(t_executor));
-		command_block = malloc (sizeof(t_command_block));
-		env_list = take_env(env_list, env);//dışarı alınması lazım unset PATH yapınca gidiyor
-		exe->env = *env_list;
+		init->exec = malloc(sizeof(t_executor));
+		init->cmd_blk = NULL;
+		init->expnd = expnd;
+		init->heredoc = 0;
+		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
+		// exe->env = *env_list;
 		new_list = malloc(sizeof(t_joined_lexer_list *));
 		*new_list = NULL;
-		expnd = malloc(sizeof(t_expander));
-		mng_heredocs = malloc(sizeof(t_mng_heredocs));
 		lexer_list = malloc(sizeof(t_lexer_list *));
 		*lexer_list = NULL;
-		
-		expnd->exit_value = 0;
-		int flag = 0;
-		//exe->exp = expnd;
-		init_structs(init,env_list,lexer_list,expnd);
-		init2(init,new_list,command_block,exe);
-		init3(init,mng_heredocs);
 		initialize_structs(init,*env_list);
+		init_structs(init,env_list,lexer_list,expnd);
+		init2(init,new_list,init->cmd_blk,init->exec);
+		init3(init,init->mng_hrdcs);
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
 		if (temp_input == NULL)
 		{
-			free(temp_input); //NULL şeyi freelemek saçma
+			init->exit_flag = 1;
+			free(temp_input);
+			free_all(init);
 			write(1, "exit\n", 5);
-			exit(0); //0 mı 1 mi
+			exit(0);
 		}
 		if (temp_input[0] == '\0')
     	{
@@ -148,17 +149,21 @@ void	input_loop(char **env)
 		flag = check_tokens(new_list,expnd); //tokenlar kontrol edildi
 		int a = count_heredoc(new_list);
 		if(a != 0)
-			init_heredoc_struct(mng_heredocs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
+			init_heredoc_struct(init->mng_hrdcs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
 		if(a != 0)
-			run_hrdcs(mng_heredocs, new_list, init); //heredoclar işlendi
+		{
+			init->heredoc = 1;
+			run_hrdcs(init->mng_hrdcs, new_list, init); //heredoclar işlendi
+			init->heredoc = 0; //heredoc işlemi bitti
+		}
 		if(flag)
 		{
-			free_all(init, env_list);
+			free_all(init);
 			continue; //exit atıyordum.
 		}
-		parser(&command_block, *new_list, mng_heredocs,expnd); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
-		executor(command_block, exe, env_list, init);
-		free_all(init, env_list);
+		parser(&init->cmd_blk, *new_list, init->mng_hrdcs,expnd); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
+		executor(init->cmd_blk, init->exec, env_list, init);
+		free_all(init);
 	}
 }
 

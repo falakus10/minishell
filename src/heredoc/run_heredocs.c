@@ -18,8 +18,9 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 		free(line);
 	}
 	close(write_fd);
-	free_all(init, init->env); // Çıkmadan önce child'da leakleri temizle
-	exit(0);
+	init->exit_flag = 1;
+	free_all(init); // Çıkmadan önce child'da leakleri temizle
+	exit(0); // Çocuk işlemden çık
 }
 
 

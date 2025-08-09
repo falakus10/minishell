@@ -134,6 +134,8 @@ typedef enum e_built_in
 
 typedef struct s_init
 {
+	int			exit_flag;
+	int			heredoc;
 	t_lexer_list **lxr_lst;
 	t_env			**env;
 	t_joined_lexer_list	**jnd_lxr_lst;
@@ -237,7 +239,8 @@ char	**env_list_to_envp(t_env **env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
 void	run_single_builtin(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init);
 void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_expander *expander);
-void	free_all(t_init	*init, t_env **env_list);
+void	free_all(t_init	*init);
 int command_count(t_command_block *cmd);
+void	free_cmd_blk(t_command_block *cmd);
 
 #endif

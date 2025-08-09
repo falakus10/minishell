@@ -7,11 +7,11 @@ void	free_cmd_blk(t_command_block *cmd)
 
 	while (cmd)
 	{
-        //printf("command :%s\n",cmd->command);
-        tmp = cmd->next;
+		tmp = cmd->next;
 		if (cmd->command)
 			free(cmd->command);
-		free_arr(cmd->args);
+		if (cmd->args)
+			free_arr(cmd->args);
 		if (cmd->fd)
 			free(cmd->fd);
 		if(cmd->wrong_cmd)
@@ -19,10 +19,11 @@ void	free_cmd_blk(t_command_block *cmd)
 		free(cmd);
 		cmd = tmp;
 	}
-	cmd = NULL;
+	// cmd = NULL; // bu satırın anlamı nedir? cmd dışarıda da kullanılıyor
+	cmd = NULL; 
 }
 
-void	free_env(t_env **env_list)
+/* void	free_env(t_env **env_list)
 {
 	t_env	*tmp;
 	t_env	*cur;
@@ -42,9 +43,9 @@ void	free_env(t_env **env_list)
 	}
 	free(env_list);
 	env_list = NULL;
-}
+} */
 
-void	free_lexer_expander(t_lexer_list **lex, t_expander *exp)
+void	free_lexer(t_lexer_list **lex)
 {
 	t_lexer_list	*tmp;
 
@@ -58,14 +59,6 @@ void	free_lexer_expander(t_lexer_list **lex, t_expander *exp)
 	}
 	*lex = NULL; // dışarıdaki pointer'ı da sıfırla
 	free(lex);
-	if (exp)
-	{
-		if (exp->env_key)
-			free(exp->env_key);
-		if (exp->env_val)
-			free(exp->env_val);
-		free(exp);
-	}
 }
 
 void	free_joined_exec(t_joined_lexer_list **jll, t_executor *exe)
@@ -112,18 +105,57 @@ void free_mng(t_mng_heredocs *mng)
 	mng = NULL;
 }
 
-void	free_all(t_init	*init, t_env **env_list)
+void free_expander(t_expander *exp)
 {
-    if ((init->lxr_lst && *(init->lxr_lst)) || init->expnd)
-       free_lexer_expander(init->lxr_lst, init->expnd);
-	if (init->cmd_blk)
+	if (exp)
+	{
+		if (exp->env_key)
+			free(exp->env_key);
+		if (exp->env_val)
+			free(exp->env_val);
+		free(exp);
+	}
+	exp = NULL;
+}
+
+void free_env(t_env **env_list)
+{
+	t_env	*tmp;
+	t_env	*cur;
+
+	if (!env_list || !*env_list)
+		return;
+	cur = *env_list;
+	while (cur)
+	{
+		tmp = cur->next;
+		if (cur->line)
+			free(cur->line);
+		if (cur->value)
+			free(cur->value);
+		free(cur);
+		cur = tmp;
+	}
+	*env_list = NULL; // dışarıdaki pointer'ı da sıfırla
+	free(env_list);
+}
+
+void	free_all(t_init	*init)
+{
+    if ((init->lxr_lst && *(init->lxr_lst)))
+       free_lexer(init->lxr_lst);
+	if (init->cmd_blk && !init->heredoc)
+	{
 		free_cmd_blk(init->cmd_blk);
-	if (env_list && *env_list)
-		free_env((env_list));
-	if ((init->jnd_lxr_lst && *(init->jnd_lxr_lst))|| init->exec)
+	}
+	if ((init->jnd_lxr_lst && *(init->jnd_lxr_lst))|| init->exec) //bunu da ayır
 		free_joined_exec(init->jnd_lxr_lst, init->exec);
 	if (init->mng_hrdcs)
 		free_mng(init->mng_hrdcs);
+	if(init->expnd && init->exit_flag)
+		free_expander(init->expnd);
+	if (init->env && *init->env && init->exit_flag)
+		free_env(init->env);
 	free(init);
 	init = NULL;
 }

@@ -3,18 +3,29 @@
 void	print_export(t_env *env)
 {
 	t_env	*tmp;
-	char	*line;
+	t_env	**arr;
+	int 	count;
+	int 	i;
 
+	i = 0;
+	count = 0;
 	tmp = env;
 	while (tmp)
 	{
-		write(STDOUT_FILENO, "declare -x ", 11);
-		line = format_export_line(tmp);
-		write(STDOUT_FILENO, line, ft_strlen(line));
-		write(STDOUT_FILENO, "\n", 1);
-		free(line);
+		count++;
 		tmp = tmp->next;
 	}
+	arr = malloc(sizeof(t_env *) * count);
+	if (!arr)
+		ft_error();
+	tmp = env;
+	while (tmp)
+	{
+		arr[i++] = tmp;
+		tmp = tmp->next;
+	}
+	sort_and_print(arr, count);
+	free(arr);
 }
 
 

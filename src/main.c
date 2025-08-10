@@ -93,8 +93,9 @@ void	input_loop(char **env)
 			exit(0);
 		}
 		if (temp_input[0] == '\0')
-    	{
+		{
 			free(temp_input);
+			free_all(init);
 			continue;
     	}	
 		input = trim_whitespace(temp_input);
@@ -102,6 +103,7 @@ void	input_loop(char **env)
 		{
 			free(temp_input);
 			free(input);
+			free_all(init);
 			continue;
 		}
 		free(temp_input); // bununla işimiz bitti

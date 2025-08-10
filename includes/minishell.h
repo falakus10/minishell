@@ -241,5 +241,6 @@ int command_count(t_command_block *cmd);
 void	free_cmd_blk(t_command_block *cmd);
 void	fill_int_array(int *arr, int value, int count);
 char	*trim_whitespace(const char *input);
+void	sort_and_print(t_env **arr, int count);
 
 #endif

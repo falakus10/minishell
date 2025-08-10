@@ -1,9 +1,15 @@
 #include "minishell.h"
 
-void	add_deleted(t_env *env, char *line, char* value)
+int	add_deleted(t_env *env, char *line, char* value)
 {
 	t_env	*tmp;
 	t_env	*node;
+
+	if(!env)
+	{
+		write(2, "cd: asdasd: No such file or directory\n", 39);
+		return(1);
+	}
 
 	node = malloc(sizeof(t_env));
 	if (!node || !value || !line)
@@ -20,6 +26,7 @@ void	add_deleted(t_env *env, char *line, char* value)
 	node->line = line;
 	node->value = value;
 	node->next = NULL;
+	return (0);
 }
 
 void	update_oldpwd(t_env *env, char *old_pwd)
@@ -63,7 +70,11 @@ void	update_pwd(t_env *env, char *old_pwd)
 		tmp = tmp->next;
 	}
 	if (!tmp)
-		add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd);
+	{
+		if (add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd))
+			return ;
+	}
+
 	if (old_pwd)
 	{
 		update_oldpwd(env, old_pwd);

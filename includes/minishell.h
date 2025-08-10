@@ -149,7 +149,7 @@ void							input_loop(char **env);
 int								set_type(char *array);
 t_lexer_list					*add_new_node(t_lexer_list **lexer_list);
 void							remove_quotes(t_lexer_list *lexer_list);
-void	lexer_function(t_lexer_list **lexer_list, char *temporary_input);
+int		lexer_function(t_lexer_list **lexer_list, char *temporary_input);
 int								is_quote(const char *input, int i,
 									t_lexer_list *lexer_list);
 int								take_word(const char *input, int i,

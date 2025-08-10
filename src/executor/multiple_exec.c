@@ -67,6 +67,7 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 			if (is_builtin(tmp->command))
 			{
 				value = built_in(tmp, &exe->env, init, env);
+				init->exit_flag = 1;
 				free_all(init);
 				exit (value);
 			}

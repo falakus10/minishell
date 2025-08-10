@@ -108,7 +108,14 @@ void	input_loop(char **env)
 		}
 		free(temp_input); // bununla işimiz bitti
 		add_history(input);
-		lexer_function(lexer_list,input);
+		if(lexer_function(lexer_list,input) == -1)
+		{
+			free(input);
+			free_all(init);
+			write(2, "unclosed quotes\n", 16);
+			continue;
+		}
+	
 		free(input);
 		expander((*lexer_list), *env_list, expnd);
 		remove_quotes(*lexer_list);

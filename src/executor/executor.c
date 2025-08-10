@@ -100,19 +100,20 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	{
 		if (is_builtin(cmd->command))
 		{	
-			run_single_builtin(cmd, exe, env, init);
+			run_single_builtin(cmd, env, init, envp);
 		}
 		else
 		{
 			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
 			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
+			free_arr(envp);
 		}
 	}
 	else
 	{
 		multiple_exec(cmd, envp, exe, init);
+		free_arr(envp);
 	}
-	free_arr(envp);
 	return (0);
 }
 

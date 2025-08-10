@@ -1,11 +1,5 @@
 #include "minishell.h"
 
-void	loop(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
-		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs)
-{
-	handle_token_logic(tmp, tmp_blk, utils,mng_heredocs);
-}
-
 void	check_null(t_joined_lexer_list **tmp)
 {
 	if ((*tmp) != NULL)
@@ -30,7 +24,7 @@ void	parser(t_command_block **command_block ,t_joined_lexer_list *list,t_mng_her
 		new_block = init_command_block(expander,mng_heredocs->env); //yeni komut bloğu oluşturduk
 		pass_cmd_blk(command_block, &new_block, &temp_block); //sonraki komut bloğuna geçer
 		while (temp != NULL && temp->type != PIPE)
-			loop(&temp, &temp_block, &utils,mng_heredocs);
+			handle_token_logic(&temp, &temp_block, &utils,mng_heredocs);
 		if(temp_block->file_err == 0 && temp_block->cmd_err == 1)
 		{
 			write(2,temp_block->wrong_cmd,ft_strlen(temp_block->wrong_cmd));
@@ -48,8 +42,6 @@ void	parser(t_command_block **command_block ,t_joined_lexer_list *list,t_mng_her
 		else if(temp_block->file_err == 0 && temp_block->command == NULL)
 			temp_block->file_err = 1;
 		mng_heredocs->index++;
-
 		check_null(&temp);
 	}
 }
-

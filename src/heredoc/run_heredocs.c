@@ -82,7 +82,6 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 
 
 	count = count_cmd_blk(init->jnd_lxr_lst);
-	printf("count = %d\n", count);
 	i = 0;
 	while(i < count)
 	{

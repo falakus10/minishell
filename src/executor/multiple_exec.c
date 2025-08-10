@@ -45,8 +45,10 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 	t_command_block	*tmp;
 	int	i;
 	int count;
+	int	value;
 
 	count = 0;
+	value = 0;
 	count = command_count(cmd);
 	i = 0;
 	tmp = cmd;
@@ -63,7 +65,11 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 			make_dup(tmp, i, count, exe);
 			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
 			if (is_builtin(tmp->command))
-				exit(built_in(tmp, &exe->env, init));
+			{
+				value = built_in(tmp, &exe->env, init, env);
+				free_all(init);
+				exit (value);
+			}
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);

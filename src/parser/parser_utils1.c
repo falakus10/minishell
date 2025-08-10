@@ -119,7 +119,6 @@ t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 	new_block->args = NULL;
 	new_block->fd = NULL;
 	new_block->last_fault = 0;
-	new_block->heredoc_count = 0;
 	new_block->argument_count = 0;
 	new_block->cmd_count = 0;
 	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?

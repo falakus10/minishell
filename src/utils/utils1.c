@@ -115,11 +115,54 @@ void	free_arr(char **arr)
 	int i;
 
 	i = 0;
-	//printf("buradayiz\n");
 	if (!arr)
 		return;
-	//printf("buradayiz 2\n");
 	while (arr[i])
 		free(arr[i++]);
 	free(arr);
+}
+void	fill_int_array(int *arr, int value, int count)
+{
+    int i;
+
+	i = 0;
+    while (i < count)
+    {
+        arr[i] = value;
+        i++;
+    }
+}
+
+
+int	is_space_or_tab(char c)
+{
+	return (c == ' ' || c == '\t');
+}
+
+char	*trim_whitespace(const char *input)
+{
+	size_t	start;
+	size_t	end;
+	size_t	i;
+	char	*trimmed;
+
+	start = 0;
+	while (input[start] && is_space_or_tab(input[start]))
+		start++;
+	end = 0;
+	while (input[end])
+		end++;
+	if (end == 0)
+		return (strdup(""));  // input boşsa
+	end--;  // son geçerli karakterin index'i
+	while (end > start && is_space_or_tab(input[end]))
+		end--;
+	trimmed = (char *)malloc(end - start + 2);
+	if (!trimmed)
+		return (NULL);
+	i = 0;
+	while (start <= end)
+		trimmed[i++] = input[start++];
+	trimmed[i] = '\0';
+	return (trimmed);
 }

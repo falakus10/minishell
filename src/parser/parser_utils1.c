@@ -47,7 +47,7 @@ t_joined_lexer_list	*merge_words(t_lexer_list **temp,t_joined_lexer_list *curren
 	}
 	else
 	{
-		current->token = (*temp)->token;
+		current->token = ft_strdup((*temp)->token);
 		current->type = (*temp)->type;
 	}
 	return (current);
@@ -66,6 +66,13 @@ void	token_join(t_joined_lexer_list **new_list ,t_lexer_list *lexer_list)
 		{
 			temp = temp->next;
 			continue;
+		} */
+/* 		if(temp->next)
+		{
+			if (temp->type == PIPE && temp->next->type == PIPE)
+			{
+				write(2, "bash: syntax error near unexpected token `|'\n", 42);
+			}
 		} */
 		current = add_new_node2(new_list);
 		if (temp->type > 5)
@@ -112,11 +119,7 @@ t_command_block	*init_command_block(t_expander *expander,t_env *environ)
 	new_block->args = NULL;
 	new_block->fd = NULL;
 	new_block->last_fault = 0;
-	new_block->files = NULL;
-	new_block->operators = NULL;
-	new_block->heredoc_fd = malloc(sizeof(int));
 	new_block->heredoc_count = 0;
-	new_block->operator_count = 0;
 	new_block->argument_count = 0;
 	new_block->cmd_count = 0;
 	new_block->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?

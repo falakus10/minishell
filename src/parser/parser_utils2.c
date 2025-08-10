@@ -19,6 +19,7 @@ char *file_path(char *file)
 {
 	char buf[256];
 	char *full_path;
+
 	//file ismi $ ile başlıyorsa hata
 	getcwd(buf, sizeof(buf));
 	full_path = malloc(ft_strlen(buf) + ft_strlen(file) + 2); // / ve \0 için +2
@@ -59,7 +60,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 			if ((*tmp_blk)->input_fd == -1)
 			{
 				if(errno == EISDIR)
-				{		
+				{
 					write(2,"bash: ",6);
 					write(2,(*tmp_list)->next->token,ft_strlen((*tmp_list)->next->token));
 					write(2,": Is a directory\n",17);
@@ -79,8 +80,12 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 			}
 			else
 			{
-				if(mng->heredoc_flags[mng->index])
-					close((*tmp_blk)->input_fd);				
+				if (mng->heredoc_flags)
+				{
+					if(mng->heredoc_flags[mng->index])
+						close((*tmp_blk)->input_fd);				
+
+				}
 				else if((*tmp_blk)->input_fd > -1 && old_infd != -3)
 					close(old_infd);
 				
@@ -154,6 +159,7 @@ void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list,t_mng_h
 			}
 		}
 	}
+	free(file_pth);
 }
 
 
@@ -167,12 +173,12 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 			*temp = (*temp)->next;
 			return;
 		}
-		(*temp_block)->files = append_to_array((*temp_block)->files,
-				(*temp_block)->operator_count, (*temp)->next->token);
 		assign_fd((temp_block),(temp),mng_heredocs); //!!! fd'ler güncelleniyor ama önceki fd'ler kapanmıyor !!!
-		(*temp_block)->operator_count++;
-		if(mng_heredocs->heredoc_flags[mng_heredocs->index]) //bu varsa redir_in ler hiç çalışmasın diyemem çünkü o zaman hata mesajını alamam (ama hata almayana kadarla sınırlasam ?)
-			(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
+		if (mng_heredocs->heredoc_flags)
+		{
+			if(mng_heredocs->heredoc_flags[mng_heredocs->index]) //bu varsa redir_in ler hiç çalışmasın diyemem çünkü o zaman hata mesajını alamam (ama hata almayana kadarla sınırlasam ?)
+				(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
+		}
 		*temp = (*temp)->next;
 }
 

@@ -15,7 +15,7 @@ int	is_number(char *str)
 	return (1);
 }
 
-int	ft_exit(t_command_block *cmd)
+int	ft_exit(t_command_block *cmd, t_init *init)
 {
 	int				exit_code;
 
@@ -40,5 +40,7 @@ int	ft_exit(t_command_block *cmd)
 		else
 			write(2, "minishell: exit: numeric argument required\n", 43);
 	}
+	init->exit_flag = 1;
+	free_all(init); //env_list'i de freele
 	exit (exit_code);
 }

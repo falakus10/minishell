@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	handle_child_process(char *delim, int write_fd)
+void	handle_child_process(char *delim, int write_fd, t_init *init)
 {
 	char *line;
 
@@ -18,31 +18,10 @@ void	handle_child_process(char *delim, int write_fd)
 		free(line);
 	}
 	close(write_fd);
-	exit(0);
+	init->exit_flag = 1;
+	free_all(init); // Çıkmadan önce child'da leakleri temizle
+	exit(0); // Çocuk işlemden çık
 }
-
-
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int *j, int *k)
-{
-	close(fd[1]);
-	wait(NULL);
-
-	if (*k < mng->heredoc_nums[*j] - 1)
-	{
-		close(fd[0]);
-		(*k)++;
-	}
-	else
-	{
-		if (mng->heredoc_flags[*j])
-			mng->heredoc_fds[*j] = fd[0];
-		else
-			close(fd[0]);
-		*k = 0;
-		(*j)++;
-	}
-}
-
 
 void	create_pipe_or_exit(int fd[2])
 {
@@ -63,8 +42,32 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
-void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 {
+	close(fd[1]);
+	wait(NULL);
+	if (*k < mng->heredoc_nums[j] - 1)
+	{
+		close(fd[0]);
+		(*k)++;
+	}
+	else
+	{
+		if (mng->heredoc_flags[j])
+		{
+			mng->heredoc_fds[j] = fd[0];
+		}
+		else
+		{
+			close(fd[0]);
+		}
+		*k = 0;
+	}
+}
+
+void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
+{
+	(void)heredoc_count;
 	int	fd[2];
 	pid_t	pid;
 	int	i;
@@ -74,14 +77,29 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count)
 	i = 0;
 	j = 0;
 	k = 0;
-	while (i < heredoc_count)
+	int count = 0;
+	int h_count = 0;
+
+
+	count = count_cmd_blk(init->jnd_lxr_lst);
+	printf("count = %d\n", count);
+	i = 0;
+	while(i < count)
 	{
-		create_pipe_or_exit(fd);
-		fork_or_exit(&pid);
-		if (pid == 0)
-			handle_child_process(mng->heredoc_delims[i], fd[1]);
-		else
-			handle_parent_process(mng, fd, &j, &k);
+		j = 0;
+		while (j < mng->heredoc_nums[i])
+		{
+			create_pipe_or_exit(fd);
+			fork_or_exit(&pid);
+			if (pid == 0)
+				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
+			else
+			{
+				handle_parent_process(mng, fd, i, &k);
+			}
+			j++;
+			h_count++;
+		}
 		i++;
 	}
 }

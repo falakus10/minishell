@@ -42,7 +42,7 @@ int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_lis
 		++i;
 	}
 	if (input[i] == '\0')         /* kapanış yok → hata           */
-		ft_error();
+		ft_error();//Promt mu beklemeli exit mi atmalı
 	
 	if (input[i + 1] == ' ' || input [i + 1] == '\t')
 		temp->is_next_space = 1;

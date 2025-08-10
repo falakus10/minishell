@@ -40,11 +40,14 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 
 
 
-int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
+int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 {
 	t_command_block	*tmp;
 	int	i;
+	int count;
 
+	count = 0;
+	count = command_count(cmd);
 	i = 0;
 	tmp = cmd;
 	while (i < count)
@@ -60,7 +63,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 			make_dup(tmp, i, count, exe);
 			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
 			if (is_builtin(tmp->command))
-				exit(built_in(tmp, &exe->env));
+				exit(built_in(tmp, &exe->env, init));
 			execve(tmp->command, tmp->args, env);
 			perror("execve");
 			exit(1);
@@ -77,7 +80,7 @@ int	child_exec(t_command_block *cmd, char **env, int count, t_executor *exe)
 }
 
 
-int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
+int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 {
 	int				i;
 	t_command_block *tmp;
@@ -90,7 +93,7 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe)
 	i = 0;
 	flag = 0;
 	create_pipe(tmp, exe);
-	if (child_exec(cmd, env, cmd_count, exe) != 0)
+	if (child_exec(cmd, env, exe, init) != 0)
 		return (1);//exit value buraya mı eklenmeli?????
 	close_fd(cmd->input_fd, tmp->output_fd, -1, exe);
 	while (i < cmd_count)

@@ -80,6 +80,12 @@ int check_tokens(t_joined_lexer_list **temp, t_expander *expnd)
 			expnd->exit_value = 2;
 			return (1);
 		}
+		if(tmp->type == PIPE && tmp->next != NULL && tmp->next->type == PIPE)//yeni ekledim taha bak
+		{
+			write(2,"bash: syntax error near unexpected token `|'\n",45);
+			expnd->exit_value = 2;
+			return (1);
+		}
 	tmp = tmp->next;
 	}
 	return (0);

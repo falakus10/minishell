@@ -1,5 +1,6 @@
 #include "minishell.h"
 
+//bu freelere gerek var mı?
 char **free_heredoc_delimiters(char **delims, int last_index) //gerek var mı ?
 {
 	while (--last_index >= 0)

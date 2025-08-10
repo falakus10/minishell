@@ -89,7 +89,6 @@ int quote(char *token, t_expander *expander)
 
 void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 {
-
 	if (temp == NULL || temp->token == NULL)
 	    return;
 	expander->token_len = ft_strlen(temp->token);
@@ -98,13 +97,12 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 		expander->i = 0; //$$$$USER$$$USER$$USER$USE
 		while (temp->token[expander->i] != '\0')
 		{
-			/* printf("i : %zu\n",expander->i); */
 			if (quote(temp->token, expander))
 				continue;
 			if(temp->type == HEREDOC && temp->next !=NULL)
 			{
 				temp = temp->next;
-				expander->i = ft_strlen(temp->token);
+				expander->i = ft_strlen(temp->token) - 1;
 			}
 			else if((temp->type >= 2 && temp->type <= 4) && temp->next != NULL)
 			{
@@ -132,8 +130,6 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 			}
 
 			expander->i++;
-			/* printf("i : %zu\n",expander->i);
-			printf("token : %s\n",temp->token); */
 		}
 		temp = temp->next;
 	}

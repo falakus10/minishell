@@ -29,7 +29,7 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 	{
 		if (tmp->type == HEREDOC && tmp->next)
 		{
-			if (tmp->next->type == WORD)
+			if (tmp->next->type == WORD || tmp->next->type == D_QUOTE || tmp->next->type == S_QUOTE)
 				heredoc_valid = 1;
 			scan = tmp->next->next;
 

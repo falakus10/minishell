@@ -81,7 +81,6 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	pid_t pid;
 	int	input_fd;
 	int output_fd;
-	int heredoc_count;         // kaç tane heredoc var
 	int argument_count;
 	int err_flg;
 	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
@@ -224,18 +223,18 @@ void 	run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init);
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp);
 void	init_heredoc_struct(t_mng_heredocs *mng  ,int count, t_joined_lexer_list **temp, t_env *env_list);
 int		ft_echo(t_command_block *cmd);
-int		ft_exit(t_command_block *cmd, t_init *init);
+int		ft_exit(t_command_block *cmd, t_init *init, char **envp);
 int		ft_cd(t_command_block *cmd, t_env *env);
 int		ft_export(t_command_block *cmd, t_env  *env);
 int		ft_unset(t_command_block *cmd, t_env **env);
 int		ft_pwd(void);
 int		ft_env(t_env *env);
-int		built_in(t_command_block *cmd, t_env **env, t_init *init);
+int		built_in(t_command_block *cmd, t_env **env, t_init *init, char **envp);
 char	*format_export_line(t_env *node);
 char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env **env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
-void	run_single_builtin(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init);
+void	run_single_builtin(t_command_block *cmd, t_env **env, t_init *init, char **envp);
 void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_expander *expander);
 void	free_all(t_init	*init);
 int command_count(t_command_block *cmd);

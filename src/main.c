@@ -1,20 +1,5 @@
 #include "minishell.h"
 
-/*
-malloclananlar
-
-env_list :ok :!!take_env'ye env_list 'i gönderip tekrar env_list'e atıyorum doğru olmayabilir ona bak
-exe :ok
-command_block :ok :!!parser'a command block atılıp return'u de command blocka atılıyor ona bak, bunlar void olabilir
-expnd :ok
-lexer_list	:ok
-mng_heredocs :ok :!!mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
-joined_lexer_list :ok
-
-içerden sildiysem ok verdim, void yapıcam
-*/
-
-
 void init3(t_init *init, t_mng_heredocs *mng)
 {
 	init->mng_hrdcs = mng;
@@ -35,28 +20,6 @@ void init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_e
 	init->expnd = expander;
 }
 
-// void init_cmd_blk(t_command_block *cmd, t_env *env_list, t_expander *exp)
-// {
-// 	cmd->next = NULL;
-// 	cmd->args = NULL;
-// 	cmd->fd = NULL;
-// 	cmd->last_fault = 0;
-// 	cmd->heredoc_count = 0;
-// 	cmd->argument_count = 0;
-// 	cmd->cmd_count = 0;
-// 	cmd->input_fd = -3;//öylesine -3 ile başlattım önemli mi ?
-// 	cmd->output_fd = -3;
-// 	cmd->err_flg = -2; //sanırım kullanılmıyor //öylesine -2 ile başlattım önemli mi ?
-// 	cmd->err_sign = 0; // sanırım kullanılmıyor
-// 	cmd->file_err = 0;
-// 	cmd->cmd_err = 0;
-// 	cmd->command = NULL;
-// 	cmd->wrong_cmd = NULL;
-// 	cmd->expnd = exp;
-// 	cmd->path_err = 0;
-// 	cmd->wrong_path = 0;
-// 	cmd->env = env_list;
-// }
 void	init_exe(t_executor *exe, t_expander *exp, t_env *envp)
 {
 	exe->fd = NULL;
@@ -81,9 +44,6 @@ void	init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
 
 void initialize_structs(t_init *init, t_env *env_list)
 {
-	// init_cmd_blk(init->cmd_blk,env_list, init->expnd);
-	//init_lexer(init->lxr_lst);
-	//init_jnd_lexer(init->jnd_lxr_lst);
 	init_exe(init->exec, init->expnd, env_list);
 	init_expander(init->expnd);
 	init_mng_heredocs(init->mng_hrdcs, env_list);
@@ -102,7 +62,7 @@ void	input_loop(char **env)
 	//if malloc fail
 	env_list = malloc(sizeof(t_env *));
 	*env_list = NULL;
-	env_list = take_env(env_list, env);//dışarı alınması lazım unset PATH yapınca gidiyor
+	env_list = take_env(env_list, env);
 	expnd = malloc(sizeof(t_expander));
 	expnd->exit_value = 0;
 	
@@ -115,7 +75,6 @@ void	input_loop(char **env)
 		init->expnd = expnd;
 		init->heredoc = 0;
 		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
-		// exe->env = *env_list;
 		new_list = malloc(sizeof(t_joined_lexer_list *));
 		*new_list = NULL;
 		lexer_list = malloc(sizeof(t_lexer_list *));

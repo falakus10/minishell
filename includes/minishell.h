@@ -94,11 +94,6 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	struct s_command_block *next; // sonraki komut bloğu için
 }								t_command_block;
 
-typedef struct s_pipeline_utils
-{
-	int							is_cmd_pointed;
-}								t_pipeline_utils;
-
 typedef struct s_executor
 {
 	int			count;
@@ -190,7 +185,7 @@ void							handle_redirect_token(t_joined_lexer_list **temp,
 									t_command_block **temp_block,t_mng_heredocs *mng_heredocs);
 void							handle_token_logic(t_joined_lexer_list **tmp,
 									t_command_block **tmp_blk,
-									t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs);
+									int *is_cmd_pointed,t_mng_heredocs *mng_heredocs);
 char 							*ft_strcpy(char *dest, const char *src);
 char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
@@ -235,7 +230,7 @@ char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env **env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
 void	run_single_builtin(t_command_block *cmd, t_env **env, t_init *init, char **envp);
-void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_expander *expander);
+void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list);
 void	free_all(t_init	*init);
 int command_count(t_command_block *cmd);
 void	free_cmd_blk(t_command_block *cmd);

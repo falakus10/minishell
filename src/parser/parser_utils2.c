@@ -185,7 +185,7 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 //ardından son komut neden null geliyor onu çöz
 
 void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
-		t_pipeline_utils *utils,t_mng_heredocs *mng_heredocs)
+		int *is_cmd_pointed,t_mng_heredocs *mng_heredocs)
 {
 	if ((*tmp)->token[0] == '\0' && (*tmp)->next != NULL)
 		(*tmp) = (*tmp)->next;
@@ -196,7 +196,7 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 	else if (((*tmp)->type == WORD
 			|| (*tmp)->type == S_QUOTE || (*tmp)->type == D_QUOTE))
 	{
-		if (!utils->is_cmd_pointed)
+		if (!(*is_cmd_pointed))
 		{
 			if ((*tmp)->token[0] == '\0')
 			{
@@ -222,10 +222,10 @@ void	handle_token_logic(t_joined_lexer_list **tmp, t_command_block **tmp_blk,
 				}
 			}
 			(*tmp_blk)->args = append_to_array((*tmp_blk)->args,(*tmp_blk)->argument_count,(*tmp_blk)->command);
-			utils->is_cmd_pointed = 1;
+			*is_cmd_pointed = 1;
 			(*tmp_blk)->argument_count++;
 		}
-		else if (utils->is_cmd_pointed)
+		else if (*is_cmd_pointed)
 		{
 			(*tmp_blk)->args = append_to_array((*tmp_blk)->args,
 				(*tmp_blk)->argument_count, (*tmp)->token);

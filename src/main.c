@@ -109,10 +109,10 @@ void	input_loop(char **env)
 		add_history(input);
 		if(lexer_function(lexer_list,input) == -1)
 		{
+			write(2, "bash : Unclosed quotes\n", 23);
 			init->expnd->exit_value = 2;
 			free(input);
 			free_all(init);
-			write(2, "unclosed quotes\n", 16);
 			continue;
 		}
 	

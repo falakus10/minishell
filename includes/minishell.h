@@ -159,8 +159,6 @@ char							*quote_assign(const char *input, int *inx,
 char							*word_assign(const char *input, int *inx,
 									t_lexer_list *lexer_list);
 void							ft_error(void);
-void							signal_handler(int signal);
-void							signal_init(void);
 void expander(t_lexer_list *temp,t_env *env_list, t_expander *expander);
 int								is_valid_ch(char *token, int i);
 int								special_ch_check(char c);
@@ -205,7 +203,7 @@ int check_tokens(t_joined_lexer_list **temp, t_expander *expnd);
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init);
 void	fork_or_exit(pid_t *pid);
 void	create_pipe_or_exit(int fd[2]);
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid);
+int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid);
 void	handle_child_process(char *delim, int write_fd, t_init *init);
 
 int count_cmd_blk(t_joined_lexer_list **temp);
@@ -237,4 +235,6 @@ void	free_cmd_blk(t_command_block *cmd);
 void	fill_int_array(int *arr, int value, int count);
 char	*trim_whitespace(const char *input);
 void	sort_and_print(t_env **arr, int count);
+void	set_signal(int i);
+void	handle_signals(void);
 #endif

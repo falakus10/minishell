@@ -4,14 +4,14 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 {
 	char *line;
 
-	signal(SIGINT, signal_handler);
-	g_signal = 1;
 	close(write_fd - 1); // read ucunu kapat
+	set_signal(0);
 	while (1)
 	{
 		line = readline("> ");
 		if (!line || ft_strcmp(line, delim) == 0)
 		{
+			printf("aaaaaaaaaaaaaaaa\n");
 			free(line);
 			break;
 		}
@@ -44,20 +44,19 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid )
+int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid)
 {
 	int	status;
 
-	g_signal = 2;
-	signal(SIGINT, signal_handler);
 	close(fd[1]);
-	wait(NULL);
 	waitpid(pid, &status, 0);
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	if (WIFSIGNALED(status))
 	{
-		//int exit_code =130;
-		close(fd[0]);
+		if (WTERMSIG(status) == SIGINT)
+        	write(1, "\n", 1);
 		mng->heredoc_flags[j] = 0;
+		close(fd[0]);
+		return (1);
 	}
 	if (*k < mng->heredoc_nums[j] - 1)
 	{
@@ -76,7 +75,7 @@ void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pi
 		}
 		*k = 0;
 	}
-	g_signal = 0; // Sinyali sıfırla
+	return (0);
 }
 
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
@@ -108,7 +107,13 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
 			else
 			{
-				handle_parent_process(mng, fd, i, &k, pid);
+				handle_signals();
+				if (handle_parent_process(mng, fd, i, &k, pid))
+				{
+					printf("bpwjemfoqwefewqrgf\n");
+					g_signal = 130;
+					mng->heredoc_flags[j] = 0;
+				}
 			}
 			j++;
 			h_count++;

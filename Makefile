@@ -10,7 +10,7 @@ src/heredoc/start_hrdc_struct.c src/heredoc/take_counts.c src/executor/utils.c s
 
 LIBFT = libft/libft.a
 CC = cc
-CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g3 -fsanitize=address
+CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g3 
 
 OBJS = $(SRCS:.c=.o)
 RM = rm -f

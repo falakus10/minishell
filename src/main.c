@@ -69,6 +69,7 @@ void	input_loop(char **env)
 	expand->exit_value = 0;
 	while (1)
 	{
+		handle_signals();
 		flag = 0;
 		init = malloc(sizeof(t_init));
 		init->exec = malloc(sizeof(t_executor));
@@ -85,6 +86,11 @@ void	input_loop(char **env)
 		init2(init,new_list,init->cmd_blk,init->exec);
 		init3(init,init->mng_hrdcs);
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
+		if (g_signal != 0)
+		{
+			expand->exit_value = g_signal;
+			g_signal = 0;
+		}
 		if (temp_input == NULL)
 		{
 			init->exit_flag = 1;
@@ -147,7 +153,6 @@ int	main(int argc, char *argv[], char **env)
 {
 	(void)argc;
 	(void)argv;
-	signal_init();
 	input_loop(env);
 	return (0);
 }

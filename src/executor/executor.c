@@ -66,6 +66,8 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		make_dup(cmd, 0, count, exe);
 		execve(cmd->command, cmd->args, env);
 		perror("execve failed!");
@@ -78,12 +80,26 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	}
 	else
 	{
-		if(waitpid(cmd->pid, &cmd->status, 0) == -1)
+		waitpid(cmd->pid, &cmd->status, 0);
+		int	sig;
+		if (WIFSIGNALED(cmd->status))
 		{
-			perror("waitpid failed!");
-			return (1);
+			sig = WTERMSIG(cmd->status);
+			if (sig == SIGINT)
+			{
+				write(1, "\r", 1);
+				exe->exp->exit_value = 130;
+			}
+			else if (sig == SIGQUIT)
+			{
+				write(1, "Quit (core dumped)\n", 19);
+				exe->exp->exit_value = 131;
+			}
+			else
+				exe->exp->exit_value = 128 + sig;
 		}
-		exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
+		else if (WIFEXITED(cmd->status))
+			exe->exp->exit_value = WEXITSTATUS(cmd->status);
 	}
 	return (0);
 }
@@ -92,7 +108,6 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
 	char  **envp;
 
-	g_signal = 5;
 	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	exe->count = cmd->cmd_count;

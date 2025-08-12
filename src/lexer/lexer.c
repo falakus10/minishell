@@ -38,24 +38,24 @@ int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_lis
 	temp->is_next_space = 0;
 	while (input[i] && input[i] != delim)
 	{
-		++len;                    /* tırnak içindeki karakterler  */
+		++len;
 		++i;
 	}
-	if (input[i] == '\0')         /* kapanış yok → hata           */
-		ft_error();
+	if (input[i] == '\0')
+		return (-1);
 	
 	if (input[i + 1] == ' ' || input [i + 1] == '\t')
 		temp->is_next_space = 1;
-	return len;                   /* kapanış tırnağına kadarki uzunluk */
+	return len;
 }
 int is_quote(const char *input, int i, t_lexer_list *lexer_list)
 {
 	if (input[i] == '\'')
-		return quote_len(input, i, '\'', lexer_list);   /* tek tırnak */
+		return quote_len(input, i, '\'', lexer_list);
 	else if (input[i] == '\"')
-		return quote_len(input, i, '\"', lexer_list);   /* çift tırnak */
+		return quote_len(input, i, '\"', lexer_list);
 	else
-		return 0;                           /* tırnak değil */
+		return 0;
 }
 
 int	is_meta(const char *input, int i)
@@ -80,14 +80,12 @@ int	is_meta(const char *input, int i)
 	return (meta_type);
 }
 
-t_lexer_list	**lexer_function(char *input)
+int	lexer_function(t_lexer_list **lexer_list, char *input)
 {
 	int				i;
 	char			*array;
-	t_lexer_list	**lexer_list;
 	t_lexer_list    *current;
 
-	lexer_list = malloc(sizeof(t_lexer_list *));
 	*lexer_list = NULL;
 	array = NULL;
 	i = 0;
@@ -98,12 +96,15 @@ t_lexer_list	**lexer_function(char *input)
 		current = add_new_node(lexer_list);
 		if (is_meta(input, i))
 			array = meta_assign(input, &i);
+		else if(is_quote(input,i,*lexer_list) == -1)
+			return (-1);
 		else if (is_quote(input, i, *lexer_list))
 			array = quote_assign(input, &i, *lexer_list);
 		else if (take_word(input, i, *lexer_list))
 			array = word_assign(input, &i, *lexer_list);
 		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
 		(current)->type = set_type(array);
+		free(array);
 	}
-	return (lexer_list);
+	return (0);
 }

@@ -72,6 +72,7 @@ int create_path(t_command_block *tmp_blk, char *word, int i) //buranın leakleri
 	paths = ft_split(path_env, ':');
 	if (!paths)
 		return (0);
+	free(path_env);
 	while (paths[i])
 	{
 		if (!ft_strchr(word, '/'))

@@ -6,6 +6,7 @@ t_lexer_list	*add_new_node(t_lexer_list **lexer_list)
 	t_lexer_list	*temp;
 	node = malloc(sizeof(t_lexer_list));
 	node->next = NULL;
+	node->token = NULL;
 	if (*lexer_list == NULL)
 		*lexer_list = node;
 	else

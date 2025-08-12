@@ -1,23 +1,18 @@
 #include "minishell.h"
 
-t_mng_heredocs *init_heredoc_struct(int count, t_joined_lexer_list **temp)
+void init_heredoc_struct(t_mng_heredocs *mng, int count, t_joined_lexer_list **temp, t_env *env_list)
 {
-	t_mng_heredocs *mng;
-
-	mng = malloc(sizeof(t_mng_heredocs));
-	if (!mng)
-		return (NULL);
 	mng->index = 0;
 	mng->heredoc_flags = malloc(sizeof(int) * count);
 	mng->heredoc_fds = malloc(sizeof(int) * count);
 	mng->heredoc_nums = malloc(sizeof(int) * count);
 	mng->heredoc_delims = malloc(sizeof(char *) * (count_heredoc(temp) + 1));
+	mng->env = env_list;
 	if (!mng->heredoc_flags || !mng->heredoc_fds || !mng->heredoc_nums || !mng->heredoc_delims)
-		return (NULL);
-	ft_memset(mng->heredoc_flags, 0, sizeof(int) * count);
-	ft_memset(mng->heredoc_fds, -3, sizeof(int) * count);
-	ft_memset(mng->heredoc_nums, 0, sizeof(int) * count);
-	return (mng);
+		return; //burası return NULL'dı ama return'e çevirdim sorun olur mu ? 
+	fill_int_array(mng->heredoc_flags, 0, count);
+	fill_int_array(mng->heredoc_fds, -3, count); //int dolduran fonksiyonla değiştir
+	fill_int_array(mng->heredoc_nums, 0, count);
 }
 
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
@@ -34,7 +29,7 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 	{
 		if (tmp->type == HEREDOC && tmp->next)
 		{
-			if (tmp->next->type == WORD)
+			if (tmp->next->type == WORD || tmp->next->type == D_QUOTE || tmp->next->type == S_QUOTE)
 				heredoc_valid = 1;
 			scan = tmp->next->next;
 
@@ -56,12 +51,11 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 	}
 }
 
-t_mng_heredocs *run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp)
+void run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init)
 {
 	fill_heredoc_flags(mng, temp);
 	take_heredoc_delims(temp, count_heredoc(temp), &mng);
 	fill_heredoc_nums(&mng, temp);
-	heredoc_handle(mng, count_heredoc(temp));
-	return (mng);
+	heredoc_handle(mng, count_heredoc(temp), init);
 }
 

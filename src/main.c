@@ -1,5 +1,8 @@
 #include "minishell.h"
 
+
+int g_signal = 0;
+
 void init3(t_init *init, t_mng_heredocs *mng)
 {
 	init->mng_hrdcs = mng;
@@ -13,11 +16,10 @@ void init2(t_init *init, t_joined_lexer_list **jnd_lst ,t_command_block *cmd, t_
 	init->exec = exe;
 }
 
-void init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list, t_expander *expander)
+void init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list)
 {
 	init->env = env_list;
 	init->lxr_lst = lexer_list;
-	init->expnd = expander;
 }
 
 void	init_exe(t_executor *exe, t_expander *exp, t_env *envp)
@@ -55,7 +57,7 @@ void	input_loop(char **env)
 	char *temp_input;
 	t_env			**env_list;
 	t_joined_lexer_list **new_list;
-	t_expander		*expnd;
+	t_expander		*expand;
 	t_lexer_list **lexer_list;
 	t_init *init;
 	int flag;
@@ -63,16 +65,15 @@ void	input_loop(char **env)
 	env_list = malloc(sizeof(t_env *));
 	*env_list = NULL;
 	env_list = take_env(env_list, env);
-	expnd = malloc(sizeof(t_expander));
-	expnd->exit_value = 0;
-	
+	expand = malloc(sizeof(t_expander));
+	expand->exit_value = 0;
 	while (1)
 	{
 		flag = 0;
 		init = malloc(sizeof(t_init));
 		init->exec = malloc(sizeof(t_executor));
 		init->cmd_blk = NULL;
-		init->expnd = expnd;
+		init->expnd = expand; //hem bura
 		init->heredoc = 0;
 		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
 		new_list = malloc(sizeof(t_joined_lexer_list *));
@@ -80,7 +81,7 @@ void	input_loop(char **env)
 		lexer_list = malloc(sizeof(t_lexer_list *));
 		*lexer_list = NULL;
 		initialize_structs(init,*env_list);
-		init_structs(init,env_list,lexer_list,expnd);
+		init_structs(init,env_list,lexer_list);
 		init2(init,new_list,init->cmd_blk,init->exec);
 		init3(init,init->mng_hrdcs);
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
@@ -93,9 +94,8 @@ void	input_loop(char **env)
 			exit(0);
 		}
 		if (temp_input[0] == '\0')
-    	{
+		{
 			free(temp_input);
-			//free_all(init);
 			free_all(init);
 			continue;
     	}	
@@ -109,12 +109,20 @@ void	input_loop(char **env)
 		}
 		free(temp_input); // bununla işimiz bitti
 		add_history(input);
-		lexer_function(lexer_list,input);
+		if(lexer_function(lexer_list,input) == -1)
+		{
+			write(2, "bash : Unclosed quotes\n", 23);
+			init->expnd->exit_value = 2;
+			free(input);
+			free_all(init);
+			continue;
+		}
+	
 		free(input);
-		expander((*lexer_list), *env_list, expnd);
+		expander((*lexer_list), *env_list, expand);
 		remove_quotes(*lexer_list);
 		token_join(new_list, *lexer_list);
-		flag = check_tokens(new_list,expnd); //tokenlar kontrol edildi
+		flag = check_tokens(new_list,expand); //tokenlar kontrol edildi
 		int a = count_heredoc(new_list);
 		if(a != 0)
 			init_heredoc_struct(init->mng_hrdcs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
@@ -129,7 +137,7 @@ void	input_loop(char **env)
 			free_all(init);
 			continue; //exit atıyordum.
 		}
-		parser(&init->cmd_blk, *new_list, init->mng_hrdcs,expnd); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
+		parser(&init->cmd_blk, *new_list, init->mng_hrdcs,expand); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
 		executor(init->cmd_blk, init->exec, env_list, init);
 		free_all(init);
 	}
@@ -139,7 +147,7 @@ int	main(int argc, char *argv[], char **env)
 {
 	(void)argc;
 	(void)argv;
-	signal_handler();
+	signal_init();
 	input_loop(env);
 	return (0);
 }

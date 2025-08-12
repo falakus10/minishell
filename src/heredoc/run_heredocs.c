@@ -4,6 +4,8 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 {
 	char *line;
 
+	signal(SIGINT, signal_handler);
+	g_signal = 1;
 	close(write_fd - 1); // read ucunu kapat
 	while (1)
 	{
@@ -42,10 +44,21 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
+void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid )
 {
+	int	status;
+
+	g_signal = 2;
+	signal(SIGINT, signal_handler);
 	close(fd[1]);
 	wait(NULL);
+	waitpid(pid, &status, 0);
+	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	{
+		//int exit_code =130;
+		close(fd[0]);
+		mng->heredoc_flags[j] = 0;
+	}
 	if (*k < mng->heredoc_nums[j] - 1)
 	{
 		close(fd[0]);
@@ -63,6 +76,7 @@ void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 		}
 		*k = 0;
 	}
+	g_signal = 0; // Sinyali sıfırla
 }
 
 void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
@@ -94,7 +108,7 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
 			else
 			{
-				handle_parent_process(mng, fd, i, &k);
+				handle_parent_process(mng, fd, i, &k, pid);
 			}
 			j++;
 			h_count++;

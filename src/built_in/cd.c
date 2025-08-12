@@ -1,9 +1,19 @@
 #include "minishell.h"
 
-void	add_deleted(t_env *env, char *line, char* value)
+int	add_deleted(t_env *env, char *line, char* value)
 {
 	t_env	*tmp;
 	t_env	*node;
+	
+	if(!env)
+	{
+		write(2, "bash: cd: ", 11);
+		write(2, value, ft_strlen(value));
+		write(2, ": No such file or directory\n", 28);
+		free(line);
+		free(value);
+		return(1);
+	}
 
 	node = malloc(sizeof(t_env));
 	if (!node || !value || !line)
@@ -20,6 +30,7 @@ void	add_deleted(t_env *env, char *line, char* value)
 	node->line = line;
 	node->value = value;
 	node->next = NULL;
+	return (0);
 }
 
 void	update_oldpwd(t_env *env, char *old_pwd)
@@ -42,7 +53,7 @@ void	update_oldpwd(t_env *env, char *old_pwd)
 	add_deleted(env, ft_strjoin("OLDPWD=", old_pwd), ft_strdup(old_pwd));
 }
 
-void	update_pwd(t_env *env, char *old_pwd)
+int	update_pwd(t_env *env, char *old_pwd)
 {
 	t_env	*tmp;
 	char	*current_pwd;
@@ -63,11 +74,16 @@ void	update_pwd(t_env *env, char *old_pwd)
 		tmp = tmp->next;
 	}
 	if (!tmp)
-		add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd);
+	{
+		if (add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd))
+			return (2);
+	}
+
 	if (old_pwd)
 	{
 		update_oldpwd(env, old_pwd);
 	}
+	return (0);
 }
 
 int	go_home(t_env *env, char *old_pwd)
@@ -115,8 +131,11 @@ int	ft_cd(t_command_block *cmd, t_env *env)
 			perror("cd");
 		else
 		{
-			update_pwd(env, old_pwd);
-			status = 0;
+				
+			if(update_pwd(env, old_pwd))
+				status = 2;
+			else
+				status = 0;
 		}
 	}
 	else

@@ -142,7 +142,7 @@ void free_env(t_env **env_list)
 
 void	free_all(t_init	*init)
 {
-	if ((init->lxr_lst && *(init->lxr_lst)))
+	if ((init->lxr_lst ))
 		free_lexer(init->lxr_lst);
 	if (init->cmd_blk && !init->heredoc)
 	{

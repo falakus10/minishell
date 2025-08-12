@@ -92,6 +92,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
 	char  **envp;
 
+	g_signal = 5;
 	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	exe->count = cmd->cmd_count;

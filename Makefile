@@ -25,7 +25,7 @@ $(READLINE):
 	@$(RM) readline-8.2.tar.gz
 	@cd readline-8.2 && ./configure --prefix=${PWD}/lib/readline
 	@cd readline-8.2 && make install
-	@$(RM) readline-8.2$(NAME)
+	@$(RM) -rf readline-8.2
 
 $(NAME): $(OBJS) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)

@@ -5,6 +5,9 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 	char *line;
 
 	close(write_fd - 1); // read ucunu kapat
+	signal(SIGINT, handle_sigint);
+	signal(SIGQUIT, SIG_DFL);
+	setter_signal(1);
 	while (1)
 	{
 		line = readline("> ");
@@ -34,6 +37,7 @@ void	create_pipe_or_exit(int fd[2])
 
 void	fork_or_exit(pid_t *pid)
 {
+	g_signal = 2;
 	*pid = fork();
 	if (*pid == -1)
 	{
@@ -42,10 +46,28 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
-void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
+int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 {
+	int status;
+	pid_t child_pid;
+
 	close(fd[1]);
-	wait(NULL);
+	child_pid = wait(&status);
+	if (child_pid == -1)
+	{
+		perror("wait");
+		return (1);
+	}
+	if (WIFEXITED(status))
+	{
+		int exit_code = WEXITSTATUS(status);
+		if (exit_code == 130)
+		{
+			close(fd[0]);
+			mng->heredoc_flags[j] = 0;
+			return (1);
+		}
+	}
 	if (*k < mng->heredoc_nums[j] - 1)
 	{
 		close(fd[0]);
@@ -63,9 +85,11 @@ void	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 		}
 		*k = 0;
 	}
+	g_signal = 0;
+	return (0);
 }
 
-void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
+int	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 {
 	(void)heredoc_count;
 	int	fd[2];
@@ -94,11 +118,13 @@ void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
 			else
 			{
-				handle_parent_process(mng, fd, i, &k);
+				if(handle_parent_process(mng, fd, i, &k))
+					return (1);
 			}
 			j++;
 			h_count++;
 		}
 		i++;
 	}
+	return (0);
 }

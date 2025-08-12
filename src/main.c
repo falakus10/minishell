@@ -67,14 +67,16 @@ void	input_loop(char **env)
 	env_list = take_env(env_list, env);
 	expand = malloc(sizeof(t_expander));
 	expand->exit_value = 0;
-	setup_signal_handlers();
+	g_signal = 0;
+	
 	while (1)
 	{
+		handle_signal();
 		flag = 0;
 		init = malloc(sizeof(t_init));
 		init->exec = malloc(sizeof(t_executor));
 		init->cmd_blk = NULL;
-		init->expnd = expand; //hem bura
+		init->expnd = expand; 
 		init->heredoc = 0;
 		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
 		new_list = malloc(sizeof(t_joined_lexer_list *));
@@ -113,7 +115,7 @@ void	input_loop(char **env)
 		if(lexer_function(lexer_list,input) == -1)
 		{
 			write(2, "bash : Unclosed quotes\n", 23);
-			init->expnd->exit_value = 2;
+			expand->exit_value = 2;
 			free(input);
 			free_all(init);
 			continue;
@@ -130,8 +132,14 @@ void	input_loop(char **env)
 		if(a != 0)
 		{
 			init->heredoc = 1;
-			run_hrdcs(init->mng_hrdcs, new_list, init); //heredoclar işlendi
-			init->heredoc = 0; //heredoc işlemi bitti
+			if(run_hrdcs(init->mng_hrdcs, new_list, init))
+			{
+				init->heredoc = 0; //heredoc işlemi bitti
+				expand->exit_value = 130;
+				free_all(init);
+				continue;
+			}	
+			
 		}
 		if(flag)
 		{
@@ -146,8 +154,9 @@ void	input_loop(char **env)
 
 int	main(int argc, char *argv[], char **env)
 {
-	(void)argc;
 	(void)argv;
+	if (argc != 1)
+		return (0);
 	input_loop(env);
 	return (0);
 }

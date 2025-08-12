@@ -1,38 +1,90 @@
 #include "minishell.h"
 
-void sigint_handler(int sig)
+void	handle_sigint(int sig)
 {
-    if (sig == 0)  // genelde 2'nin karşılığı SIGINT
-    {
-        write(1, "\n", 1);
-        rl_on_new_line();
-        rl_replace_line("", 0);
-        rl_redisplay();
-    }
-	else if(sig == 1) //heredoc içinde Ctrl+C basıldığında
+	(void)sig;
+	exit(130);
+}
+
+static void	suppress_output(void)
+{
+	struct termios	termios_p;
+
+	if (tcgetattr(0, &termios_p) != 0)
+		perror("Minishell: tcgetattr");
+	if (tcsetattr(0, 0, &termios_p) != 0)
+		perror("Minishell: tcsetattr");
+}
+
+static void	ctrl_d(int sig)
+{
+	(void)sig;
+	write(1, "Quit (core dumped)\n", 19);
+	rl_redisplay();
+}
+
+static void	ctrl_c(int sig)
+{
+	(void)sig;
+	if (g_signal == 2)
 	{
-
+		write(1, "^C\n",3);  // ^C bastır
 	}
-
+	else if (g_signal == 3)
+	{
+		write(1, "\n",1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
+	else
+	{
+		write(1, "\n", 1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	g_signal = 130;
 }
-
-void sigquit_handler(int sig)
+/* static void	ctrl_c2(int sig)
 {
-    (void)sig; // kullanılmayan parametre uyarısı için
-    // İstersen buraya quit sinyali için işlem ekle
-}
+	(void)sig;
+	if (g_signal == 2)
+	{
+		write(1, "^C\n",3);  // ^C bastır
+	}
+	else if (g_signal == 3)
+	{
+		write(1, "\n",1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
+	else
+	{
+		write(1, "\n", 1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		//rl_redisplay();
+	}
+	g_signal = 130;
+} */
 
-void setup_signal_handlers(void)
+void	handle_signal(void)
 {
-    struct sigaction sa_int; //SIGINT için yapı
-	struct sigaction sa_quit;//SIGQUIT için yapı
-
-	sa_int.sa_handler = sigint_handler;
-    sigemptyset(&sa_int.sa_mask);
-    sigaction(SIGINT, &sa_int, NULL);
-	
-	sa_quit.sa_handler = sigquit_handler;
-    sigemptyset(&sa_quit.sa_mask);
-    sigaction(SIGQUIT, &sa_quit, NULL);
+	suppress_output();
+	signal(SIGINT, ctrl_c);
+	signal(SIGQUIT, SIG_IGN);
 }
 
+void setter_signal(int sig)
+{
+	if (sig == 0)
+	{
+		signal(SIGQUIT, ctrl_d);
+		//signal(SIGINT, ctrl_c2);
+	}
+	if (sig == 1)
+	{
+		signal(SIGQUIT, SIG_IGN);
+		//signal(SIGINT, ctrl_c);
+	}
+}

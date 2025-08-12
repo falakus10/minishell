@@ -51,11 +51,13 @@ void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp)
 	}
 }
 
-void run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init)
+int run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init)
 {
 	fill_heredoc_flags(mng, temp);
 	take_heredoc_delims(temp, count_heredoc(temp), &mng);
 	fill_heredoc_nums(&mng, temp);
-	heredoc_handle(mng, count_heredoc(temp), init);
+	if(heredoc_handle(mng, count_heredoc(temp), init))
+		return(1);
+	return (0);
 }
 

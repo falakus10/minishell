@@ -66,6 +66,8 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		make_dup(cmd, 0, count, exe);
 		execve(cmd->command, cmd->args, env);
 		perror("execve failed!");
@@ -83,7 +85,10 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 			perror("waitpid failed!");
 			return (1);
 		}
-		exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
+		if (WIFSIGNALED(cmd->status))
+			exe->exp->exit_value = 128 + WTERMSIG(cmd->status);
+		else
+			exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
 	}
 	return (0);
 }
@@ -92,6 +97,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
 	char  **envp;
 
+	setter_signal(0);
 	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	exe->count = cmd->cmd_count;
@@ -114,6 +120,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 		multiple_exec(cmd, envp, exe, init);
 		free_arr(envp);
 	}
+	setter_signal(1);
 	return (0);
 }
 

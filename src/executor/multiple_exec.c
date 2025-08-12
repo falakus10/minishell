@@ -57,6 +57,8 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
 			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
 			{
 				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
@@ -114,6 +116,11 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *ini
 		i++;
 	}
 	if (!flag)
-		exe->exp->exit_value = (last_status >> 8) & 0xFF;
+	{
+		if (WIFSIGNALED(last_status))
+			exe->exp->exit_value = 128 + WTERMSIG(last_status);
+		else
+			exe->exp->exit_value = (last_status >> 8) & 0xFF;
+	}
 	return (0);
 }

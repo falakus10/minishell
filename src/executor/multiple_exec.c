@@ -11,7 +11,6 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	fd_count = 2 * (exe->count - 1);
 	used_in = -1;
 	used_out = -1;
-
 	if (index == -1)
 	{
 		if (input_fd > 2)
@@ -57,6 +56,8 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 		tmp->pid = fork();
 		if (tmp->pid == 0)
 		{
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
 			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
 			{
 				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
@@ -99,6 +100,7 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *ini
 	tmp = cmd;
 	i = 0;
 	flag = 0;
+	g_signal = 2;
 	create_pipe(tmp, exe);
 	if (child_exec(cmd, env, exe, init) != 0)
 		return (1);//exit value buraya mı eklenmeli?????
@@ -114,6 +116,11 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *ini
 		i++;
 	}
 	if (!flag)
-		exe->exp->exit_value = (last_status >> 8) & 0xFF;
+	{
+		if (WIFSIGNALED(last_status))
+			exe->exp->exit_value = 128 + WTERMSIG(last_status);
+		else
+			exe->exp->exit_value = (last_status >> 8) & 0xFF;
+	}
 	return (0);
 }

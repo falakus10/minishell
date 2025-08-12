@@ -35,6 +35,16 @@ typedef struct s_env
 	struct s_env *next;
 }				t_env;
 
+typedef struct s_mng_heredocs
+{
+	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
+	int *heredoc_flags;    
+	int *heredoc_fds;
+	int *heredoc_nums;
+	char **heredoc_delims;
+	t_env *env;
+}				t_mng_heredocs;
+
 typedef struct s_expander
 {
 	int							index;
@@ -51,17 +61,6 @@ typedef struct s_expander
 	char						*env_val;
 	char						ch;
 }								t_expander;
-
-typedef struct s_mng_heredocs
-{
-	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
-	int *heredoc_flags;    
-	int *heredoc_fds;
-	int *heredoc_nums;
-	char **heredoc_delims;
-	t_env *env;
-}				t_mng_heredocs;
-
 
 typedef struct s_joined_lexer_list
 {	
@@ -159,6 +158,8 @@ char							*quote_assign(const char *input, int *inx,
 char							*word_assign(const char *input, int *inx,
 									t_lexer_list *lexer_list);
 void							ft_error(void);
+void							handle_signal(void);
+void	handle_sigint(int sig);
 void expander(t_lexer_list *temp,t_env *env_list, t_expander *expander);
 int								is_valid_ch(char *token, int i);
 int								special_ch_check(char c);
@@ -200,10 +201,10 @@ int just_operator(t_joined_lexer_list *tmp, t_expander *expnd);
 int	print_error_check(t_joined_lexer_list *tmp, t_expander *expnd);
 int check_tokens(t_joined_lexer_list **temp, t_expander *expnd);
 
-void	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init);
+int	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init);
 void	fork_or_exit(pid_t *pid);
 void	create_pipe_or_exit(int fd[2]);
-int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k, pid_t pid);
+int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k);
 void	handle_child_process(char *delim, int write_fd, t_init *init);
 
 int count_cmd_blk(t_joined_lexer_list **temp);
@@ -212,7 +213,7 @@ void fill_heredoc_nums(t_mng_heredocs **mng_heredocs, t_joined_lexer_list **temp
 void take_heredoc_delims(t_joined_lexer_list **temp, int heredoc_count,t_mng_heredocs **mng_heredocs);
 char **free_heredoc_delimiters(char **delims, int last_index);
 
-void 	run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init);
+int 	run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init);
 void	fill_heredoc_flags(t_mng_heredocs *mng, t_joined_lexer_list **temp);
 void	init_heredoc_struct(t_mng_heredocs *mng  ,int count, t_joined_lexer_list **temp, t_env *env_list);
 int		ft_echo(t_command_block *cmd);
@@ -235,6 +236,5 @@ void	free_cmd_blk(t_command_block *cmd);
 void	fill_int_array(int *arr, int value, int count);
 char	*trim_whitespace(const char *input);
 void	sort_and_print(t_env **arr, int count);
-void	set_signal(int i);
-void	handle_signals(void);
+void setter_signal(int sig);
 #endif

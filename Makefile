@@ -10,7 +10,7 @@ src/heredoc/start_hrdc_struct.c src/heredoc/take_counts.c src/executor/utils.c s
 
 LIBFT = libft/libft.a
 CC = cc
-CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g3 
+CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g3 -fsanitize=address
 
 OBJS = $(SRCS:.c=.o)
 RM = rm -f
@@ -25,7 +25,7 @@ $(READLINE):
 	@$(RM) readline-8.2.tar.gz
 	@cd readline-8.2 && ./configure --prefix=${PWD}/lib/readline
 	@cd readline-8.2 && make install
-	@$(RM) readline-8.2$(NAME)
+	@$(RM) -rf readline-8.2
 
 $(NAME): $(OBJS) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)

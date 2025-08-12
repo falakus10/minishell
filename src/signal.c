@@ -1,67 +1,90 @@
 #include "minishell.h"
 
-void	sigint_handler(int sig)
+void	handle_sigint(int sig)
 {
 	(void)sig;
-	write(1, "\n", 1);
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
-	g_signal = 130;
+	exit(130);
 }
 
-void	handle_signals(void)
+static void	suppress_output(void)
 {
-	signal(SIGINT, sigint_handler);
+	struct termios	termios_p;
+
+	if (tcgetattr(0, &termios_p) != 0)
+		perror("Minishell: tcgetattr");
+	if (tcsetattr(0, 0, &termios_p) != 0)
+		perror("Minishell: tcsetattr");
+}
+
+static void	ctrl_d(int sig)
+{
+	(void)sig;
+	write(1, "Quit (core dumped)\n", 19);
+	rl_redisplay();
+}
+
+static void	ctrl_c(int sig)
+{
+	(void)sig;
+	if (g_signal == 2)
+	{
+		write(1, "\n",1);  // ^C bastır
+	}
+	else if (g_signal == 3)
+	{
+		write(1, "\n",1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
+	else
+	{
+		write(1, "\n", 1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	g_signal = 130;
+}
+/* static void	ctrl_c2(int sig)
+{
+	(void)sig;
+	if (g_signal == 2)
+	{
+		write(1, "^C\n",3);  // ^C bastır
+	}
+	else if (g_signal == 3)
+	{
+		write(1, "\n",1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
+	else
+	{
+		write(1, "\n", 1);  // ^C bastır
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		//rl_redisplay();
+	}
+	g_signal = 130;
+} */
+
+void	handle_signal(void)
+{
+	suppress_output();
+	signal(SIGINT, ctrl_c);
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	child_signal_handler2(int sig)
+void setter_signal(int sig)
 {
-	int	fd;
-
-	if (sig == SIGINT)
+	if (sig == 0)
 	{
-		g_signal = 130;
-		fd = 3;
-		while (fd < 1024)
-		{
-			close(fd);
-			fd++;
-		}
-		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, ctrl_d);
+		//signal(SIGINT, ctrl_c2);
 	}
-}
-
-void	child_signal_handler(int sig)
-{
-	int	fd;
-
-	if (sig == SIGINT)
+	if (sig == 1)
 	{
-		g_signal = 130;
-        //write(1, "\n", 1);
-        rl_replace_line("", 0);
-		rl_on_new_line();
-        rl_done = 1;
-        rl_redisplay();
-        /*rl_replace_line("",0);
-        rl_on_new_line();
-		handle_signals(); */
-        exit(130);
-		fd = 3;
-		while (fd < 1024)
-		{
-			close(fd);
-			fd++;
-		}
+		signal(SIGQUIT, SIG_IGN);
+		//signal(SIGINT, ctrl_c);
 	}
-}
-
-void	set_signal(int i)
-{
-	if (i == 0)
-		signal(SIGINT, child_signal_handler);
-	if (i == 1)
-		signal(SIGINT, child_signal_handler2);
 }

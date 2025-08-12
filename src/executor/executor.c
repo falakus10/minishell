@@ -80,26 +80,15 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	}
 	else
 	{
-		waitpid(cmd->pid, &cmd->status, 0);
-		int	sig;
-		if (WIFSIGNALED(cmd->status))
+		if(waitpid(cmd->pid, &cmd->status, 0) == -1)
 		{
-			sig = WTERMSIG(cmd->status);
-			if (sig == SIGINT)
-			{
-				write(1, "\r", 1);
-				exe->exp->exit_value = 130;
-			}
-			else if (sig == SIGQUIT)
-			{
-				write(1, "Quit (core dumped)\n", 19);
-				exe->exp->exit_value = 131;
-			}
-			else
-				exe->exp->exit_value = 128 + sig;
+			perror("waitpid failed!");
+			return (1);
 		}
-		else if (WIFEXITED(cmd->status))
-			exe->exp->exit_value = WEXITSTATUS(cmd->status);
+		if (WIFSIGNALED(cmd->status))
+			exe->exp->exit_value = 128 + WTERMSIG(cmd->status);
+		else
+			exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
 	}
 	return (0);
 }
@@ -108,6 +97,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
 	char  **envp;
 
+	setter_signal(0);
 	envp = env_list_to_envp(env);
 	cmd->cmd_count = command_count(cmd);
 	exe->count = cmd->cmd_count;
@@ -120,6 +110,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 		}
 		else
 		{
+			g_signal = 3;
 			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
 			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
 			free_arr(envp);
@@ -130,6 +121,8 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 		multiple_exec(cmd, envp, exe, init);
 		free_arr(envp);
 	}
+	g_signal = 1;
+	setter_signal(1);
 	return (0);
 }
 

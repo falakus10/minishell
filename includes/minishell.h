@@ -250,5 +250,6 @@ int	is_word_type(int type);
 int	is_redirect_type(int type);
 char *take_path(t_env *env);
 void close_old_fd(int old_fd);
+//void	handle_errors(t_command_block *temp_block);
 
 #endif

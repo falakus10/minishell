@@ -88,6 +88,10 @@ void	input_loop(char **env)
 		init2(init,new_list,init->cmd_blk,init->exec);
 		init3(init,init->mng_hrdcs);
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
+		if (g_signal == 130)
+		{
+			expand->exit_value = 130;
+		}
 		if (temp_input == NULL)
 		{
 			init->exit_flag = 1;
@@ -120,7 +124,6 @@ void	input_loop(char **env)
 			free_all(init);
 			continue;
 		}
-	
 		free(input);
 		expander((*lexer_list), *env_list, expand);
 		remove_quotes(*lexer_list);
@@ -138,8 +141,7 @@ void	input_loop(char **env)
 				expand->exit_value = 130;
 				free_all(init);
 				continue;
-			}	
-			
+			}
 		}
 		if(flag)
 		{

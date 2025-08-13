@@ -38,7 +38,8 @@ typedef struct s_env
 typedef struct s_mng_heredocs
 {
 	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
-	int *heredoc_flags;    
+	int *heredoc_flags;
+	int f_flag;
 	int *heredoc_fds;
 	int *heredoc_nums;
 	char **heredoc_delims;
@@ -231,7 +232,7 @@ char	*ft_strncpy(char *dest, const char *src, size_t n);
 void	run_single_builtin(t_command_block *cmd, t_env **env, t_init *init, char **envp);
 void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list);
 void	free_all(t_init	*init);
-int command_count(t_command_block *cmd);
+int command_count(t_command_block *cmd, t_executor *exe);
 void	free_cmd_blk(t_command_block *cmd);
 void	fill_int_array(int *arr, int value, int count);
 char	*trim_whitespace(const char *input);

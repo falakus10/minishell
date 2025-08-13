@@ -37,18 +37,40 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 	}
 }
 
+/* int	handle_child(t_command_block *tmp, t_executor *exe, char **env, t_init *init)
+{
 
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
+	{
+		close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
+		exit (1);  //sonra değişcez Başarılı gibi çık
+	}
+	make_dup(tmp, i, exe->count, exe);
+	close_fd(tmp->input_fd, tmp->output_fd, i, exe);
+	if (is_builtin(tmp->command))
+	{
+		exe->value = built_in(tmp, &exe->env, init, env);
+		init->exit_flag = 1;
+		free_all(init);
+		exit (exe->value);
+	}
+	execve(tmp->command, tmp->args, env);
+	perror("execve");
+	exit(1);
+} */
 
 int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 {
 	t_command_block	*tmp;
 	int	i;
 	int count;
-	int	value;
+	int value;
 
-	count = 0;
 	value = 0;
-	count = command_count(cmd);
+	count = 0;
+	count = command_count(cmd, exe);
 	i = 0;
 	tmp = cmd;
 	while (i < count)

@@ -76,7 +76,7 @@ void	input_loop(char **env)
 		init = malloc(sizeof(t_init));
 		init->exec = malloc(sizeof(t_executor));
 		init->cmd_blk = NULL;
-		init->expnd = expand; 
+		init->expnd = expand;
 		init->heredoc = 0;
 		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
 		new_list = malloc(sizeof(t_joined_lexer_list *));
@@ -87,6 +87,7 @@ void	input_loop(char **env)
 		init_structs(init,env_list,lexer_list);
 		init2(init,new_list,init->cmd_blk,init->exec);
 		init3(init,init->mng_hrdcs);
+		init->mng_hrdcs->f_flag = 1;
 		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
 		if (g_signal == 130)
 		{
@@ -142,6 +143,7 @@ void	input_loop(char **env)
 				free_all(init);
 				continue;
 			}
+			init->heredoc = 0; //heredoc işlemi bitti
 		}
 		if(flag)
 		{
@@ -150,6 +152,7 @@ void	input_loop(char **env)
 		}
 		parser(&init->cmd_blk, *new_list, init->mng_hrdcs,expand); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
 		executor(init->cmd_blk, init->exec, env_list, init);
+		init->mng_hrdcs->f_flag = 1; //heredoc işlemi bitti
 		free_all(init);
 	}
 }

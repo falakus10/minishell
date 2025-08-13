@@ -28,7 +28,7 @@ static void	ctrl_c(int sig)
 	(void)sig;
 	if (g_signal == 2)
 	{
-		write(1, "^C\n",3);  // ^C bastır
+		write(1, "\n",1);  // ^C bastır
 	}
 	else if (g_signal == 3)
 	{

@@ -44,7 +44,7 @@ void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 	}
 }
 
-int command_count(t_command_block *cmd)
+int command_count(t_command_block *cmd, t_executor *exe)
 {
 	int				count;
 	t_command_block	*temp;
@@ -56,7 +56,24 @@ int command_count(t_command_block *cmd)
 		count++;
 		temp = temp->next;
 	}
+	exe->count = count;
 	return (count);
+}
+
+int	ft_wait(int pid, t_executor *exe)
+{
+	int status;
+
+	if (waitpid(pid, &status, 0) == -1)
+	{
+		perror("waitpid failed");
+		return (1);
+	}
+	if (WIFSIGNALED(status))
+		exe->exp->exit_value = 128 + WTERMSIG(status);
+	else
+		exe->exp->exit_value = (status >> 8) & 0xFF;
+	return (0);
 }
 
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
@@ -80,16 +97,9 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	}
 	else
 	{
-		if(waitpid(cmd->pid, &cmd->status, 0) == -1)
-		{
-			perror("waitpid failed!");
+		if (ft_wait(cmd->pid, exe))
 			return (1);
-		}
-		if (WIFSIGNALED(cmd->status))
-			exe->exp->exit_value = 128 + WTERMSIG(cmd->status);
-		else
-			exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
-	}
+	}	
 	return (0);
 }
 
@@ -99,15 +109,11 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 
 	setter_signal(0);
 	envp = env_list_to_envp(env);
-	cmd->cmd_count = command_count(cmd);
-	exe->count = cmd->cmd_count;
-
+	cmd->cmd_count = command_count(cmd, exe);
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-		{	
 			run_single_builtin(cmd, env, init, envp);
-		}
 		else
 		{
 			g_signal = 3;

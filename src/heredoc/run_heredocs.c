@@ -7,7 +7,9 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 	close(write_fd - 1); // read ucunu kapat
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_DFL);
-	setter_signal(1);
+	init->mng_hrdcs->f_flag = 0; // Çocuk işlemde artık heredoc flag'ini kapatıyoruz
+	init->exit_flag = 1;
+	free_all(init); // Çıkmadan önce child'da leakleri temizle
 	while (1)
 	{
 		line = readline("> ");
@@ -22,7 +24,6 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 	}
 	close(write_fd);
 	init->exit_flag = 1;
-	free_all(init); // Çıkmadan önce child'da leakleri temizle
 	exit(0); // Çocuk işlemden çık
 }
 
@@ -115,7 +116,10 @@ int	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 			create_pipe_or_exit(fd);
 			fork_or_exit(&pid);
 			if (pid == 0)
+			{
 				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
+				mng->f_flag = 1;
+			}
 			else
 			{
 				if(handle_parent_process(mng, fd, i, &k))

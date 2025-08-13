@@ -1,6 +1,7 @@
- #include "minishell.h"
+#include "minishell.h"
 
-void handle_ambiguous_redirect(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
+void	handle_ambiguous_redirect(t_command_block **tmp_blk,
+		t_joined_lexer_list **tmp_list)
 {
 	if ((*tmp_list)->next->token[0] == '$')
 	{
@@ -12,7 +13,8 @@ void handle_ambiguous_redirect(t_command_block **tmp_blk, t_joined_lexer_list **
 	}
 }
 
-void handle_fd_error(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
+void	handle_fd_error(t_command_block **tmp_blk,
+		t_joined_lexer_list **tmp_list)
 {
 	if (errno == EISDIR)
 	{
@@ -33,9 +35,10 @@ void handle_fd_error(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list)
 	(*tmp_blk)->file_err = 1;
 }
 
-void handle_input_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth, t_mng_heredocs *mng)
+void	handle_input_redirection(t_command_block **tmp_blk,
+		t_joined_lexer_list **tmp_list, char *file_pth, t_mng_heredocs *mng)
 {
-	int old_infd;
+	int	old_infd;
 
 	old_infd = (*tmp_blk)->input_fd;
 	(*tmp_blk)->input_fd = open(file_pth, O_RDONLY);
@@ -50,9 +53,10 @@ void handle_input_redirection(t_command_block **tmp_blk, t_joined_lexer_list **t
 	}
 }
 
-void handle_output_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth)
+void	handle_output_redirection(t_command_block **tmp_blk,
+		t_joined_lexer_list **tmp_list, char *file_pth)
 {
-	int old_outfd;
+	int	old_outfd;
 
 	old_outfd = (*tmp_blk)->output_fd;
 	(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -62,9 +66,10 @@ void handle_output_redirection(t_command_block **tmp_blk, t_joined_lexer_list **
 		close_old_fd(old_outfd);
 }
 
-void handle_append_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth)
+void	handle_append_redirection(t_command_block **tmp_blk,
+		t_joined_lexer_list **tmp_list, char *file_pth)
 {
-	int old_outfd;
+	int	old_outfd;
 
 	old_outfd = (*tmp_blk)->output_fd;
 	(*tmp_blk)->output_fd = open(file_pth, O_WRONLY | O_CREAT | O_APPEND, 0644);
@@ -72,5 +77,4 @@ void handle_append_redirection(t_command_block **tmp_blk, t_joined_lexer_list **
 		handle_fd_error(tmp_blk, tmp_list);
 	else
 		close_old_fd(old_outfd);
-} 
-        
+}

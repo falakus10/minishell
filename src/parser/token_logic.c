@@ -16,7 +16,7 @@ void	set_command_if_valid(t_command_block **tmp_blk, char *token)
 		(*tmp_blk)->command = ft_strdup(token);
 	else
 	{
-		if (!create_path((*tmp_blk), token,0) && (*tmp_blk)->cmd_err == 0)
+		if (!create_path((*tmp_blk), token) && (*tmp_blk)->cmd_err == 0)
 		{
 			(*tmp_blk)->command = ft_strdup(token);
 			(*tmp_blk)->wrong_cmd = ft_strdup(token);

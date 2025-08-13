@@ -189,7 +189,7 @@ char 							*ft_strcat(char *dest, const char *src);
 int								ft_strcmp(const char *s1, const char *s2);
 int								executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init);
 int								is_builtin(char *cmd);
-int 							create_path(t_command_block *tmp_blk, char *word,int i);
+int 							create_path(t_command_block *tmp_blk, char *word);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
 void							create_pipe(t_command_block *cmd, t_executor *exe);
 int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init);
@@ -248,5 +248,7 @@ int	handle_command_token(t_joined_lexer_list **tmp, t_command_block **tmp_blk, i
 void	set_command_if_valid(t_command_block **tmp_blk, char *token);
 int	is_word_type(int type);
 int	is_redirect_type(int type);
+char *take_path(t_env *env);
+void close_old_fd(int old_fd);
 
 #endif

@@ -141,7 +141,6 @@ void expander(t_lexer_list *temp, t_env *env_list, t_expander *expander)
 				if (change_to_env(temp, expander->i, expander, env_list))
 					continue;
 			}
-
 			expander->i++;
 		}
 		temp = temp->next;

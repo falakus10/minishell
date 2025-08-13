@@ -166,3 +166,14 @@ char	*trim_whitespace(const char *input)
 	trimmed[i] = '\0';
 	return (trimmed);
 }
+
+void	write_message(char *msg1, char *msg2, char *msg3, int fd)
+{
+	if (msg1)
+		write(fd, msg1, ft_strlen(msg1));
+	if (msg2)
+		write(fd, msg2, ft_strlen(msg2));
+	if (msg3)
+		write(fd, msg3, ft_strlen(msg3));
+	write(fd, "\n", 1);
+}

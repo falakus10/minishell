@@ -14,9 +14,7 @@ void	delete_node(t_env **env, char *key)
 		if (ft_strncmp(curr->line, key, len) == 0 && (curr->line[len] == '=' || curr->line[len] == '\0'))
 		{
 			if (!prev)
-			{
 				*env = curr->next;
-			}
 			else
 				prev->next = curr->next;
 			free(curr->line);	

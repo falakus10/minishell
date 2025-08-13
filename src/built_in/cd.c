@@ -7,18 +7,14 @@ int	add_deleted(t_env *env, char *line, char* value)
 	
 	if(!env)
 	{
-		write(2, "bash: cd: ", 11);
-		write(2, value, ft_strlen(value));
-		write(2, ": No such file or directory\n", 28);
+		write_message("bash: cd: ", value, ": No such file or directory", 2);
 		free(line);
 		free(value);
 		return(1);
 	}
-
 	node = malloc(sizeof(t_env));
 	if (!node || !value || !line)
 	{
-		free(node);
 		free(value);
 		free(line);
 		ft_error();
@@ -73,16 +69,10 @@ int	update_pwd(t_env *env, char *old_pwd)
 		}
 		tmp = tmp->next;
 	}
-	if (!tmp)
-	{
-		if (add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd))
+	if (!tmp && add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd))
 			return (2);
-	}
-
 	if (old_pwd)
-	{
 		update_oldpwd(env, old_pwd);
-	}
 	return (0);
 }
 

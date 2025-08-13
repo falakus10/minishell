@@ -60,22 +60,6 @@ int command_count(t_command_block *cmd, t_executor *exe)
 	return (count);
 }
 
-int	ft_wait(int pid, t_executor *exe)
-{
-	int status;
-
-	if (waitpid(pid, &status, 0) == -1)
-	{
-		perror("waitpid failed");
-		return (1);
-	}
-	if (WIFSIGNALED(status))
-		exe->exp->exit_value = 128 + WTERMSIG(status);
-	else
-		exe->exp->exit_value = (status >> 8) & 0xFF;
-	return (0);
-}
-
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
 	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path) //DÜZENLE

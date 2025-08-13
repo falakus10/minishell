@@ -115,9 +115,8 @@ int	ft_export(t_command_block *cmd, t_env  *env)
 		if (check_valid(cmd->args[i]))
 		{	
 			flag = 1;
-			write(2,"bash: export: `",15); 
-			write(2,cmd->args[i],ft_strlen(cmd->args[i]));
-			write(2,"': not a valid identifier\n",26);
+			write(2, "bash: export: `", 15);
+			write_message(cmd->args[i], "': not a valid identifier", NULL, 2);
 			continue;
 		}
 		equal_point = ft_strchr(cmd->args[i], '=');

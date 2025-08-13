@@ -28,7 +28,7 @@ static void	ctrl_c(int sig)
 	(void)sig;
 	if (g_signal == 2)
 	{
-		write(1, "^C\n",3);  // ^C bastır
+		write(1, "\n",1);  // ^C bastır
 	}
 	else if (g_signal == 3)
 	{
@@ -45,28 +45,6 @@ static void	ctrl_c(int sig)
 	}
 	g_signal = 130;
 }
-/* static void	ctrl_c2(int sig)
-{
-	(void)sig;
-	if (g_signal == 2)
-	{
-		write(1, "^C\n",3);  // ^C bastır
-	}
-	else if (g_signal == 3)
-	{
-		write(1, "\n",1);  // ^C bastır
-		rl_on_new_line();
-		rl_replace_line("", 0);
-	}
-	else
-	{
-		write(1, "\n", 1);  // ^C bastır
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		//rl_redisplay();
-	}
-	g_signal = 130;
-} */
 
 void	handle_signal(void)
 {
@@ -80,11 +58,9 @@ void setter_signal(int sig)
 	if (sig == 0)
 	{
 		signal(SIGQUIT, ctrl_d);
-		//signal(SIGINT, ctrl_c2);
 	}
 	if (sig == 1)
 	{
 		signal(SIGQUIT, SIG_IGN);
-		//signal(SIGINT, ctrl_c);
 	}
 }

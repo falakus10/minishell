@@ -37,8 +37,9 @@ typedef struct s_env
 
 typedef struct s_mng_heredocs
 {
-	int index; //parser içerisinde hangi komut bloğunda olduğumu tutacak olan index. normdan dolayı struct içine açtım
-	int *heredoc_flags;    
+	int index;
+	int *heredoc_flags;
+	int f_flag;
 	int *heredoc_fds;
 	int *heredoc_nums;
 	char **heredoc_delims;
@@ -70,20 +71,18 @@ typedef struct s_joined_lexer_list
 	struct s_joined_lexer_list	*next;
 }								t_joined_lexer_list;
 
-typedef struct s_command_block // arg count tutulmalı mı ?
+typedef struct s_command_block
 {
 	char *command;
 	char **args;
 	int	status;
-	int	last_fault; //bu ne içindi
+	int	last_fault;
 	int *fd;
 	int cmd_count;
 	pid_t pid;
 	int	input_fd;
 	int output_fd;
 	int argument_count;
-	int err_flg;
-	int err_sign;//cat <<mrb <taha<taha1 | cat <<mrb2 <taha2<taha3 | cat <<mrb3 <taha4<taha5 gibi bir girdide hata mesajında sadece ilk dosyalar yazılsın diye böyle bir flag kullandım 
 	int file_err;
 	int cmd_err;
 	char *wrong_cmd;
@@ -91,7 +90,7 @@ typedef struct s_command_block // arg count tutulmalı mı ?
 	int	wrong_path;
 	t_env *env;
 	t_expander *expnd;
-	struct s_command_block *next; // sonraki komut bloğu için
+	struct s_command_block *next;
 }								t_command_block;
 
 typedef struct s_executor
@@ -231,10 +230,23 @@ char	*ft_strncpy(char *dest, const char *src, size_t n);
 void	run_single_builtin(t_command_block *cmd, t_env **env, t_init *init, char **envp);
 void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list);
 void	free_all(t_init	*init);
-int command_count(t_command_block *cmd);
+int command_count(t_command_block *cmd, t_executor *exe);
 void	free_cmd_blk(t_command_block *cmd);
 void	fill_int_array(int *arr, int value, int count);
 char	*trim_whitespace(const char *input);
 void	sort_and_print(t_env **arr, int count);
 void setter_signal(int sig);
+void assign_fd(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, t_mng_heredocs *mng);
+void handle_append_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth);
+void handle_output_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth);
+void handle_input_redirection(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list, char *file_pth, t_mng_heredocs *mng);
+void handle_fd_error(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
+void close_old_fd(int old_fd);
+void handle_ambiguous_redirect(t_command_block **tmp_blk, t_joined_lexer_list **tmp_list);
+void	handle_argument_token(t_joined_lexer_list **tmp, t_command_block **tmp_blk);
+int	handle_command_token(t_joined_lexer_list **tmp, t_command_block **tmp_blk, int *is_cmd_pointed);
+void	set_command_if_valid(t_command_block **tmp_blk, char *token);
+int	is_word_type(int type);
+int	is_redirect_type(int type);
+
 #endif

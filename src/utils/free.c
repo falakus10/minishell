@@ -150,8 +150,8 @@ void	free_all(t_init	*init)
 	}
 	if ((init->jnd_lxr_lst && *(init->jnd_lxr_lst))|| init->exec) //bunu da ayır
 		free_joined_exec(init->jnd_lxr_lst, init->exec);
-	if (init->mng_hrdcs)
-		free_mng(init->mng_hrdcs);
+	if (init->mng_hrdcs && init->mng_hrdcs->f_flag)
+		free_mng(init->mng_hrdcs );
 	if(init->expnd && init->exit_flag)
 		free_expander(init->expnd);
 	if (init->env && *init->env && init->exit_flag)

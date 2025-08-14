@@ -1,37 +1,67 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signal.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 17:02:13 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 17:03:23 by falakus          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void	sigint_handler(int sig, siginfo_t *info, void *context)
+void	handle_sigint(int sig)
 {
-	(void)info;
-	(void)context;
-	if (sig == 2)
-	{
-		write(1, "\n", 1);      // imleci alt satıra al
-		rl_on_new_line();       // readline'a "yeni satır" olduğunu bildir
-		rl_replace_line("", 0); // yazılmış satırı temizle
-		rl_redisplay();         // prompt'u tekrar göster
-	}
-	else
-		return ;
+	(void)sig;
+	exit(130);
 }
 
-/* static void	suppress_output(void)
+static void	ctrl_d(int sig)
 {
-	struct termios termios_p;     // 1. Terminal ayarlarını tutacak yapı tanımlanıyor
-	if (tcgetattr(0, &termios_p) != 0)	//Standart girişin (fd=0) mevcut terminal ayarlarını alıyor
-		perror("Minishell: tcgetattr");	// Eğer başarısız olursa hata mesajı yazdırıyor
-	termios_p.c_lflag &= ~ECHOCTL;		// 3. Terminal yerel ayar bayraklarından ECHOCTL bayrağını kapatıyor(Bu, Ctrl+C gibi kontrol karakterlerinin ^C şeklinde ekranda görünmesini engeller)
-	if (tcsetattr(0, 0, &termios_p) != 0)	// 4. Güncellenmiş terminal ayarlarını hemen (TCSANOW) standart girişe uyguluyor
-		perror("Minishell: tcsetattr");		// Eğer başarısız olursa hata mesajı yazdırıyor
-} */
+	(void)sig;
+	write(1, "Quit (core dumped)\n", 19);
+	rl_redisplay();
+}
 
-void	signal_handler(void)
+static void	ctrl_c(int sig)
 {
-	struct sigaction	sa_int;
+	(void)sig;
+	if (g_signal == 2)
+	{
+		write(1, "^C\n", 1);
+	}
+	else if (g_signal == 3)
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+	}
+	else
+	{
+		write(1, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+	g_signal = 130;
+}
 
-	//suppress_output();
-	sa_int.sa_sigaction = sigint_handler;
-	sa_int.sa_flags = SA_SIGINFO;
-	sigemptyset(&sa_int.sa_mask);
-	sigaction(SIGINT, &sa_int, NULL);
+void	handle_signal(void)
+{
+	signal(SIGINT, ctrl_c);
+	signal(SIGQUIT, SIG_IGN);
+}
+
+void	setter_signal(int sig)
+{
+	if (sig == 0)
+	{
+		signal(SIGQUIT, ctrl_d);
+	}
+	if (sig == 1)
+	{
+		signal(SIGQUIT, SIG_IGN);
+	}
 }

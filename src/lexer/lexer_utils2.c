@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   lexer_utils2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/14 14:22:34 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:35 by falakus          ###   ########.fr       */
+/*   Created: 2025/08/14 13:10:46 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 13:13:59 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	ft_env(t_env *env)
+char	*word_assign(const char *input, int *inx, t_lexer_list *lexer_list)
 {
-	t_env	*tmp;
+	char	*token;
+	int		len;
 
-	tmp = env;
-	while (tmp != NULL)
-	{
-		if (tmp->flag)
-		{
-			write(STDOUT_FILENO, tmp->line, ft_strlen(tmp->line));
-			write(STDOUT_FILENO, "\n", 1);
-		}
-		tmp = tmp->next;
-	}
-	return (0);
+	token = NULL;
+	len = take_word(input, *inx, lexer_list);
+	token = ft_substr(input, *inx, len);
+	(*inx) += len;
+	return (token);
 }

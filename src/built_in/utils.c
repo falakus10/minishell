@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 14:22:57 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 14:22:58 by falakus          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 char	*format_export_line(t_env *node)
@@ -30,35 +42,23 @@ void	sort_and_print(t_env **arr, int count)
 {
 	int		i;
 	int		j;
-	char	*line;
 	t_env	*temp;
 
-	i = 0;
-	while (i < count - 1)
+	i = -1;
+	while (++i < count - 1)
 	{
-		j = i + 1;
-		while (j < count)
+		j = i;
+		while (++j < count)
 		{
-			if(arr[j]->line == NULL)
-				printf("NULL\n");
 			if (ft_strcmp(arr[i]->line, arr[j]->line) > 0)
 			{
 				temp = arr[i];
 				arr[i] = arr[j];
 				arr[j] = temp;
 			}
-			j++;
 		}
-		i++;
 	}
-	i = 0;
-	while (i < count)
-	{
-		line = format_export_line(arr[i]);
-		write(1, "declare -x ", 11);
-		write(1, line, ft_strlen(line));
-		write(1, "\n", 1);
-		free(line);
-		i++;
-	}
+	i = -1;
+	while (++i < count)
+		write_message("declare -x ", format_export_line(arr[i]), NULL, 1);
 }

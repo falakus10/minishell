@@ -1,21 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils1.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 15:41:56 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 15:42:59 by falakus          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
-
-char *ft_strcpy(char *dest, const char *src)
-{
-	int i = 0;
-
-	while (src[i])
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	dest[i] = '\0';
-	return dest;
-}
 
 char	*ft_strncpy(char *dest, const char *src, size_t n)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (i < n && src[i])
@@ -29,19 +28,18 @@ char	*ft_strncpy(char *dest, const char *src, size_t n)
 		dest[i] = '\0';
 		i++;
 	}
-	return dest;
+	return (dest);
 }
 
-char *ft_strcat(char *dest, const char *src)
+char	*ft_strcat(char *dest, const char *src)
 {
-	int i = 0;
-	int j = 0;
+	int	i;
+	int	j;
 
-	// dest'in sonuna git
+	i = 0;
+	j = 0;
 	while (dest[i])
 		i++;
-
-	// src'yi dest'in sonuna kopyala
 	while (src[j])
 	{
 		dest[i] = src[j];
@@ -49,7 +47,7 @@ char *ft_strcat(char *dest, const char *src)
 		j++;
 	}
 	dest[i] = '\0';
-	return dest;
+	return (dest);
 }
 
 int	ft_strcmp(const char *s1, const char *s2)
@@ -66,6 +64,7 @@ t_env	*add_new_node3(t_env **env_list)
 {
 	t_env	*node;
 	t_env	*temp;
+
 	node = malloc(sizeof(t_env));
 	if (!node)
 		ft_error();
@@ -86,11 +85,11 @@ t_env	*add_new_node3(t_env **env_list)
 
 t_env	**take_env(t_env **env_list, char **env)
 {
-	int	i;
-	int	j;
-	t_env *current;
+	int		i;
+	int		j;
+	t_env	*current;
 
-	*env_list = NULL; //mainde de yaptım, sorun olur mu ? sanmıyorum
+	*env_list = NULL;
 	i = -1;
 	while (env[++i] != NULL)
 	{
@@ -103,66 +102,9 @@ t_env	**take_env(t_env **env_list, char **env)
 			{
 				current->flag = 1;
 				current->value = ft_strdup(&env[i][j + 1]);
-				break;
+				break ;
 			}
 		}
 	}
 	return (env_list);
-}
-
-void	free_arr(char **arr)
-{
-	int i;
-
-	i = 0;
-	if (!arr)
-		return;
-	while (arr[i])
-		free(arr[i++]);
-	free(arr);
-}
-void	fill_int_array(int *arr, int value, int count)
-{
-    int i;
-
-	i = 0;
-    while (i < count)
-    {
-        arr[i] = value;
-        i++;
-    }
-}
-
-
-int	is_space_or_tab(char c)
-{
-	return (c == ' ' || c == '\t');
-}
-
-char	*trim_whitespace(const char *input)
-{
-	size_t	start;
-	size_t	end;
-	size_t	i;
-	char	*trimmed;
-
-	start = 0;
-	while (input[start] && is_space_or_tab(input[start]))
-		start++;
-	end = 0;
-	while (input[end])
-		end++;
-	if (end == 0)
-		return (strdup(""));  // input boşsa
-	end--;  // son geçerli karakterin index'i
-	while (end > start && is_space_or_tab(input[end]))
-		end--;
-	trimmed = (char *)malloc(end - start + 2);
-	if (!trimmed)
-		return (NULL);
-	i = 0;
-	while (start <= end)
-		trimmed[i++] = input[start++];
-	trimmed[i] = '\0';
-	return (trimmed);
 }

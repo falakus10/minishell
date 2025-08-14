@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 14:22:07 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 14:22:08 by falakus          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	create_pipe(t_command_block *cmd, t_executor *exe)
@@ -13,7 +25,7 @@ void	create_pipe(t_command_block *cmd, t_executor *exe)
 	}
 	while (i < cmd->cmd_count - 1)
 	{
-		if(pipe(&exe->fd[2 * i]) == -1)
+		if (pipe(&exe->fd[2 * i]) == -1)
 		{
 			perror("pipe");
 			exit(1);
@@ -44,7 +56,7 @@ void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 	}
 }
 
-int command_count(t_command_block *cmd)
+int	command_count(t_command_block *cmd, t_executor *exe)
 {
 	int				count;
 	t_command_block	*temp;
@@ -56,16 +68,19 @@ int command_count(t_command_block *cmd)
 		count++;
 		temp = temp->next;
 	}
+	exe->count = count;
 	return (count);
 }
 
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
-	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path) //DÜZENLE
+	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path)
 		return (1);
 	cmd->pid = fork();
 	if (cmd->pid == 0)
 	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		make_dup(cmd, 0, count, exe);
 		execve(cmd->command, cmd->args, env);
 		perror("execve failed!");
@@ -78,32 +93,26 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	}
 	else
 	{
-		if(waitpid(cmd->pid, &cmd->status, 0) == -1)
-		{
-			perror("waitpid failed!");
+		if (ft_wait(cmd->pid, exe))
 			return (1);
-		}
-		exe->exp->exit_value = (cmd->status >> 8) & 0xFF;
-	}
+	}	
 	return (0);
 }
 
 int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
-	char  **envp;
+	char	**envp;
 
+	setter_signal(0);
 	envp = env_list_to_envp(env);
-	cmd->cmd_count = command_count(cmd);
-	exe->count = cmd->cmd_count;
-
+	cmd->cmd_count = command_count(cmd, exe);
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-		{	
-			run_single_builtin(cmd, env, init, envp);
-		}
+			run_a_built(cmd, env, init, envp);
 		else
 		{
+			g_signal = 3;
 			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
 			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
 			free_arr(envp);
@@ -111,9 +120,10 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	}
 	else
 	{
-		multiple_exec(cmd, envp, exe, init);
+		multi_exec(cmd, envp, exe, init);
 		free_arr(envp);
 	}
+	g_signal = 1;
+	setter_signal(1);
 	return (0);
 }
-

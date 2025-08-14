@@ -1,16 +1,16 @@
 #include "minishell.h"
 
-int	add_deleted(t_env *env, char *line, char* value)
+int	add_deleted(t_env *env, char *line, char *value)
 {
 	t_env	*tmp;
 	t_env	*node;
-	
-	if(!env)
+
+	if (!env)
 	{
 		write_message("bash: cd: ", value, ": No such file or directory", 2);
 		free(line);
 		free(value);
-		return(1);
+		return (1);
 	}
 	node = malloc(sizeof(t_env));
 	if (!node || !value || !line)
@@ -42,7 +42,7 @@ void	update_oldpwd(t_env *env, char *old_pwd)
 			free(tmp->line);
 			tmp->value = ft_strdup(old_pwd);
 			tmp->line = ft_strjoin("OLDPWD=", old_pwd);
-			return;
+			return ;
 		}
 		tmp = tmp->next;
 	}
@@ -65,12 +65,12 @@ int	update_pwd(t_env *env, char *old_pwd)
 			free(tmp->line);
 			tmp->value = current_pwd;
 			tmp->line = ft_strjoin("PWD=", current_pwd);
-			break;
+			break ;
 		}
 		tmp = tmp->next;
 	}
 	if (!tmp && add_deleted(env, ft_strjoin("PWD=", current_pwd), current_pwd))
-			return (2);
+		return (2);
 	if (old_pwd)
 		update_oldpwd(env, old_pwd);
 	return (0);
@@ -79,13 +79,13 @@ int	update_pwd(t_env *env, char *old_pwd)
 int	go_home(t_env *env, char *old_pwd)
 {
 	t_env	*tmp;
-	char 	*home_path;
+	char	*home_path;
 
-	home_path = NULL; 
+	home_path = NULL;
 	tmp = env;
 	while (tmp)
 	{
-		if(ft_strncmp("HOME=", tmp->line, 5) == 0)
+		if (ft_strncmp("HOME=", tmp->line, 5) == 0)
 			home_path = ft_strdup(tmp->value);
 		tmp = tmp->next;
 	}
@@ -120,9 +120,8 @@ int	ft_cd(t_command_block *cmd, t_env *env)
 		if (chdir(cmd->args[1]) != 0)
 			perror("cd");
 		else
-		{
-				
-			if(update_pwd(env, old_pwd))
+		{	
+			if (update_pwd(env, old_pwd))
 				status = 2;
 			else
 				status = 0;
@@ -133,4 +132,3 @@ int	ft_cd(t_command_block *cmd, t_env *env)
 	free(old_pwd);
 	return (status);
 }
-

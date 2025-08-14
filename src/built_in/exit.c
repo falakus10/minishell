@@ -39,4 +39,3 @@ int	ft_exit(t_command_block *cmd, t_init *init, char **envp)
 	free_all(init);
 	exit(exit_code);
 }
-

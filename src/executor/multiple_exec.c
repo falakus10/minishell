@@ -3,8 +3,8 @@
 void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 {
 	int	fd_count;
-	int used_in;
-	int used_out;
+	int	used_in;
+	int	used_out;
 
 	fd_count = 2 * (exe->count - 1);
 	used_in = -1;
@@ -22,20 +22,20 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 		if (output_fd > -1)
 			used_out = 2 * index + 1;
 	}
-	close_unused_fds(fd_count, used_in, used_out, exe);
+	close_unused(fd_count, used_in, used_out, exe);
 }
 
-void	child_run(t_command_block *tmp, char **env, t_executor *exe, t_init *init)
+void	child(t_command_block *tmp, char **env, t_executor *exe, t_init *init)
 {
-	int value;
+	int	value;
 
 	value = 0;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	if (tmp->file_err || tmp->cmd_err || tmp->path_err || tmp->wrong_path)
 	{
-		close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe); // Pipe'ları kapat
-		exit (1);  //sonra değişcez Başarılı gibi çık
+		close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe);
+		exit (1);
 	}
 	make_dup(tmp, exe->i, exe->count, exe);
 	close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe);
@@ -62,7 +62,7 @@ int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 	{
 		tmp->pid = fork();
 		if (tmp->pid == 0)
-			child_run(tmp, env, exe, init);
+			child(tmp, env, exe, init);
 		else if (tmp->pid < 0)
 		{
 			perror("fork faild");
@@ -94,9 +94,9 @@ int	multiple_wait(int cmd_count, t_command_block *tmp, int *flag)
 	return (last_status);
 }
 
-int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
+int	multi_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 {
-	t_command_block *tmp;
+	t_command_block	*tmp;
 	int				cmd_count;
 	int				last_status;
 	int				flag;
@@ -107,7 +107,7 @@ int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *ini
 	g_signal = 2;
 	create_pipe(tmp, exe);
 	if (child_exec(cmd, env, exe, init) != 0)
-		return (1);//exit value buraya mı eklenmeli?????
+		return (1);
 	close_fd(cmd->input_fd, tmp->output_fd, -1, exe);
 	last_status = multiple_wait(cmd_count, tmp, &flag);
 	if (!flag)

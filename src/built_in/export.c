@@ -4,8 +4,8 @@ void	print_export(t_env *env)
 {
 	t_env	*tmp;
 	t_env	**arr;
-	int 	count;
-	int 	i;
+	int		count;
+	int		i;
 
 	i = 0;
 	count = 0;
@@ -28,7 +28,6 @@ void	print_export(t_env *env)
 	free(arr);
 }
 
-
 char	*add_quotes(char *str)
 {
 	int		len;
@@ -38,9 +37,9 @@ char	*add_quotes(char *str)
 
 	equal_sign = ft_strchr(str, '=');
 	if (!equal_sign)
-		return (ft_strdup(str)); // '=' yoksa direkt kopyala
+		return (ft_strdup(str));
 	len = ft_strlen(equal_sign + 1);
-	new_line = malloc(sizeof(char) * (len + 3)); // "value" + \0
+	new_line = malloc(sizeof(char) * (len + 3));
 	if (!new_line)
 		ft_error();
 	new_line[0] = '\"';
@@ -88,7 +87,7 @@ int	check_valid(char *str)
 	i = 0;
 	if (!(ft_isalpha(str[i])) && (str[i] != '_'))
 		return (1);
-	while(str[i] != '\0' && str[i] != '=')
+	while (str[i] != '\0' && str[i] != '=')
 	{
 		if (!(ft_isalpha(str[i])) && (str[i] != '_') && !(ft_isdigit(str[i])))
 			return (1);
@@ -97,8 +96,7 @@ int	check_valid(char *str)
 	return (0);
 }
 
-
-int	ft_export(t_command_block *cmd, t_env  *env)
+int	ft_export(t_command_block *cmd, t_env *env)
 {
 	int		i;
 	char	*equal_point;
@@ -117,7 +115,7 @@ int	ft_export(t_command_block *cmd, t_env  *env)
 			flag = 1;
 			write(2, "bash: export: `", 15);
 			write_message(cmd->args[i], "': not a valid identifier", NULL, 2);
-			continue;
+			continue ;
 		}
 		equal_point = ft_strchr(cmd->args[i], '=');
 		if (equal_point)

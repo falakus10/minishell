@@ -22,9 +22,10 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 		write(write_fd, "\n", 1);
 		free(line);
 	}
+	free_mng(init->mng_hrdcs);
 	close(write_fd);
 	init->exit_flag = 1;
-	exit(0); // Çocuk işlemden çık
+	exit(0);
 }
 
 void	create_pipe_or_exit(int fd[2])

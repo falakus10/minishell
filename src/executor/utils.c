@@ -28,7 +28,7 @@ char	**env_list_to_envp(t_env **env_list)
 
 int	ft_wait(int pid, t_executor *exe)
 {
-	int status;
+	int	status;
 
 	if (waitpid(pid, &status, 0) == -1)
 	{
@@ -42,7 +42,7 @@ int	ft_wait(int pid, t_executor *exe)
 	return (0);
 }
 
-void close_unused_fds(int fd_count, int used_in, int used_out, t_executor *exe)
+void	close_unused(int fd_count, int used_in, int used_out, t_executor *exe)
 {
 	int	i;
 
@@ -55,7 +55,7 @@ void close_unused_fds(int fd_count, int used_in, int used_out, t_executor *exe)
 	}
 }
 
-void close_in_out_fds(int input_fd, int output_fd)
+void	close_in_out_fds(int input_fd, int output_fd)
 {
 	if (input_fd > 2)
 		close(input_fd);

@@ -1,13 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   run_heredocs.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 17:12:53 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 17:13:54 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void	handle_child_process(t_mng_heredocs *mng, char *delim, int write_fd, t_init *init)
+void	handle_child(t_mng_heredocs *mng, char *delim, \
+	int write_fd, t_init *init)
 {
-	char *line;
+	char	*line;
 
-	close(write_fd - 1); // read ucunu kapat
+	close(write_fd - 1);
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_DFL);
-	init->mng_hrdcs->f_flag = 0; // Çocuk işlemde artık heredoc flag'ini kapatıyoruz
+	init->mng_hrdcs->f_flag = 0;
 	init->exit_flag = 1;
 	free_all(init);
 	while (1)
@@ -16,7 +29,7 @@ void	handle_child_process(t_mng_heredocs *mng, char *delim, int write_fd, t_init
 		if (!line || ft_strcmp(line, delim) == 0)
 		{
 			free(line);
-			break;
+			break ;
 		}
 		write(write_fd, line, ft_strlen(line));
 		write(write_fd, "\n", 1);
@@ -47,10 +60,27 @@ void	fork_or_exit(pid_t *pid)
 	}
 }
 
+int	exit_status(t_mng_heredocs *mng, int status, int *fd, int j)
+{
+	int	exit_code;
+
+	if (WIFEXITED(status))
+	{
+		exit_code = WEXITSTATUS(status);
+		if (exit_code == 130)
+		{
+			close(fd[0]);
+			mng->heredoc_flags[j] = 0;
+			return (1);
+		}
+	}
+	return (0);
+}
+
 int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 {
-	int status;
-	pid_t child_pid;
+	int		status;
+	pid_t	child_pid;
 
 	close(fd[1]);
 	child_pid = wait(&status);
@@ -59,76 +89,18 @@ int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 		perror("wait");
 		return (1);
 	}
-	if (WIFEXITED(status))
-	{
-		int exit_code = WEXITSTATUS(status);
-		if (exit_code == 130)
-		{
-			close(fd[0]);
-			mng->heredoc_flags[j] = 0;
-			return (1);
-		}
-	}
-	if (*k < mng->heredoc_nums[j] - 1)
-	{
+	if (exit_status(mng, status, fd, j))
+		return (1);
+	if (++(*k) < mng->heredoc_nums[j] - 1)
 		close(fd[0]);
-		(*k)++;
-	}
 	else
 	{
 		if (mng->heredoc_flags[j])
-		{
 			mng->heredoc_fds[j] = fd[0];
-		}
 		else
-		{
 			close(fd[0]);
-		}
 		*k = 0;
 	}
 	g_signal = 0;
-	return (0);
-}
-
-int	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
-{
-	(void)heredoc_count;
-	int	fd[2];
-	pid_t	pid;
-	int	i;
-	int	j;
-	int	k;
-
-	i = 0;
-	j = 0;
-	k = 0;
-	int count = 0;
-	int h_count = 0;
-
-
-	count = count_cmd_blk(init->jnd_lxr_lst);
-	i = 0;
-	while(i < count)
-	{
-		j = 0;
-		while (j < mng->heredoc_nums[i])
-		{
-			create_pipe_or_exit(fd);
-			fork_or_exit(&pid);
-			if (pid == 0)
-			{
-				handle_child_process(mng ,mng->heredoc_delims[h_count], fd[1], init);
-				mng->f_flag = 1;
-			}
-			else
-			{
-				if(handle_parent_process(mng, fd, i, &k))
-					return (1);
-			}
-			j++;
-			h_count++;
-		}
-		i++;
-	}
 	return (0);
 }

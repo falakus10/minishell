@@ -83,28 +83,32 @@ t_env	*add_new_node3(t_env **env_list)
 	return (node);
 }
 
-t_env	**take_env(t_env **env_list, char **env)
+void take_env(t_env **env_list, char **env)
 {
 	int		i;
 	int		j;
 	t_env	*current;
 
+	if (!env_list)
+		return;
 	*env_list = NULL;
-	i = -1;
-	while (env[++i] != NULL)
+	i = 0;
+	while (env[i] != NULL)
 	{
-		j = -1;
+		j = 0;
 		current = add_new_node3(env_list);
 		current->line = ft_strdup(env[i]);
-		while (env[i][++j] != '\0')
+		while (env[i][j] != '\0')
 		{
 			if (env[i][j] == '=')
 			{
 				current->flag = 1;
 				current->value = ft_strdup(&env[i][j + 1]);
-				break ;
+				break;
 			}
+			j++;
 		}
+		i++;
 	}
-	return (env_list);
 }
+

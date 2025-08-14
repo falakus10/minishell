@@ -9,19 +9,6 @@ void init3(t_init *init, t_mng_heredocs *mng)
 	init->exit_flag = 0;
 }
 
-void init2(t_init *init, t_joined_lexer_list **jnd_lst ,t_command_block *cmd, t_executor *exe)
-{
-	init->jnd_lxr_lst = jnd_lst;
-	init->cmd_blk = cmd;
-	init->exec = exe;
-}
-
-void init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list)
-{
-	init->env = env_list;
-	init->lxr_lst = lexer_list;
-}
-
 void	init_exe(t_executor *exe, t_expander *exp, t_env *envp)
 {
 	exe->fd = NULL;
@@ -44,8 +31,20 @@ void	init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
 	mng->env = env_list;
 }
 
-void initialize_structs(t_init *init, t_env *env_list)
+void initialize_structs(t_init *init, t_env *env_list, t_expander *exp)
 {
+	init->env = &env_list;
+	init->exit_flag = 0;
+	init->heredoc = 0;
+	init->expnd = exp;
+	init->cmd_blk = NULL;
+	init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
+	init->mng_hrdcs->f_flag = 1;
+	init->jnd_lxr_lst = malloc(sizeof(t_joined_lexer_list *));
+	*(init->jnd_lxr_lst) = NULL;
+	init->lxr_lst = malloc(sizeof(t_lexer_list *));
+	*(init->lxr_lst) = NULL;
+	init->exec = malloc(sizeof(t_executor));
 	init_exe(init->exec, init->expnd, env_list);
 	init_expander(init->expnd);
 	init_mng_heredocs(init->mng_hrdcs, env_list);
@@ -55,16 +54,14 @@ void	input_loop(char **env)
 {
 	char *input;
 	char *temp_input;
-	t_env			**env_list;
-	t_joined_lexer_list **new_list;
-	t_expander		*expand;
-	t_lexer_list **lexer_list;
 	t_init *init;
+	t_env			**env_list;
+	t_expander		*expand;
 	int flag;
-	//if malloc fail
+
 	env_list = malloc(sizeof(t_env *));
 	*env_list = NULL;
-	env_list = take_env(env_list, env);
+	take_env(env_list, env);
 	expand = malloc(sizeof(t_expander));
 	expand->exit_value = 0;
 	g_signal = 0;
@@ -74,21 +71,8 @@ void	input_loop(char **env)
 		handle_signal();
 		flag = 0;
 		init = malloc(sizeof(t_init));
-		init->exec = malloc(sizeof(t_executor));
-		init->cmd_blk = NULL;
-		init->expnd = expand;
-		init->heredoc = 0;
-		init->mng_hrdcs = malloc(sizeof(t_mng_heredocs));
-		new_list = malloc(sizeof(t_joined_lexer_list *));
-		*new_list = NULL;
-		lexer_list = malloc(sizeof(t_lexer_list *));
-		*lexer_list = NULL;
-		initialize_structs(init,*env_list);
-		init_structs(init,env_list,lexer_list);
-		init2(init,new_list,init->cmd_blk,init->exec);
-		init3(init,init->mng_hrdcs);
-		init->mng_hrdcs->f_flag = 1;
-		temp_input = readline("minishell>"); //temp_input yerine input kullanamayız çünkü readline'dan dönen alanı kaybederiz, leak çıkar.
+		initialize_structs(init, *env_list, expand);
+		temp_input = readline("minishell>");
 		if (g_signal == 130)
 		{
 			expand->exit_value = 130;
@@ -117,7 +101,7 @@ void	input_loop(char **env)
 		}
 		free(temp_input); // bununla işimiz bitti
 		add_history(input);
-		if(lexer_function(lexer_list,input) == -1)
+		if(lexer_function(init->lxr_lst,input) == -1)
 		{
 			write(2, "bash : Unclosed quotes\n", 23);
 			expand->exit_value = 2;
@@ -126,33 +110,32 @@ void	input_loop(char **env)
 			continue;
 		}
 		free(input);
-		expander((*lexer_list), *env_list, expand);
-		remove_quotes(*lexer_list);
-		token_join(new_list, *lexer_list);
-		flag = check_tokens(new_list,expand); //tokenlar kontrol edildi
-		int a = count_heredoc(new_list);
+		expander(*(init->lxr_lst), *env_list, expand);
+		remove_quotes(*(init->lxr_lst));
+		token_join(init->jnd_lxr_lst, *(init->lxr_lst));
+		flag = check_tokens(init->jnd_lxr_lst, expand);
+		int a = count_heredoc(init->jnd_lxr_lst);
 		if(a != 0)
-			init_heredoc_struct(init->mng_hrdcs ,count_cmd_blk(new_list), new_list , *env_list);  //mng_heredocs'a gönderip mng_heredocs a alıyorum bunu deiştir iki değikenli olabilir
+			init_heredoc_struct(init->mng_hrdcs ,count_cmd_blk(init->jnd_lxr_lst), init->jnd_lxr_lst , *env_list);
 		if(a != 0)
 		{
 			init->heredoc = 1;
-			if(run_hrdcs(init->mng_hrdcs, new_list, init))
+			if(run_hrdcs(init->mng_hrdcs, init->jnd_lxr_lst, init))
 			{
-				init->heredoc = 0; //heredoc işlemi bitti
+				init->heredoc = 0;
 				expand->exit_value = 130;
 				free_all(init);
 				continue;
 			}
-			init->heredoc = 0; //heredoc işlemi bitti
+			init->heredoc = 0;
 		}
 		if(flag)
 		{
 			free_all(init);
-			continue; //exit atıyordum.
+			continue;
 		}
-		parser(&init->cmd_blk, *new_list, init->mng_hrdcs,expand); //command_block = parser(command_block, *new_list, mng_heredocs,expnd); durumuna dönülebilir
+		parser(&init->cmd_blk, *(init->jnd_lxr_lst), init->mng_hrdcs, expand);
 		executor(init->cmd_blk, init->exec, env_list, init);
-		init->mng_hrdcs->f_flag = 1; //heredoc işlemi bitti
 		free_all(init);
 	}
 }

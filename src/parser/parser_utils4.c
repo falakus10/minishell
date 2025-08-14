@@ -42,13 +42,15 @@ int	is_builtin(char *cmd)
 char	*take_path(t_env *env)
 {
 	char	*path;
+	t_env	*tmp;
 
+	tmp = env;
 	path = NULL;
-	while (env != NULL)
+	while (tmp != NULL)
 	{
-		if (!strncmp("PATH=", env->line, 5))
-			path = ft_strdup(env->line);
-		env = env->next;
+		if (!strncmp("PATH=", tmp->line, 5))
+			path = ft_strdup(tmp->line);
+		tmp = tmp->next;
 	}
 	return (path);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:41:27 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/14 19:19:03 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,19 +214,19 @@ int					multi_exec(t_command_block *cmd, char **env,
 						t_executor *exe, t_init *init);
 int					change_to_env(t_lexer_list *temp, int i,
 						t_expander *expander, t_env *env_list);
-t_env				**take_env(t_env **env_list, char **env);
+void				take_env(t_env **env_list, char **env);
 int					is_first_pipe(t_joined_lexer_list *tmp, t_expander *expnd);
 int					just_operator(t_joined_lexer_list *tmp, t_expander *expnd);
 int					print_error_check(t_joined_lexer_list *tmp,
 						t_expander *expnd);
 int					check_tokens(t_joined_lexer_list **temp, t_expander *expnd);
-int					heredoc_handle(t_mng_heredocs *mng, int heredoc_count,
+int					heredoc_handle(t_mng_heredocs *mng, int i, int j,
 						t_init *init);
 void				fork_or_exit(pid_t *pid);
 void				create_pipe_or_exit(int fd[2]);
 int					handle_parent_process(t_mng_heredocs *mng, int *fd,
 						int j, int *k);
-void				handle_child_process(t_mng_heredocs *mng, char *delim,
+void				handle_child(t_mng_heredocs *mng, char *delim,
 						int write_fd, t_init *init);
 int					count_cmd_blk(t_joined_lexer_list **temp);
 int					count_heredoc(t_joined_lexer_list **temp);
@@ -301,6 +301,7 @@ int					special_character(char *token, t_expander *expander);
 int					question_mark(t_lexer_list *temp, int i,
 						t_expander *expander);
 void				free_expander(t_expander *exp);
-void	free_joined_exec(t_joined_lexer_list **jll, t_executor *exe);
+void				free_joined_exec(t_joined_lexer_list **jll,
+						t_executor *exe);
 
 #endif

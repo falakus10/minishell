@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils3.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 12:54:16 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 12:54:46 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	check_path_validity(t_command_block *tmp_blk, char *path)
@@ -79,7 +91,7 @@ int	try_paths(t_command_block *tmp_blk, char **paths, char *word)
 
 int	create_path(t_command_block *tmp_blk, char *word)
 {
-	char **paths;
+	char	**paths;
 
 	paths = get_paths_from_env(tmp_blk->env);
 	if (!paths)

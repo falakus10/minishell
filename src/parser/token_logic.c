@@ -1,8 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   token_logic.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 12:57:03 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 13:00:17 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
- int	is_redirect_type(int type)
+int	is_redirect_type(int type)
 {
-	return (type == REDIR_IN || type == REDIR_OUT || type == APPEND || type == HEREDOC);
+	return (type == REDIR_IN || type == REDIR_OUT \
+		|| type == APPEND || type == HEREDOC);
 }
 
 int	is_word_type(int type)
@@ -25,22 +38,26 @@ void	set_command_if_valid(t_command_block **tmp_blk, char *token)
 	}
 }
 
-int	handle_command_token(t_joined_lexer_list **tmp, t_command_block **tmp_blk, int *is_cmd_pointed)
+int	handle_command_token(t_joined_lexer_list **tmp, \
+	t_command_block **tmp_blk, int *is_cmd_pointed)
 {
 	if ((*tmp)->token[0] == '\0')
 	{
 		(*tmp) = (*tmp)->next;
-		return 1;
+		return (1);
 	}
 	set_command_if_valid(tmp_blk, (*tmp)->token);
-	(*tmp_blk)->args = append_to_array((*tmp_blk)->args, (*tmp_blk)->argument_count, (*tmp_blk)->command);
+	(*tmp_blk)->args = append_to_array((*tmp_blk)->args, \
+		(*tmp_blk)->argument_count, (*tmp_blk)->command);
 	(*tmp_blk)->argument_count++;
 	*is_cmd_pointed = 1;
-    return 0;
+	return (0);
 }
 
-void	handle_argument_token(t_joined_lexer_list **tmp, t_command_block **tmp_blk)
+void	handle_argument_token(t_joined_lexer_list **tmp, \
+			t_command_block **tmp_blk)
 {
-	(*tmp_blk)->args = append_to_array((*tmp_blk)->args, (*tmp_blk)->argument_count, (*tmp)->token);
+	(*tmp_blk)->args = append_to_array((*tmp_blk)->args, \
+		(*tmp_blk)->argument_count, (*tmp)->token);
 	(*tmp_blk)->argument_count++;
 }

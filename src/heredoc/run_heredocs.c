@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void	handle_child_process(char *delim, int write_fd, t_init *init)
+void	handle_child_process(t_mng_heredocs *mng, char *delim, int write_fd, t_init *init)
 {
 	char *line;
 
@@ -9,7 +9,7 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 	signal(SIGQUIT, SIG_DFL);
 	init->mng_hrdcs->f_flag = 0; // Çocuk işlemde artık heredoc flag'ini kapatıyoruz
 	init->exit_flag = 1;
-	free_all(init); // Çıkmadan önce child'da leakleri temizle
+	free_all(init);
 	while (1)
 	{
 		line = readline("> ");
@@ -22,9 +22,8 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 		write(write_fd, "\n", 1);
 		free(line);
 	}
-	free_mng(init->mng_hrdcs);
+	free_mng(mng);
 	close(write_fd);
-	init->exit_flag = 1;
 	exit(0);
 }
 
@@ -118,7 +117,7 @@ int	heredoc_handle(t_mng_heredocs *mng, int heredoc_count, t_init *init)
 			fork_or_exit(&pid);
 			if (pid == 0)
 			{
-				handle_child_process(mng->heredoc_delims[h_count], fd[1], init);
+				handle_child_process(mng ,mng->heredoc_delims[h_count], fd[1], init);
 				mng->f_flag = 1;
 			}
 			else

@@ -1,9 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 13:02:44 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 13:08:10 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 {
-	int	len;
-	t_lexer_list *temp;
+	int				len;
+	t_lexer_list	*temp;
 
 	temp = lexer_list;
 	while (temp->next != NULL)
@@ -12,10 +24,10 @@ int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 	temp->is_next_space = 0;
 	while (input[i + 1] != ' ' && input[i + 1] != '\t' && input[i + 1] != '\0')
 	{
-		if (is_meta(input, i + 1) != 0 || input[i + 1] == '\'' || input[i
+		if (is_meta(input, i + 1) != 0 || input[i + 1] == '\'' || input[i \
 			+ 1] == '\"')
 			break ;
-		else if (input[i + 1] == '|' || input[i + 1] == '<' || input[i
+		else if (input[i + 1] == '|' || input[i + 1] == '<' || input[i \
 			+ 1] == '>')
 			break ;
 		i++;
@@ -26,12 +38,15 @@ int	take_word(const char *input, int i, t_lexer_list *lexer_list)
 	return (len);
 }
 
-int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_list)
+int	quote_len(const char *input, int start, \
+	char delim, t_lexer_list *lexer_list)
 {
-	int len = 1;                  /* açılış tırnağını da saysın   */
-	int i   = start + 1;
-	t_lexer_list *temp;
+	int				len;
+	int				i;
+	t_lexer_list	*temp;
 
+	len = 1;
+	i = start + 1;
 	temp = lexer_list;
 	while (temp->next != NULL)
 		temp = temp->next;
@@ -43,19 +58,19 @@ int  quote_len(const char *input, int start, char delim, t_lexer_list *lexer_lis
 	}
 	if (input[i] == '\0')
 		return (-1);
-	
 	if (input[i + 1] == ' ' || input [i + 1] == '\t')
 		temp->is_next_space = 1;
-	return len;
+	return (len);
 }
-int is_quote(const char *input, int i, t_lexer_list *lexer_list)
+
+int	is_quote(const char *input, int i, t_lexer_list *lexer_list)
 {
 	if (input[i] == '\'')
-		return quote_len(input, i, '\'', lexer_list);
+		return (quote_len(input, i, '\'', lexer_list));
 	else if (input[i] == '\"')
-		return quote_len(input, i, '\"', lexer_list);
+		return (quote_len(input, i, '\"', lexer_list));
 	else
-		return 0;
+		return (0);
 }
 
 int	is_meta(const char *input, int i)
@@ -84,7 +99,7 @@ int	lexer_function(t_lexer_list **lexer_list, char *input)
 {
 	int				i;
 	char			*array;
-	t_lexer_list    *current;
+	t_lexer_list	*current;
 
 	*lexer_list = NULL;
 	array = NULL;
@@ -96,13 +111,13 @@ int	lexer_function(t_lexer_list **lexer_list, char *input)
 		current = add_new_node(lexer_list);
 		if (is_meta(input, i))
 			array = meta_assign(input, &i);
-		else if(is_quote(input,i,*lexer_list) == -1)
+		else if (is_quote(input, i, *lexer_list) == -1)
 			return (-1);
 		else if (is_quote(input, i, *lexer_list))
 			array = quote_assign(input, &i, *lexer_list);
 		else if (take_word(input, i, *lexer_list))
 			array = word_assign(input, &i, *lexer_list);
-		(current)->token = ft_strdup(array); //array zaten substr ile oluşturulmuştu önceki heap'ten kalan alanı free'le
+		(current)->token = ft_strdup(array);
 		(current)->type = set_type(array);
 		free(array);
 	}

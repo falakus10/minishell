@@ -34,7 +34,10 @@ void	child(t_command_block *tmp, char **env, t_executor *exe, t_init *init)
 	signal(SIGQUIT, SIG_DFL);
 	if (tmp->file_err || tmp->cmd_err || tmp->path_err || tmp->wrong_path)
 	{
+		init->exit_flag = 1;
 		close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe);
+		free_all(init);
+		free_arr(env);
 		exit (1);
 	}
 	make_dup(tmp, exe->i, exe->count, exe);

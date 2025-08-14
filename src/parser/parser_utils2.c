@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils2.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 12:52:04 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 12:54:02 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	pass_cmd_blk(t_command_block **cmd, t_command_block **new,
@@ -57,7 +69,8 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 	if ((*temp)->type == HEREDOC)
 	{
 		if (mng_heredocs->heredoc_flags[mng_heredocs->index])
-			(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
+			(*temp_block)->input_fd = \
+			mng_heredocs->heredoc_fds[mng_heredocs->index];
 		*temp = (*temp)->next;
 		return ;
 	}
@@ -65,7 +78,8 @@ void	handle_redirect_token(t_joined_lexer_list **temp,
 	if (mng_heredocs->heredoc_flags)
 	{
 		if (mng_heredocs->heredoc_flags[mng_heredocs->index])
-			(*temp_block)->input_fd = mng_heredocs->heredoc_fds[mng_heredocs->index];
+			(*temp_block)->input_fd = \
+			mng_heredocs->heredoc_fds[mng_heredocs->index];
 	}
 	*temp = (*temp)->next;
 }

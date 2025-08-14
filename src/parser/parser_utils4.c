@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils4.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 12:55:21 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 12:56:03 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 void	close_old_fd(int old_fd)
@@ -29,7 +41,7 @@ int	is_builtin(char *cmd)
 
 char	*take_path(t_env *env)
 {
-	char *path;
+	char	*path;
 
 	path = NULL;
 	while (env != NULL)

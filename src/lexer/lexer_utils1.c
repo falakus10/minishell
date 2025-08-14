@@ -1,9 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_utils1.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 13:09:16 by austunso          #+#    #+#             */
+/*   Updated: 2025/08/14 13:13:40 by austunso         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 t_lexer_list	*add_new_node(t_lexer_list **lexer_list)
 {
 	t_lexer_list	*node;
 	t_lexer_list	*temp;
+
 	node = malloc(sizeof(t_lexer_list));
 	node->next = NULL;
 	node->token = NULL;
@@ -23,6 +36,7 @@ t_joined_lexer_list	*add_new_node2(t_joined_lexer_list **lexer_list)
 {
 	t_joined_lexer_list	*node;
 	t_joined_lexer_list	*temp;
+
 	node = malloc(sizeof(t_joined_lexer_list));
 	node->next = NULL;
 	if (*lexer_list == NULL)
@@ -92,21 +106,8 @@ char	*quote_assign(const char *input, int *inx, t_lexer_list *lexer_list)
 	int		len;
 
 	token = NULL;
-	len = (is_quote(input, *inx, lexer_list)) + 1; //son tırnak dahil olsun diye +1 dedik. Son tırnak dahil toplam "..." uzunluğu
+	len = (is_quote(input, *inx, lexer_list)) + 1;
 	token = ft_substr(input, *inx, len);
 	*(inx) += len;
-	return (token);
-}
-
-char *word_assign(const char *input, int *inx, t_lexer_list *lexer_list)
-{
-	char	*token;
-	int		len;
-
-	token = NULL;
-	len = take_word(input, *inx, lexer_list);  //take_word fonksiyonunu iki kez çağırmayalım diye sonucunu len değişkenine atadım. 
-	token = ft_substr(input, *inx, len);
-	(*inx) +=len;
-
 	return (token);
 }

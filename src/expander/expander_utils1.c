@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expander_utils1.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/14 14:23:06 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 14:32:06 by falakus          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
 int	find_index(const char *haystack, const char *needle, t_expander *expander)
@@ -11,32 +23,32 @@ int	find_index(const char *haystack, const char *needle, t_expander *expander)
 	return (ptr - haystack);
 }
 
-char	*ft_strjoin_free(char *token, t_expander *expander)
+char	*ft_strjoin_free(char *token, t_expander *exp)
 {
 	int		j;
 	char	*new_token;
 
 	j = 0;
-	expander->key_len = ft_strlen(expander->env_key);
-	expander->val_len = ft_strlen(expander->env_val);
-	if (!token || !expander->env_val)
+	exp->key_len = ft_strlen(exp->env_key);
+	exp->val_len = ft_strlen(exp->env_val);
+	if (!token || !exp->env_val)
 		return (NULL);
-	expander->new_len = ft_strlen(token) + (expander->val_len - expander->key_len);
-	new_token = malloc(expander->new_len + 1);
+	exp->new_len = ft_strlen(token) + (exp->val_len - exp->key_len);
+	new_token = malloc(exp->new_len + 1);
 	if (!new_token)
 		return (NULL);
-	expander->index = find_index(token, expander->env_key, expander);
-	if (expander->index == -1)
+	exp->index = find_index(token, exp->env_key, exp);
+	if (exp->index == -1)
 		return (NULL);
-	if (token[expander->index - 1] == '$')
+	if (token[exp->index - 1] == '$')
 	{
-		ft_memcpy(new_token, token, (expander->index - 1));
-		ft_memcpy(new_token + (expander->index - 1), expander->env_val, expander->val_len);
-		j = expander->index + expander->key_len;
-		expander->index += expander->val_len - 1;
-		ft_memcpy(new_token + expander->index, token + j, ft_strlen(token) - j);
+		ft_memcpy(new_token, token, (exp->index - 1));
+		ft_memcpy(new_token + (exp->index - 1), exp->env_val, exp->val_len);
+		j = exp->index + exp->key_len;
+		exp->index += exp->val_len - 1;
+		ft_memcpy(new_token + exp->index, token + j, ft_strlen(token) - j);
 	}
-	expander->i = 0;
+	exp->i = 0;
 	return (new_token);
 }
 

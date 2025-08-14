@@ -1,30 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   utils3.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/14 14:22:34 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:35 by falakus          ###   ########.fr       */
+/*   Created: 2025/08/14 15:45:06 by falakus           #+#    #+#             */
+/*   Updated: 2025/08/14 15:46:58 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	ft_env(t_env *env)
+char	*ft_strcpy(char *dest, const char *src)
 {
-	t_env	*tmp;
+	int	i;
 
-	tmp = env;
-	while (tmp != NULL)
+	i = 0;
+	while (src[i])
 	{
-		if (tmp->flag)
-		{
-			write(STDOUT_FILENO, tmp->line, ft_strlen(tmp->line));
-			write(STDOUT_FILENO, "\n", 1);
-		}
-		tmp = tmp->next;
+		dest[i] = src[i];
+		i++;
 	}
-	return (0);
+	dest[i] = '\0';
+	return (dest);
+}
+
+void	ft_error(void)
+{
+	write(2, "bash: malloc error\n", 19);
+	exit(1);
 }

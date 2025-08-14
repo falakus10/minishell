@@ -9,7 +9,7 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 	signal(SIGQUIT, SIG_DFL);
 	init->mng_hrdcs->f_flag = 0; // Çocuk işlemde artık heredoc flag'ini kapatıyoruz
 	init->exit_flag = 1;
-	free_all(init); // Çıkmadan önce child'da leakleri temizle
+	free_all(init);
 	while (1)
 	{
 		line = readline("> ");
@@ -22,9 +22,11 @@ void	handle_child_process(char *delim, int write_fd, t_init *init)
 		write(write_fd, "\n", 1);
 		free(line);
 	}
+	free_mng(init->mng_hrdcs);
+	free(init);
 	close(write_fd);
-	init->exit_flag = 1;
-	exit(0); // Çocuk işlemden çık
+	//init->exit_flag = 1;
+	exit(0);
 }
 
 void	create_pipe_or_exit(int fd[2])

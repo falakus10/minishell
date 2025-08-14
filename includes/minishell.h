@@ -96,6 +96,7 @@ typedef struct s_command_block
 typedef struct s_executor
 {
 	int			count;
+	int			i;
 	int			*fd;
 	t_expander	*exp;
 	t_env		*env;
@@ -192,7 +193,7 @@ int								is_builtin(char *cmd);
 int 							create_path(t_command_block *tmp_blk, char *word);
 void							make_dup(t_command_block *cmd, int index, int count, t_executor *exe);
 void							create_pipe(t_command_block *cmd, t_executor *exe);
-int 							multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init);
+int 							multi_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init);
 int	change_to_env(t_lexer_list *temp, int i, t_expander *expander, t_env *env_list);
 t_env **take_env(t_env **env_list ,char **env);
 int is_first_pipe(t_joined_lexer_list *tmp, t_expander *expnd);
@@ -227,7 +228,7 @@ char	*format_export_line(t_env *node);
 char	*add_quotes(char *str);
 char	**env_list_to_envp(t_env **env_list);
 char	*ft_strncpy(char *dest, const char *src, size_t n);
-void	run_single_builtin(t_command_block *cmd, t_env **env, t_init *init, char **envp);
+void	run_a_built(t_command_block *cmd, t_env **env, t_init *init, char **envp);
 void	init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list);
 void	free_all(t_init	*init);
 int command_count(t_command_block *cmd, t_executor *exe);
@@ -250,6 +251,15 @@ int	is_word_type(int type);
 int	is_redirect_type(int type);
 char *take_path(t_env *env);
 void close_old_fd(int old_fd);
+int	ft_wait(int pid, t_executor *exe);
+void close_unused(int fd_count, int used_in, int used_out, t_executor *exe);
+void close_in_out_fds(int input_fd, int output_fd);
+void	write_message(char *msg1, char *msg2, char *msg3, int fd);
+void free_mng(t_mng_heredocs *mng);
+char	*remove_env_from_token(char *token, int dollar_index, int key_len);
+int special_character(char *token, t_expander *expander);
+int	question_mark(t_lexer_list *temp, int i, t_expander *expander);
+
 //void	handle_errors(t_command_block *temp_block);
 
 #endif

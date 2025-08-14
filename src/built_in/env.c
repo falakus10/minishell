@@ -1,11 +1,11 @@
 #include "minishell.h"
 
-int ft_env(t_env *env)
+int	ft_env(t_env *env)
 {
 	t_env	*tmp;
 
 	tmp = env;
-	while(tmp != NULL)
+	while (tmp != NULL)
 	{
 		if (tmp->flag)
 		{

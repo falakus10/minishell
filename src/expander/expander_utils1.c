@@ -1,13 +1,14 @@
 #include "minishell.h"
 
-int find_index(const char *haystack, const char *needle, t_expander *expander)
+int	find_index(const char *haystack, const char *needle, t_expander *expander)
 {
-	char *ptr;
-	
-	ptr = ft_strnstr(haystack + expander->dollar_index , needle, ft_strlen(haystack));
+	char	*ptr;
+
+	ptr = ft_strnstr(haystack + expander->dollar_index,
+			needle, ft_strlen(haystack));
 	if (ptr == NULL)
 		return (-1);
-	return (ptr - haystack);  // pointer farkı → index
+	return (ptr - haystack);
 }
 
 char	*ft_strjoin_free(char *token, t_expander *expander)
@@ -39,11 +40,11 @@ char	*ft_strjoin_free(char *token, t_expander *expander)
 	return (new_token);
 }
 
-char *env_value(t_env *env_list, const char *key)// expander patlarsa buraya bak önce
+char	*env_value(t_env *env_list, const char *key)
 {
 	size_t	key_len;
 	char	*env_value;
-	t_env *temp;
+	t_env	*temp;
 
 	temp = env_list;
 	if (temp == NULL || key == NULL)
@@ -51,24 +52,26 @@ char *env_value(t_env *env_list, const char *key)// expander patlarsa buraya bak
 	key_len = ft_strlen(key);
 	while (temp != NULL)
 	{
-		if (ft_strncmp(temp->line, key, key_len) == 0 && temp->line[key_len] == '=')
+		if (ft_strncmp(temp->line, key, key_len) == 0
+			&& temp->line[key_len] == '=')
 		{
-			env_value = ft_substr(temp->line, key_len + 1, ft_strlen(temp->line) - (key_len + 1));                         
+			env_value = ft_substr(temp->line, key_len + 1,
+					ft_strlen(temp->line) - (key_len + 1));
 			return (env_value);
 		}
 		temp = temp->next;
 	}
-	return (NULL);                                
+	return (NULL);
 }
 
-int is_valid_ch(char *token, int i) //$ işaretinden sonraki karakter geçerli bir karakter mi kontrol eder
+int	is_valid_ch(char *token, int i)
 {
 	if (ft_isalnum(token[i]) || token[i] == '_')
 		return (1);
 	return (0);
 }
 
-int special_ch_check(char c)
+int	special_ch_check(char c)
 {
 	if (c >= '1' && c <= '9')
 		return (1);

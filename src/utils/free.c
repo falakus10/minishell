@@ -88,7 +88,7 @@ void	free_joined_exec(t_joined_lexer_list **jll, t_executor *exe)
 	exe = NULL;
 }
 
-void free_mng(t_mng_heredocs *mng)
+void	free_mng(t_mng_heredocs *mng)
 {
 	if (mng)
 	{
@@ -105,7 +105,7 @@ void free_mng(t_mng_heredocs *mng)
 	mng = NULL;
 }
 
-void free_expander(t_expander *exp)
+void	free_expander(t_expander *exp)
 {
 	if (exp)
 	{
@@ -148,7 +148,7 @@ void	free_all(t_init	*init)
 	{
 		free_cmd_blk(init->cmd_blk);
 	}
-	if ((init->jnd_lxr_lst && *(init->jnd_lxr_lst))|| init->exec) //bunu da ayır
+	if ((init->jnd_lxr_lst && *(init->jnd_lxr_lst))|| init->exec)
 		free_joined_exec(init->jnd_lxr_lst, init->exec);
 	if (init->mng_hrdcs && init->mng_hrdcs->f_flag)
 		free_mng(init->mng_hrdcs );
@@ -156,7 +156,9 @@ void	free_all(t_init	*init)
 		free_expander(init->expnd);
 	if (init->env && *init->env && init->exit_flag)
 		free_env(init->env);
-	free(init);
-	init = NULL;
+	if (init->mng_hrdcs->f_flag)
+	{
+		free(init);
+		init = NULL;
+	}
 }
-

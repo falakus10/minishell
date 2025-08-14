@@ -13,7 +13,7 @@ void	create_pipe(t_command_block *cmd, t_executor *exe)
 	}
 	while (i < cmd->cmd_count - 1)
 	{
-		if(pipe(&exe->fd[2 * i]) == -1)
+		if (pipe(&exe->fd[2 * i]) == -1)
 		{
 			perror("pipe");
 			exit(1);
@@ -44,7 +44,7 @@ void	make_dup(t_command_block *cmd, int index, int count, t_executor *exe)
 	}
 }
 
-int command_count(t_command_block *cmd, t_executor *exe)
+int	command_count(t_command_block *cmd, t_executor *exe)
 {
 	int				count;
 	t_command_block	*temp;
@@ -60,25 +60,9 @@ int command_count(t_command_block *cmd, t_executor *exe)
 	return (count);
 }
 
-int	ft_wait(int pid, t_executor *exe)
-{
-	int status;
-
-	if (waitpid(pid, &status, 0) == -1)
-	{
-		perror("waitpid failed");
-		return (1);
-	}
-	if (WIFSIGNALED(status))
-		exe->exp->exit_value = 128 + WTERMSIG(status);
-	else
-		exe->exp->exit_value = (status >> 8) & 0xFF;
-	return (0);
-}
-
 int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 {
-	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path) //DÜZENLE
+	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path)
 		return (1);
 	cmd->pid = fork();
 	if (cmd->pid == 0)
@@ -105,7 +89,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 
 int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 {
-	char  **envp;
+	char	**envp;
 
 	setter_signal(0);
 	envp = env_list_to_envp(env);
@@ -113,7 +97,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-			run_single_builtin(cmd, env, init, envp);
+			run_a_built(cmd, env, init, envp);
 		else
 		{
 			g_signal = 3;
@@ -124,11 +108,10 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	}
 	else
 	{
-		multiple_exec(cmd, envp, exe, init);
+		multi_exec(cmd, envp, exe, init);
 		free_arr(envp);
 	}
 	g_signal = 1;
 	setter_signal(1);
 	return (0);
 }
-

@@ -2,22 +2,15 @@
 
 void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 {
-	int	i;
 	int	fd_count;
-	int used_in;
-	int used_out;
+	int	used_in;
+	int	used_out;
 
-	i = 0;
 	fd_count = 2 * (exe->count - 1);
 	used_in = -1;
 	used_out = -1;
 	if (index == -1)
-	{
-		if (input_fd > 2)
-			close(input_fd);
-		if (output_fd > 2)
-			close(output_fd);
-	}
+		close_in_out_fds(input_fd, output_fd);
 	else if (index == 0 && output_fd > -1)
 		used_out = 1;
 	else if (index == exe->count - 1 && input_fd > -1)
@@ -29,114 +22,96 @@ void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
 		if (output_fd > -1)
 			used_out = 2 * index + 1;
 	}
-	while (i < fd_count)
-	{
-		if (i != used_in && i != used_out)
-			close(exe->fd[i]);
-		i++;
-	}
+	close_unused(fd_count, used_in, used_out, exe);
 }
 
-/* int	handle_child(t_command_block *tmp, t_executor *exe, char **env, t_init *init)
+void	child(t_command_block *tmp, char **env, t_executor *exe, t_init *init)
 {
+	int	value;
 
+	value = 0;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
+	if (tmp->file_err || tmp->cmd_err || tmp->path_err || tmp->wrong_path)
 	{
-		close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
-		exit (1);  //sonra değişcez Başarılı gibi çık
-	}
-	make_dup(tmp, i, exe->count, exe);
-	close_fd(tmp->input_fd, tmp->output_fd, i, exe);
-	if (is_builtin(tmp->command))
-	{
-		exe->value = built_in(tmp, &exe->env, init, env);
 		init->exit_flag = 1;
 		free_all(init);
-		exit (exe->value);
+		close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe);
+		exit (1);
+	}
+	make_dup(tmp, exe->i, exe->count, exe);
+	close_fd(tmp->input_fd, tmp->output_fd, exe->i, exe);
+	if (is_builtin(tmp->command))
+	{
+		value = built_in(tmp, &exe->env, init, env);
+		init->exit_flag = 1;
+		free_all(init);
+		exit (value);
 	}
 	execve(tmp->command, tmp->args, env);
 	perror("execve");
 	exit(1);
-} */
+}
 
 int	child_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
 {
 	t_command_block	*tmp;
-	int	i;
-	int count;
-	int value;
 
-	value = 0;
-	count = 0;
-	count = command_count(cmd, exe);
-	i = 0;
+	exe->count = command_count(cmd, exe);
+	exe->i = 0;
 	tmp = cmd;
-	while (i < count)
+	while (exe->i < exe->count)
 	{
 		tmp->pid = fork();
 		if (tmp->pid == 0)
-		{
-			signal(SIGINT, SIG_DFL);
-			signal(SIGQUIT, SIG_DFL);
-			if (tmp->file_err || tmp->cmd_err || tmp->path_err || cmd->wrong_path)
-			{
-				close_fd(tmp->input_fd, tmp->output_fd, i, exe); // Pipe'ları kapat
-				exit (1);  //sonra değişcez Başarılı gibi çık
-			}
-			make_dup(tmp, i, count, exe);
-			close_fd(tmp->input_fd, tmp->output_fd, i, exe);
-			if (is_builtin(tmp->command))
-			{
-				value = built_in(tmp, &exe->env, init, env);
-				init->exit_flag = 1;
-				free_all(init);
-				exit (value);
-			}
-			execve(tmp->command, tmp->args, env);
-			perror("execve");
-			exit(1);
-		}
+			child(tmp, env, exe, init);
 		else if (tmp->pid < 0)
 		{
 			perror("fork faild");
 			return (1);
 		}
-		i++;
+		exe->i++;
 		tmp = tmp->next;
 	}
 	return (0);
 }
 
-
-int multiple_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
+int	multiple_wait(int cmd_count, t_command_block *tmp, int *flag)
 {
-	int				i;
-	t_command_block *tmp;
-	int				cmd_count;
-	int				last_status;
-	int				flag;
+	int	i;
+	int	last_status;
 
-	cmd_count = cmd->cmd_count;
-	tmp = cmd;
+	last_status = 0;
 	i = 0;
-	flag = 0;
-	g_signal = 2;
-	create_pipe(tmp, exe);
-	if (child_exec(cmd, env, exe, init) != 0)
-		return (1);//exit value buraya mı eklenmeli?????
-	close_fd(cmd->input_fd, tmp->output_fd, -1, exe);
 	while (i < cmd_count)
 	{
 		if (tmp->next == NULL && tmp->last_fault)
-			flag = 1;
+			*flag = 1;
 		waitpid(tmp->pid, &tmp->status, 0);
 		if (i == cmd_count - 1)
 			last_status = tmp->status;
 		tmp = tmp->next;
 		i++;
 	}
+	return (last_status);
+}
+
+int	multi_exec(t_command_block *cmd, char **env, t_executor *exe, t_init *init)
+{
+	t_command_block	*tmp;
+	int				cmd_count;
+	int				last_status;
+	int				flag;
+
+	cmd_count = cmd->cmd_count;
+	tmp = cmd;
+	flag = 0;
+	g_signal = 2;
+	create_pipe(tmp, exe);
+	if (child_exec(cmd, env, exe, init) != 0)
+		return (1);
+	close_fd(cmd->input_fd, tmp->output_fd, -1, exe);
+	last_status = multiple_wait(cmd_count, tmp, &flag);
 	if (!flag)
 	{
 		if (WIFSIGNALED(last_status))

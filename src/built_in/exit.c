@@ -17,31 +17,25 @@ int	is_number(char *str)
 
 int	ft_exit(t_command_block *cmd, t_init *init, char **envp)
 {
-	int				exit_code;
+	int	exit_code;
 
 	printf("exit\n");
 	exit_code = 2;
-	if (cmd->args[1] == NULL)
+	if (!cmd->args[1])
 		exit_code = 0;
-	if (cmd->args[1] != NULL && (cmd->args[2] == NULL))
+	else if (!cmd->args[2])
 	{
 		if (is_number(cmd->args[1]))
-			exit_code = (ft_atoi(cmd->args[1])) % 256;
+			exit_code = ft_atoi(cmd->args[1]) % 256;
 		else
 			write(2, "minishell: exit: numeric argument required\n", 43);
 	}
-	else if (cmd->args[1] && cmd->args[2])
-	{
-		if (is_number(cmd->args[1]))
-		{
-			write(2, "minishell: exit: too many arguments\n", 36);//hata mesajı güncelle(kontrol et)
-				return (1);
-		}
-		else
-			write(2, "minishell: exit: numeric argument required\n", 43);
-	}
+	else if (is_number(cmd->args[1]))
+		return (write(2, "minishell: exit: too many arguments\n", 36), 1);
+	else
+		write(2, "minishell: exit: numeric argument required\n", 43);
 	init->exit_flag = 1;
 	free_arr(envp);
-	free_all(init); //env_list'i de freele
-	exit (exit_code);
+	free_all(init);
+	exit(exit_code);
 }

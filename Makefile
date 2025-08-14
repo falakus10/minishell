@@ -8,7 +8,7 @@ src/built_in/exit.c src/built_in/export.c src/built_in/pwd.c src/built_in/unset.
 src/built_in/utils.c src/utils/token_checks.c src/heredoc/run_heredocs.c \
 src/heredoc/start_hrdc_struct.c src/heredoc/take_counts.c src/executor/utils.c src/utils/free.c\
 src/parser/assign_fd.c src/expander/expander_utils2.c src/utils/utils2.c src/utils/utils3.c \
-src/utils/free2.c src/heredoc/heredoc_handle.c
+src/utils/free2.c src/heredoc/heredoc_handle.c src/init.c src/init2.c src/init3.c
 
 LIBFT = libft/libft.a
 CC = cc

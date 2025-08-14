@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 19:19:03 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/14 21:13:56 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,14 @@
 # include <sys/stat.h>
 
 extern int	g_signal;
+
+typedef struct s_tmpv
+{
+	int flag;
+	int a;
+	char *input;
+	char *temp_input;
+}				t_tmpv;
 
 typedef struct s_lexer_list
 {
@@ -150,7 +158,7 @@ typedef struct s_init
 }						t_init;
 
 void				free_arr(char **arr);
-void				input_loop(char **env);
+void				input_loop(char **env, t_tmpv *tmpv);
 int					set_type(char *array);
 t_lexer_list		*add_new_node(t_lexer_list **lexer_list);
 void				remove_quotes(t_lexer_list *lexer_list);
@@ -303,5 +311,20 @@ int					question_mark(t_lexer_list *temp, int i,
 void				free_expander(t_expander *exp);
 void				free_joined_exec(t_joined_lexer_list **jll,
 						t_executor *exe);
+void 				init3(t_init *init, t_mng_heredocs *mng);
+void 				init2(t_init *init, t_joined_lexer_list **jnd_lst ,t_command_block *cmd, t_executor *exe);
+void 				init_structs(t_init *init, t_env **env_list, t_lexer_list **lexer_list);
+void				init_exe(t_executor *exe, t_expander *exp, t_env *envp);
+void				init_expander(t_expander *exp);
+void catch_null(t_expander *expand, t_tmpv *tmpv, t_init *init);
+void init5(t_env ***env_list, t_expander **expand, char **env);
+void expand_n_join(t_lexer_list **lexer_list, t_env **env_list, t_expander *expand, t_joined_lexer_list **new_list);
+void parse_n_exec(t_init *init, t_joined_lexer_list **new_list, t_env **env_list, t_expander *expand);
+void init_all(t_init *init, t_joined_lexer_list **new_list, t_env **env_list, t_lexer_list **lexer_list);
+void init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list);
+void initialize_structs(t_init *init, t_env *env_list);
+void init4(t_init *init, t_expander *expand, t_joined_lexer_list ***new_list, t_lexer_list ***lexer_list);
+int input_check(t_tmpv *tmpv, t_init *init, t_lexer_list **lxr, t_expander *expnd);
+int heredoc_stuff(t_tmpv *tmpv, t_init *init, t_joined_lexer_list **new_list, t_env **env_list);
 
 #endif

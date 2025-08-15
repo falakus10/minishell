@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 12:10:46 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/15 14:17:45 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 15:38:39 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,10 @@ int	main(int argc, char *argv[], char **env)
 	tmpv->input = NULL;
 	tmpv->temp_input = NULL;
 	if (argc != 1)
+	{
+		free(tmpv);
 		return (0);
+	}
 	handle_signal();
 	input_loop(env, tmpv);
 	return (0);

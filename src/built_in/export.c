@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:43 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:44 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 15:00:34 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ void	print_export(t_env *env)
 		arr[i++] = tmp;
 		tmp = tmp->next;
 	}
-	sort_and_print(arr, count);
+	i = -1;
+	sort_and_print(arr, count, i);
 	free(arr);
 }
 
@@ -132,7 +133,7 @@ int	ft_export(t_command_block *cmd, t_env *env)
 		equal_point = ft_strchr(cmd->args[i], '=');
 		if (equal_point)
 			index = equal_point - cmd->args[i];
-		fill_env(env, index, cmd->args[i]);
+		update_or_add_env(env, index, cmd->args[i]);
 	}
 	return (flag);
 }

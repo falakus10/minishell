@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signal.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 17:02:13 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 17:03:23 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 14:37:55 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static void	ctrl_c(int sig)
 	(void)sig;
 	if (g_signal == 2)
 	{
-		write(1, "^C\n", 1);
+		write(1, "^C\n", 3);
 	}
 	else if (g_signal == 3)
 	{

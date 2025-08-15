@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/15 14:13:50 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 15:03:16 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,7 +272,7 @@ int					command_count(t_command_block *cmd, t_executor *exe);
 void				free_cmd_blk(t_command_block *cmd);
 void				fill_int_array(int *arr, int value, int count);
 char				*trim_whitespace(const char *input);
-void				sort_and_print(t_env **arr, int count);
+void				sort_and_print(t_env **arr, int count, int i);
 void				setter_signal(int sig);
 void				assign_fd(t_command_block **tmp_blk,
 						t_joined_lexer_list **tmp_list, t_mng_heredocs *mng);
@@ -337,4 +337,6 @@ int					input_check(t_tmpv *tmpv, t_init *init,
 						t_lexer_list **lxr, t_expander *expnd);
 int					check_syntax_n_heredoc(t_tmpv *tmpv, t_init *init, \
 						t_joined_lexer_list **new_list, t_env **env_list);
+void				update_or_add_env(t_env *env, int index, char *str);
+void				fill_env(t_env *env, int index, char *str);
 #endif

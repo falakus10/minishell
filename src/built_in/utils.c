@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:57 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:58 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 15:03:48 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ char	*format_export_line(t_env *node)
 	return (result);
 }
 
-void	sort_and_print(t_env **arr, int count)
+void	sort_and_print(t_env **arr, int count, int i)
 {
-	int		i;
 	int		j;
 	t_env	*temp;
+	char	*formatted;
 
 	i = -1;
 	while (++i < count - 1)
@@ -60,5 +60,37 @@ void	sort_and_print(t_env **arr, int count)
 	}
 	i = -1;
 	while (++i < count)
-		write_message("declare -x ", format_export_line(arr[i]), NULL, 1);
+	{
+		formatted = format_export_line(arr[i]);
+		write_message("declare -x ", formatted, NULL, 1);
+		free(formatted);
+	}
+}
+
+void	update_or_add_env(t_env *env, int index, char *str)
+{
+	t_env	*tmp;
+	int		var_len;
+
+	if (index == -1)
+		var_len = ft_strlen(str);
+	else
+		var_len = index;
+	tmp = env;
+	while (tmp)
+	{
+		if (ft_strncmp(tmp->line, str, var_len) == 0 \
+			&& tmp->line[var_len] == '=')
+		{
+			if (tmp->value)
+				free(tmp->value);
+			tmp->value = ft_strdup(str + index);
+			free(tmp->line);
+			tmp->line = ft_strdup(str);
+			tmp->flag = 1;
+			return ;
+		}
+		tmp = tmp->next;
+	}
+	fill_env(env, index, str);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:07 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:08 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 16:27:15 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,8 @@ int	command_count(t_command_block *cmd, t_executor *exe)
 	return (count);
 }
 
-int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
+int	run_single_cmd(t_command_block *cmd, char **env,
+		t_init *init, t_executor *exe)
 {
 	if (cmd->file_err || cmd->cmd_err || cmd->path_err || cmd->wrong_path)
 		return (1);
@@ -81,10 +82,8 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	{
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
-		make_dup(cmd, 0, count, exe);
-		execve(cmd->command, cmd->args, env);
-		perror("execve failed!");
-		exit (1);
+		make_dup(cmd, 0, 1, exe);
+		run_exec(cmd->command, cmd->args, env, init);
 	}
 	else if (cmd->pid < 0)
 	{
@@ -113,7 +112,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 		else
 		{
 			g_signal = 3;
-			run_single_cmd(cmd, envp, cmd->cmd_count, exe);
+			run_single_cmd(cmd, envp, init, exe);
 			close_fd(cmd->input_fd, cmd->output_fd, -1, exe);
 			free_arr(envp);
 		}

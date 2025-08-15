@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:18 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:19 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 16:22:27 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,4 +73,29 @@ void	close_in_out_fds(int input_fd, int output_fd)
 		close(input_fd);
 	if (output_fd > 2)
 		close(output_fd);
+}
+
+void	close_fd(int input_fd, int output_fd, int index, t_executor *exe)
+{
+	int	fd_count;
+	int	used_in;
+	int	used_out;
+
+	fd_count = 2 * (exe->count - 1);
+	used_in = -1;
+	used_out = -1;
+	if (index == -1)
+		close_in_out_fds(input_fd, output_fd);
+	else if (index == 0 && output_fd > -1)
+		used_out = 1;
+	else if (index == exe->count - 1 && input_fd > -1)
+		used_in = 2 * (index - 1);
+	else
+	{
+		if (input_fd > -1)
+			used_in = 2 * (index - 1);
+		if (output_fd > -1)
+			used_out = 2 * index + 1;
+	}
+	close_unused(fd_count, used_in, used_out, exe);
 }

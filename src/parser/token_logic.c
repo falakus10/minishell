@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 12:57:03 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/14 13:00:17 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 16:06:22 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ int	handle_command_token(t_joined_lexer_list **tmp, \
 	}
 	set_command_if_valid(tmp_blk, (*tmp)->token);
 	(*tmp_blk)->args = append_to_array((*tmp_blk)->args, \
-		(*tmp_blk)->argument_count, (*tmp_blk)->command);
+		(*tmp_blk)->argument_count, (*tmp)->token);
 	(*tmp_blk)->argument_count++;
 	*is_cmd_pointed = 1;
 	return (0);

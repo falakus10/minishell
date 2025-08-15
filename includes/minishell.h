@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/15 15:03:16 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 16:25:52 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,4 +339,6 @@ int					check_syntax_n_heredoc(t_tmpv *tmpv, t_init *init, \
 						t_joined_lexer_list **new_list, t_env **env_list);
 void				update_or_add_env(t_env *env, int index, char *str);
 void				fill_env(t_env *env, int index, char *str);
+void				run_exec(char *command, char **args, char **envp,
+						t_init *init);
 #endif

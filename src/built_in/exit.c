@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:37 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:38 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 16:34:28 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	ft_exit(t_command_block *cmd, t_init *init, char **envp)
 {
 	int	exit_code;
 
-	printf("exit\n");
+	write(1, "exit\n", 5);
 	exit_code = 2;
 	if (!cmd->args[1])
 		exit_code = 0;

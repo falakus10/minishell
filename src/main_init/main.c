@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 12:10:46 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/15 13:44:50 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 14:17:45 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void	input_loop(char **env, t_tmpv *tmpv)
 	{
 		tmpv->tkn_syntax = 0;
 		init = malloc(sizeof(t_init));
+		init->tmpval = tmpv;
 		allocate_n_assign(init, expand, &new_list, &lexer_list);
 		init_all(init, new_list, env_list, lexer_list);
 		tmpv->temp_input = readline("minishell>");

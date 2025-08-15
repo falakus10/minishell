@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/15 13:43:42 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 14:13:50 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,6 +155,7 @@ typedef struct s_init
 	t_command_block		*cmd_blk;
 	t_executor			*exec;
 	t_expander			*expnd;
+	t_tmpv				*tmpval;
 }						t_init;
 
 void				free_arr(char **arr);

@@ -12,22 +12,12 @@ src/utils/free2.c src/heredoc/heredoc_handle.c src/main_init/init.c src/main_ini
 
 LIBFT = libft/libft.a
 CC = cc
-CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft -g3 #-fsanitize=address
+CFLAGS =  -Wall -Wextra -Werror -Iincludes -Ilibft
 
 OBJS = $(SRCS:.c=.o)
 RM = rm -f
 
-
-all: $(READLINE) $(NAME)
-
-$(READLINE):
-	@echo "$(BOLD)$(YELLOW)[DOWNLOADING READLINE...]$(RESET)"
-	@curl -O https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
-	@tar -xvf readline-8.2.tar.gz
-	@$(RM) readline-8.2.tar.gz
-	@cd readline-8.2 && ./configure --prefix=${PWD}/lib/readline
-	@cd readline-8.2 && make install
-	@$(RM) -rf readline-8.2
+all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)

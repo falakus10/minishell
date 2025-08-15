@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
+/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:41:51 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:43:21 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 14:19:26 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ void	free_all(t_init	*init)
 		free_expander(init->expnd);
 	if (init->env && *init->env && init->exit_flag)
 		free_env(init->env);
+	if (init->exit_flag)
+		free(init->tmpval);
 	free(init);
 	init = NULL;
 }

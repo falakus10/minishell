@@ -6,13 +6,13 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 21:07:43 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/14 21:09:58 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 13:44:02 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
+void	init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
 {
 	mng->heredoc_delims = NULL;
 	mng->heredoc_fds = NULL;
@@ -21,14 +21,15 @@ void init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list)
 	mng->env = env_list;
 }
 
-void initialize_structs(t_init *init, t_env *env_list)
+void	initialize_structs(t_init *init, t_env *env_list)
 {
 	init_exe(init->exec, init->expnd, env_list);
 	init_expander(init->expnd);
 	init_mng_heredocs(init->mng_hrdcs, env_list);
 }
 
-void init4(t_init *init, t_expander *expand, t_joined_lexer_list ***new_list, t_lexer_list ***lexer_list)
+void	allocate_n_assign(t_init *init, t_expander *expand, \
+		t_joined_lexer_list ***new_list, t_lexer_list ***lexer_list)
 {
 	init->exec = malloc(sizeof(t_executor));
 	init->cmd_blk = NULL;
@@ -41,7 +42,8 @@ void init4(t_init *init, t_expander *expand, t_joined_lexer_list ***new_list, t_
 	**lexer_list = NULL;
 }
 
-int input_check(t_tmpv *tmpv, t_init *init, t_lexer_list **lxr, t_expander *expnd)
+int	input_check(t_tmpv *tmpv, t_init *init,
+		t_lexer_list **lxr, t_expander *expnd)
 {
 	if (tmpv->temp_input[0] == '\0')
 	{
@@ -70,14 +72,15 @@ int input_check(t_tmpv *tmpv, t_init *init, t_lexer_list **lxr, t_expander *expn
 	return (0);
 }
 
-int heredoc_stuff(t_tmpv *tmpv, t_init *init, t_joined_lexer_list **new_list, t_env **env_list)
+int	check_syntax_n_heredoc(t_tmpv *tmpv, t_init *init, \
+		t_joined_lexer_list **new_list, t_env **env_list)
 {
-	tmpv->flag = check_tokens(new_list, init->expnd);
-	tmpv->a = count_heredoc(new_list);
-	if (tmpv->a != 0)
-		init_heredoc_struct(init->mng_hrdcs, count_cmd_blk(new_list), new_list, *env_list);
-	if (tmpv->a != 0)
+	tmpv->tkn_syntax = check_tokens(new_list, init->expnd);
+	tmpv->heredoc_count = count_heredoc(new_list);
+	if (tmpv->heredoc_count != 0)
 	{
+		init_heredoc_struct(init->mng_hrdcs,
+			count_cmd_blk(new_list), new_list, *env_list);
 		init->heredoc = 1;
 		if (run_hrdcs(init->mng_hrdcs, new_list, init))
 		{
@@ -88,7 +91,7 @@ int heredoc_stuff(t_tmpv *tmpv, t_init *init, t_joined_lexer_list **new_list, t_
 		}
 		init->heredoc = 0;
 	}
-	if (tmpv->flag)
+	if (tmpv->tkn_syntax)
 	{
 		free_all(init);
 		return (1);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   start_hrdc_struct.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:19:54 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/14 17:14:30 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 13:05:19 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,10 @@ int	run_hrdcs(t_mng_heredocs *mng, t_joined_lexer_list **temp, t_init *init)
 	take_heredoc_delims(temp, count_heredoc(temp), &mng);
 	fill_heredoc_nums(&mng, temp);
 	if (heredoc_handle(mng, i, j, init))
+	{
+		init->heredoc = 0;
 		return (1);
+	}
+	init->heredoc = 0;
 	return (0);
 }

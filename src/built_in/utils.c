@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:57 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:58 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 11:48:04 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ char	*format_export_line(t_env *node)
 	return (result);
 }
 
-void	sort_and_print(t_env **arr, int count)
+void	sort_and_print(t_env **arr, int count, int i)
 {
-	int		i;
 	int		j;
 	t_env	*temp;
+	char	*formatted;
 
 	i = -1;
 	while (++i < count - 1)
@@ -60,5 +60,9 @@ void	sort_and_print(t_env **arr, int count)
 	}
 	i = -1;
 	while (++i < count)
-		write_message("declare -x ", format_export_line(arr[i]), NULL, 1);
+	{
+		formatted = format_export_line(arr[i]);
+		write_message("declare -x ", formatted, NULL, 1);
+		free(formatted);
+	}
 }

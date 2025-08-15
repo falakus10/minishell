@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   run_heredocs.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 17:12:53 by austunso          #+#    #+#             */
-/*   Updated: 2025/08/14 17:13:54 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 14:07:47 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,13 +92,13 @@ int	handle_parent_process(t_mng_heredocs *mng, int *fd, int j, int *k)
 	if (exit_status(mng, status, fd, j))
 		return (1);
 	if (++(*k) < mng->heredoc_nums[j] - 1)
-		close(fd[0]);
+	close(fd[0]);
 	else
 	{
 		if (mng->heredoc_flags[j])
-			mng->heredoc_fds[j] = fd[0];
+		mng->heredoc_fds[j] = fd[0];
 		else
-			close(fd[0]);
+		close(fd[0]);
 		*k = 0;
 	}
 	g_signal = 0;

@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 15:41:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 15:42:59 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 13:05:39 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,32 +83,28 @@ t_env	*add_new_node3(t_env **env_list)
 	return (node);
 }
 
-void take_env(t_env **env_list, char **env)
+t_env	*take_env(char **env)
 {
 	int		i;
 	int		j;
+	t_env	*env_list;
 	t_env	*current;
 
-	if (!env_list)
-		return;
-	*env_list = NULL;
+	env_list = NULL;
 	i = 0;
-	while (env[i] != NULL)
+	while (env[i])
 	{
 		j = 0;
-		current = add_new_node3(env_list);
+		current = add_new_node3(&env_list);
 		current->line = ft_strdup(env[i]);
-		while (env[i][j] != '\0')
-		{
-			if (env[i][j] == '=')
-			{
-				current->flag = 1;
-				current->value = ft_strdup(&env[i][j + 1]);
-				break;
-			}
+		while (env[i][j] && env[i][j] != '=')
 			j++;
+		if (env[i][j] == '=')
+		{
+			current->flag = 1;
+			current->value = ft_strdup(&env[i][j + 1]);
 		}
 		i++;
 	}
+	return (env_list);
 }
-

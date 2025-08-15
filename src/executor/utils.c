@@ -6,20 +6,20 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:18 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:19 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 10:47:34 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**env_list_to_envp(t_env **env_list)
+char	**env_list_to_envp(t_env *env_list)
 {
 	t_env	*tmp;
 	char	**envp;
 	int		i;
 	int		count;
 
-	tmp = *env_list;
+	tmp = env_list;
 	count = 0;
 	while (tmp && ++count)
 		tmp = tmp->next;
@@ -27,7 +27,7 @@ char	**env_list_to_envp(t_env **env_list)
 	if (!envp)
 		ft_error();
 	i = 0;
-	tmp = *env_list;
+	tmp = env_list;
 	while (tmp)
 	{
 		if (*tmp->line)

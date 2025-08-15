@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 17:02:13 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 17:03:23 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 13:16:41 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,16 @@
 
 void	handle_sigint(int sig)
 {
+	char	*args[3];
+	char	*env[1];
+
 	(void)sig;
+	args[0] = "/bin/sleep";
+	args[1] = "0.0001";
+	args[2] = NULL;
+	env[0] = NULL;
+	if (execve("/bin/sleep", args, env) == -1)
+		perror("execve");
 	exit(130);
 }
 
@@ -30,7 +39,7 @@ static void	ctrl_c(int sig)
 	(void)sig;
 	if (g_signal == 2)
 	{
-		write(1, "^C\n", 1);
+		write(1, "^C\n", 3);
 	}
 	else if (g_signal == 3)
 	{

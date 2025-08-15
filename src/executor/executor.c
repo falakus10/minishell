@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:07 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:08 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 10:57:42 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ int	run_single_cmd(t_command_block *cmd, char **env, int count, t_executor *exe)
 	return (0);
 }
 
-int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
+int	executor(t_command_block *cmd, t_executor *exe, t_env *env, t_init *init)
 {
 	char	**envp;
 
@@ -109,7 +109,7 @@ int	executor(t_command_block *cmd, t_executor *exe, t_env **env, t_init *init)
 	if (cmd->cmd_count == 1)
 	{
 		if (is_builtin(cmd->command))
-			run_a_built(cmd, env, init, envp);
+			run_a_built(cmd, &env, init, envp);
 		else
 		{
 			g_signal = 3;

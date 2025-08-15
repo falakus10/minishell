@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
+/*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:21:56 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 19:19:03 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/15 12:53:31 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ typedef struct s_init
 	int					exit_flag;
 	int					heredoc;
 	t_lexer_list		**lxr_lst;
-	t_env				**env;
+	t_env				*env;
 	t_joined_lexer_list	**jnd_lxr_lst;
 	t_mng_heredocs		*mng_hrdcs;
 	t_command_block		*cmd_blk;
@@ -150,7 +150,7 @@ typedef struct s_init
 }						t_init;
 
 void				free_arr(char **arr);
-void				input_loop(char **env);
+void				input_loop(char **env, int a);
 int					set_type(char *array);
 t_lexer_list		*add_new_node(t_lexer_list **lexer_list);
 void				remove_quotes(t_lexer_list *lexer_list);
@@ -204,7 +204,7 @@ char				*ft_strcpy(char *dest, const char *src);
 char				*ft_strcat(char *dest, const char *src);
 int					ft_strcmp(const char *s1, const char *s2);
 int					executor(t_command_block *cmd, t_executor *exe,
-						t_env **env, t_init *init);
+						t_env *env, t_init *init);
 int					is_builtin(char *cmd);
 int					create_path(t_command_block *tmp_blk, char *word);
 void				make_dup(t_command_block *cmd, int index, int count,
@@ -214,7 +214,7 @@ int					multi_exec(t_command_block *cmd, char **env,
 						t_executor *exe, t_init *init);
 int					change_to_env(t_lexer_list *temp, int i,
 						t_expander *expander, t_env *env_list);
-void				take_env(t_env **env_list, char **env);
+t_env				*take_env(char **env);
 int					is_first_pipe(t_joined_lexer_list *tmp, t_expander *expnd);
 int					just_operator(t_joined_lexer_list *tmp, t_expander *expnd);
 int					print_error_check(t_joined_lexer_list *tmp,
@@ -252,18 +252,18 @@ int					built_in(t_command_block *cmd, t_env **env,
 						t_init *init, char **envp);
 char				*format_export_line(t_env *node);
 char				*add_quotes(char *str);
-char				**env_list_to_envp(t_env **env_list);
+char				**env_list_to_envp(t_env *env_list);
 char				*ft_strncpy(char *dest, const char *src, size_t n);
 void				run_a_built(t_command_block *cmd, t_env **env,
 						t_init *init, char **envp);
-void				init_structs(t_init *init, t_env **env_list,
+void				init_structs(t_init *init, t_env *env_list,
 						t_lexer_list **lexer_list);
 void				free_all(t_init	*init);
 int					command_count(t_command_block *cmd, t_executor *exe);
 void				free_cmd_blk(t_command_block *cmd);
 void				fill_int_array(int *arr, int value, int count);
 char				*trim_whitespace(const char *input);
-void				sort_and_print(t_env **arr, int count);
+void				sort_and_print(t_env **arr, int count, int i);
 void				setter_signal(int sig);
 void				assign_fd(t_command_block **tmp_blk,
 						t_joined_lexer_list **tmp_list, t_mng_heredocs *mng);
@@ -303,5 +303,11 @@ int					question_mark(t_lexer_list *temp, int i,
 void				free_expander(t_expander *exp);
 void				free_joined_exec(t_joined_lexer_list **jll,
 						t_executor *exe);
+void				initalize_structs(t_init *init, t_env *env_list,
+						t_expander *exp);
+void				init_mng_heredocs(t_mng_heredocs *mng, t_env *env_list);
+void				init_expander(t_expander *exp);
+void				init_exe(t_executor *exe, t_expander *exp, t_env *envp);
+void				init3(t_init *init, t_mng_heredocs *mng);
 
 #endif

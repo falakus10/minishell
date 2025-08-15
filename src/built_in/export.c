@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:43 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:22:44 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 11:47:50 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ void	print_export(t_env *env)
 		arr[i++] = tmp;
 		tmp = tmp->next;
 	}
-	sort_and_print(arr, count);
+	i = -1;
+	sort_and_print(arr, count, i);
 	free(arr);
 }
 

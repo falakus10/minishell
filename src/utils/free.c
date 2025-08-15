@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:41:51 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 14:43:21 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 13:05:31 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,26 +49,20 @@ void	free_lexer(t_lexer_list **lex)
 	free(lex);
 }
 
-void	free_env(t_env **env_list)
+void	free_env(t_env *env_list)
 {
 	t_env	*tmp;
-	t_env	*cur;
 
-	if (!env_list || !*env_list)
-		return ;
-	cur = *env_list;
-	while (cur)
+	while (env_list)
 	{
-		tmp = cur->next;
-		if (cur->line)
-			free(cur->line);
-		if (cur->value)
-			free(cur->value);
-		free(cur);
-		cur = tmp;
+		tmp = env_list->next;
+		if (env_list->line)
+			free(env_list->line);
+		if (env_list->value)
+			free(env_list->value);
+		free(env_list);
+		env_list = tmp;
 	}
-	*env_list = NULL;
-	free(env_list);
 }
 
 void	free_all(t_init	*init)
@@ -83,7 +77,7 @@ void	free_all(t_init	*init)
 		free_mng(init->mng_hrdcs);
 	if (init->expnd && init->exit_flag)
 		free_expander(init->expnd);
-	if (init->env && *init->env && init->exit_flag)
+	if (init->env && init->exit_flag)
 		free_env(init->env);
 	free(init);
 	init = NULL;

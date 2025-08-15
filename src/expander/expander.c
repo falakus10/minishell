@@ -6,7 +6,7 @@
 /*   By: falakus <falakus@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:23:16 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/14 15:38:37 by falakus          ###   ########.fr       */
+/*   Updated: 2025/08/15 13:04:58 by falakus          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,8 +78,8 @@ int	exp_check(t_lexer_list **temp, t_expander *expander, t_env *env_list)
 	else if ((*temp)->token[expander->i] == '$')
 	{
 		expander->dollar_index = expander->i++;
-		if ((*temp)->token[expander->i] == '\0' || (*temp)->token[expander->i] == '\"'
-			|| (*temp)->token[expander->i] == ' ')
+		if ((*temp)->token[expander->i] == '\0' || (*temp)->token[expander->i]
+			== '\"' || (*temp)->token[expander->i] == ' ')
 			return (1);
 		if (special_character((*temp)->token, expander))
 			return (1);

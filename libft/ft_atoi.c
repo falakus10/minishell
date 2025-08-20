@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 18:09:39 by austunso          #+#    #+#             */
-/*   Updated: 2024/10/26 12:01:18 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/17 14:15:17 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,4 +35,4 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	return (result * sign);
-}
+} 

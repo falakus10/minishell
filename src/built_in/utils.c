@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:57 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/15 15:03:48 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/17 14:14:52 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,5 +92,5 @@ void	update_or_add_env(t_env *env, int index, char *str)
 		}
 		tmp = tmp->next;
 	}
-	fill_env(env, index, str);
+	fill_env(env, index, str); 
 }

@@ -6,7 +6,7 @@
 /*   By: austunso <austunso@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 14:22:37 by falakus           #+#    #+#             */
-/*   Updated: 2025/08/15 16:34:28 by austunso         ###   ########.fr       */
+/*   Updated: 2025/08/17 14:10:20 by austunso         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	is_number(char *str)
 		return (0);
 	while (*str)
 	{
-		if (!isdigit(*str))
+		if (!ft_isdigit(*str))
 			return (0);
 		str++;
 	}
